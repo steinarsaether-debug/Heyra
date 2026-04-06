@@ -6,6 +6,7 @@ heyra/
 │   ├── schema.prisma
 │   ├── .env.local
 │   ├── prisma.config.ts
+│   ├── POSTGIS-SETUP.md
 ├── src/
 │   ├── backend/
 │   │   └── vipps-client.ts
