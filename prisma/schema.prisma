@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Landowner {
+  id String @id @default(uuid())
+  name String
+  contactInfo String
+  propertyBoundary String @db(GEOMETRY)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model Booking {
+  id String @id @default(uuid())
+  hunterId String
+  landownerId String
+  startDate DateTime
+  endDate DateTime
+  status String @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  landowner Landowner @relation(name: "LandownerBookings", fields: [landownerId], references: [id])
+}
+
+model ComplianceAlert {
+  id String @id @default(uuid())
+  bookingId String
+  alertType String
+  message String
+  createdAt DateTime @default(now())
+  booking Booking @relation(name: "BookingAlerts", fields: [bookingId], references: [id])
+}
