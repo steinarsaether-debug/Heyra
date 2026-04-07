@@ -8,7 +8,12 @@ Project Heyra is a full-stack, AirBnB-style marketplace for hunting and fishing 
 
 The Norwegian market provides a concentrated and underserved launchpad: [SSB data for 2024–2025](https://www.ssb.no/en/jord-skog-jakt-og-fiskeri/jakt/statistikk/registrerte-jegere) records 550,846 registered hunters and 171,738 who paid the jegeravgift in the most recent hunting year, plus millions of freshwater fishing cards sold annually through platforms like [Inatur.no](https://www.inatur.no) — the primary incumbent. The global wildlife hunting tourism market is projected to grow from USD 666.9 million in 2025 to USD 2.6 billion by 2032 at a CAGR of 21.7% ([Coherent Market Insights](https://www.coherentmarketinsights.com/market-insight/wildlife-hunting-tourism-market-4922)), with Scandinavia representing a structurally underserved premium segment due to strong landowner property rights, high per-capita incomes, and deep outdoor cultural heritage.
 
-Heyra's phased expansion follows a natural path: Phase 1 (Norway, Years 1–2) establishes the legal template, brand, and technical foundation; Phase 2 (Nordic — Sweden, Denmark, Finland, Months 7–18) leverages the closely-aligned legal traditions and payment infrastructure; Phase 3 (Europe — Germany, Austria, Scotland, Spain, Year 2+) adapts the modular platform to continental hunting regulation frameworks. The core differentiator versus Inatur.no is not a feature list but an experience stack: Heyra treats each hunt as a curated, bookable experience with verified identities, embedded contracts, compliance automation, local service bundling, and two-way reputation, rather than a bare licence transaction.
+Heyra's phased expansion follows a natural path: Phase 1 (Norway, Years 1–2) establishes the legal template, brand, and technical foundation; Phase 2 (Nordic — Sweden, Denmark, Finland, Months 7–18) leverages the closely-aligned legal traditions and payment infrastructure; Phase 3 (Europe — Germany, Austria, Scotland, Spain, Year 2+) adapts the modular platform to continental hunting regulation frameworks. The core differentiator versus Inatur.no is not a feature list but an experience stack: Heyra treats each hunt or fishing day as a curated, bookable experience with verified identities, embedded contracts, compliance automation, local service bundling, and two-way reputation, rather than a bare licence transaction.
+
+Two planning adjustments are critical after early implementation work:
+
+1. **Local-first product workflow and provider hardening must be tracked separately.** Many platform slices can be built and validated end-to-end before Stripe, Vipps, Signicat, Resend, or Cloudflare R2 are connected. The roadmap below now treats those as distinct layers where relevant.
+2. **`Vald` governance and instant fishing are first-class product concepts.** Big-game supply often behaves as `Property + shared hunting-area governance`, while spur-of-the-moment fishing behaves more like a fast licence product than a traditional hunting booking flow.
 
 ---
 
@@ -79,6 +84,7 @@ The platform's Terms of Service must make this explicit, and legal counsel with 
 - **Jegeravgift verification**: [Brønnøysundregistrene](https://www.brreg.no/jegerregisteret/) (the Register of Hunters) records all jegeravgift payments. Landowners are legally responsible for confirming that every hunter on their land has paid. The platform facilitates this by prompting the hunter to self-attest and provide their hunter number, and by deep-linking to [brreg.no's foreign hunter lookup](https://www.brreg.no/jegerregisteret/foreign-hunters/) for international guests.
 - **Damage liability**: Landowners assume general property liability for lawful guests. Platform insurance partnership (see Insurance section) provides a backstop analogous to AirCover.
 - **Quota compliance**: For species with municipal quotas (moose, red deer), the landowner's vald-level quota allocation must be visible on the listing to prevent over-booking beyond legal limits.
+- **Shared-governance reality**: In many areas the practical decision-maker is not the individual parcel owner but the `valdansvarlig` representative or a larger hunting-area structure. Product workflows for big game must therefore support co-approval, quota notes, and clear communication of who can actually confirm access.
 
 ### Fishing Rights (Norway)
 
@@ -353,6 +359,8 @@ The second marketplace layer transforms Heyra from a land-access platform into a
 **Revenue share**: The platform takes a commission on all service bookings (8–10%, see Monetisation section). Service providers are onboarded with Stripe Connect Standard accounts.
 
 **Geo-proximity requirement**: Service providers must declare their operating radius and primary region. The "Nearby Services" widget on a listing page surfaces providers within a configurable radius (default 50 km) of the property centre.
+
+**Hunter practical knowledge layer**: Hunters should be able to share practical experiences tied to a hunting area or booking, including terrain tips, local logistics, nearby butchers and dog handlers, cabin recommendations, access-road conditions, mobile coverage, and other "good to know before you go" context. This is not a public review of private landowners alone; it is a structured peer-to-peer knowledge layer for other hunters planning a similar trip.
 
 ### Notification & Communication Architecture
 
@@ -730,15 +738,19 @@ The GDPR architecture follows Privacy by Design principles — the schema above 
 
 **Goal**: Core infrastructure, authentication, basic land listing, CI/CD pipeline.
 
+**Execution note**: Phase 0 work is split between:
+- **Local-first workflow completion**: real user flows running end to end in development without waiting for external providers
+- **Provider hardening**: Stripe, Vipps, Signicat, Resend, Cloudflare R2, and similar integrations added once credentials, contracts, and compliance review are ready
+
 #### Sprint 0.1 (Weeks 1–2): Project Setup & Infrastructure
 
 - `npx create-next-app@latest heyra --typescript --tailwind --eslint --app` — strict TypeScript config
 - PostgreSQL + PostGIS setup: local Docker Compose for dev, Neon.tech for staging/production
 - Prisma schema initialisation — User, Property, Listing, Booking (skeleton)
-- NextAuth.js v5 setup with email/password Credentials provider
-- shadcn/ui installation and design system configuration:
+- Credentials-based auth foundation
+- Optional design system upgrade:
   - **Brand palette**: Deep forest green (`#1B4332`), amber (`#D97706`), stone (`#78716C`), off-white (`#FAFAF9`)
-  - Component library: Button, Card, Input, Select, Dialog, Calendar, Badge, Avatar
+  - Component library candidate: Button, Card, Input, Select, Dialog, Calendar, Badge, Avatar
 - Vercel project setup + GitHub Actions CI pipeline (lint, typecheck, test, deploy preview)
 - Base GDPR flows: cookie consent banner (uses Zustand + localStorage), Privacy Policy page, Terms of Service page, ConsentRecord DB writes
 - Environment variable management: `.env.local` template, Vercel environment secrets
@@ -747,12 +759,12 @@ The GDPR architecture follows Privacy by Design principles — the schema above 
 
 #### Sprint 0.2 (Weeks 3–4): User & Identity
 
-- Full auth flows: register, login, forgot password, email verification (Resend transactional email)
-- Vipps Login integration via NextAuth custom OIDC provider — test credentials from [Vipps MobilePay Developer Portal](https://developer.vippsmobilepay.com)
+- Local-first auth flows: register, login, forgot password, email verification
+- Provider hardening: Vipps Login integration via custom OIDC provider — test credentials from [Vipps MobilePay Developer Portal](https://developer.vippsmobilepay.com)
 - User profile pages (landowner and hunter views)
 - Role-based access control (RBAC) middleware — Next.js middleware.ts pattern
-- BankID integration via Signicat OIDC — identity verification tier (distinct from basic Vipps Login)
-- Document upload: React Dropzone → signed upload URL → Cloudflare R2 → reference stored in UserPii
+- Provider hardening: BankID integration via Signicat OIDC — identity verification tier (distinct from basic Vipps Login)
+- Local-first document flow, later upgraded to signed upload URL → Cloudflare R2 → reference stored in UserPii
 - Hunting licence number field with brreg.no lookup stub
 
 #### Sprint 0.3 (Weeks 5–6): Land Listing Core
@@ -760,22 +772,24 @@ The GDPR architecture follows Privacy by Design principles — the schema above 
 - Property creation form (multi-step wizard with React Hook Form + Zod)
 - **Kartverket map integration**: Leaflet.js with Norgeskart WMS tile layer (`https://opencache.statkart.no/gatekeeper/gk/gk.open_wmts`) + Leaflet.draw for polygon boundary drawing
 - PostGIS storage of drawn property polygon
+- `Vald` context capture for shared big-game areas, representative details, and co-approval expectations
 - Automated CWD zone check: `ST_Intersects(property.boundary, cwd_zones.geometry)` on save
-- Photo upload pipeline: React Dropzone → Cloudflare R2 → CDN URL array stored on Listing
+- Local-first photo upload pipeline, later upgraded to Cloudflare R2 + CDN URL array on Listing
 - Listing publish/unpublish flow with admin review queue
 - Basic text + species filter search (full geospatial search in Sprint 1.1)
 
 ---
 
-### Phase 1A — Booking & Payments (Weeks 7–12)
+### Phase 1A — Booking, Discovery & Payments (Weeks 7–12)
 
-**Goal**: Full end-to-end booking flow with legally compliant contracts and payments.
+**Goal**: Full end-to-end booking flow with legally compliant contracts, strong public discovery, and Norway-ready fishing licence workflows.
 
 #### Sprint 1.1 (Weeks 7–8): Geospatial Search & Discovery
 
 - **Map-based search**: Mapbox GL JS (provides superior clustering and tile performance vs Leaflet for the scale needed)
 - PostGIS bounding box query: `ST_Within(property.centerPoint, ST_MakeEnvelope($swLng, $swLat, $neLng, $neLat, 4326))`
 - Advanced filter implementation: date range → availability calendar join, species array overlap, price range
+- **Spur-of-the-moment fishing discovery**: mobile-first "find nearby fishing" flow using current location, with immediate visibility into whether the user is standing inside or near a sellable fishing beat / river stretch
 - Listing detail page with full photo gallery (next/image with blur placeholder), terrain map, availability calendar component
 - "Nearby Services" section: `ST_DWithin(service.centerPoint, listing.centerPoint, $radiusMetres)` via PostGIS
 - ISR (Incremental Static Regeneration) for listing pages: `revalidate: 3600`
@@ -784,8 +798,10 @@ The GDPR architecture follows Privacy by Design principles — the schema above 
 #### Sprint 1.2 (Weeks 9–10): Booking Flow & Contract
 
 - Booking request system (hunter request → landowner notification → approve/decline)
+- **Fishing licence lane**: instant-purchase path for day cards / short fishing access, with less friction than the hunting approval flow and a dedicated proof-of-licence / field-use screen
+- Fishing rules presentation: species restrictions, gear rules, bag limits, fisketrygdavgift requirement where applicable, and clear display of the exact valid area before checkout
 - **Jaktavtale PDF generation**: `@react-pdf/renderer` template matching Norwegian legal standard
-- BankID e-signature flow via Signicat:
+- Provider hardening: BankID e-signature flow via Signicat:
   ```typescript
   // Signicat Document Signing API integration
   const signResponse = await signicat.createSigningOrder({
@@ -799,14 +815,15 @@ The GDPR architecture follows Privacy by Design principles — the schema above 
   });
   ```
 - Jegeravgift verification: hunter self-attest checkbox + link to [brreg.no jegerregisteret](https://www.brreg.no/jegerregisteret/)
-- Booking confirmation email (Resend + React Email template)
+- Local-first notification and contract flow, later hardened with booking confirmation email (Resend + React Email template)
 - iCal export endpoint for landowners (`/api/listings/[id]/calendar.ics`)
 
 #### Sprint 1.3 (Weeks 11–12): Payments
 
-- Stripe Connect Custom account onboarding for landowners (KYC, bank account, identity)
-- Vipps Checkout integration for hunters (primary Norwegian payment method)
-- Stripe Payment Intent with `capture_method: 'manual'` for escrow hold
+- Local-first payment, payout, refund, and invoice state machine so commerce can be tested end to end without providers
+- Provider hardening: Stripe Connect Custom account onboarding for landowners (KYC, bank account, identity)
+- Provider hardening: Vipps Checkout integration for hunters (primary Norwegian payment method)
+- Provider hardening: Stripe Payment Intent with `capture_method: 'manual'` for escrow hold
 - BullMQ job: capture payment on check-in date (`capture` PaymentIntent)
 - Commission deduction logic in webhook handler (`payment_intent.payment_failed`, `payment_intent.succeeded`)
 - Payout dashboard: landowner sees pending/completed payouts, commission breakdown
@@ -817,7 +834,7 @@ The GDPR architecture follows Privacy by Design principles — the schema above 
 
 ### Phase 1B — Compliance & Community (Weeks 13–18)
 
-**Goal**: Wildlife reporting module, community services marketplace, two-way reviews.
+**Goal**: Wildlife compliance first, then community services marketplace, then trust and reviews.
 
 #### Sprint 1.4 (Weeks 13–14): Wildlife Reporting & CWD
 
@@ -827,9 +844,12 @@ The GDPR architecture follows Privacy by Design principles — the schema above 
 - CWD zone GeoJSON import: fetch from Miljødirektoratet API (`https://api.miljodirektoratet.no`) → store as PostGIS MultiPolygon → nightly refresh job
 - CWD alert system: on booking confirmation, check `isInCwdZone` on Property → trigger compliance task in `ComplianceTask` table
 - "Sett og skutt" daily reminder: BullMQ cron scoped to active moose season bookings
+- Vet and contact directory for active CWD zones
+- Salmon reporting prompt flow for registered salmon beats / camps
 
 #### Sprint 1.5 (Weeks 15–16): Community Services Marketplace
 
+- **Phase 2 gate note**: This service layer should be live in Norway before Nordic expansion begins.
 - ServiceListing content type — full CRUD with admin review queue
 - Brønnøysund organisation number verification: `https://data.brreg.no/enhetsregisteret/api/enheter/{orgNr}` (public JSON API)
 - Service provider onboarding: org.nr lookup → auto-fill business name, address, registration status
@@ -841,6 +861,10 @@ The GDPR architecture follows Privacy by Design principles — the schema above 
 #### Sprint 1.6 (Weeks 17–18): Trust & Reviews
 
 - Two-way review system: both parties can submit after booking completes (48h window)
+- Hunter practical experience posts: optional booking-linked writeups focused on terrain quality, access logistics, local services, and trip preparation
+- Structured hunter tips taxonomy: "Area quality", "Access & parking", "Accommodation", "Butchering", "Dog handler", "Road conditions", "Mobile coverage", "Safety & local advice"
+- Visibility rules for hunter-shared experiences: show only after completed bookings, redact sensitive landowner/private-location details, admin moderation for abuse or oversharing
+- Listing/community surface for "What other hunters found useful here" with service cross-links to nearby providers
 - Review moderation: admin queue for flagged reviews (spam/abuse detection)
 - Aggregate rating calculation on Listing and User profiles
 - Dispute resolution flow: in-app dispute ticket → admin notification → mediation → resolution
@@ -857,10 +881,12 @@ The GDPR architecture follows Privacy by Design principles — the schema above 
 
 - Progressive Web App manifest (`manifest.json`), service worker (Workbox via `next-pwa`)
 - Offline capability: cache listing pages, active booking details, harvest report drafts
-- Web Push notifications implementation (VAPID keys, subscription management)
+- Local push scaffolding and user preferences, later hardened with Web Push subscriptions (VAPID keys, subscription management)
 - "Jaktlogg" — offline-capable hunt day logger with GPS via browser Geolocation API
+- Fishing-area geofencing: optional live location warning when the fisher moves outside the purchased river stretch / designated area
+- Mobile fishing journey: "I found a river" map-first flow with current position, instant licence purchase, rule summary, and proof-of-licence screen
 - Camera integration: `<input type="file" accept="image/*" capture="environment">` for harvest photo
-- Mobile-optimised booking flow (bottom sheet UI pattern via shadcn/ui `Drawer`)
+- Mobile-optimised booking flow with a low-friction action tray or bottom-sheet pattern
 
 #### Sprint 1.8 (Weeks 21–22): Performance & SEO
 
@@ -870,6 +896,10 @@ The GDPR architecture follows Privacy by Design principles — the schema above 
 - Core Web Vitals target: LCP < 2.5s, CLS < 0.1, INP < 200ms
 - Schema.org structured data: `Product` for listings, `LocalBusiness` for service providers
 - Norwegian sitemap: pre-generated listing URLs for all published listings, daily regeneration
+- Bokmål-first language and SEO execution for Phase 1
+- Social share surfaces for hunters and fishers: one-tap share cards after completed trips / licence use with listing title, municipality, practical highlights, and link back to the public listing
+- Landowner marketing toolkit: shareable public listing cards, clean preview images for social posts, and ready-made caption snippets landowners can post from their personal Facebook / Instagram accounts
+- Trackable campaign/share links so landowners can see whether visits or bookings came from their own social promotion
 - Target keyword clusters: *"leie jaktterreng"*, *"elgjakt privat grunn"*, *"fiskekort laks"*, *"jaktveileder Innlandet"*
 
 #### Sprint 1.9 (Weeks 23–24): Beta Launch
@@ -879,7 +909,21 @@ The GDPR architecture follows Privacy by Design principles — the schema above 
 - OWASP Top 10 review: SQL injection (Prisma parameterised queries), XSS (Next.js escaping), CSRF (Next.js built-in), auth bypass testing
 - GDPR audit with DPO review of data flows, consent capture, and joint controller agreements
 - **Beta landowner recruitment**: Target 20–30 landowners in Innlandet (Hedmark/Oppland), Trøndelag, and Troms — regions with highest hunting activity per [SSB data](https://www.ssb.no/en/jord-skog-jakt-og-fiskeri/jakt/statistikk/registrerte-jegere). Approach via NJFF (Norges Jeger- og Fiskerforbund) local chapters.
+- Landowner launch playbook: onboarding emails plus a simple "share your listing" checklist showing how to publish to personal social channels without needing design tools
+- User-generated social proof rollout: permission-based reuse of selected hunter practical experience posts and review excerpts in marketplace marketing surfaces
 - Press kit, landing page, and media outreach to Norwegian outdoor press (Jeger & Fisker magazine, friluftsliv.no)
+
+---
+
+### Norway Readiness Gate Before Phase 2
+
+Before Nordic expansion begins, the Norway product should have:
+
+- Stable local-first booking, trust, and instant-fishing flows
+- Wildlife compliance automation live enough to cover CWD, reminders, and reporting prompts
+- Service marketplace live in Norway
+- Clear provider-hardening plan for payments, identity, signatures, email, storage, and push
+- Bokmål-first public discovery and launch surfaces working reliably
 
 ---
 
@@ -896,7 +940,7 @@ The GDPR architecture follows Privacy by Design principles — the schema above 
 | Finland | [Hunting Act (615/1993)](https://www.finlex.fi/en/laki/kaannokset/1993/en19930615) | Hunter must be member of hunting club and pass hunter's exam; hunting rights via landowner permission or state land access | Finnish Trust Network eID |
 
 **Technical additions**:
-- `next-intl` locale files: `sv`, `da`, `fi` added to existing `nb`, `nn`, `en`
+- `next-intl` locale files: `sv`, `da`, `fi` added after the Bokmål-first Norway product is stable; `nn` and `en` can be introduced as separate hardening layers rather than Phase 1 launch blockers
 - Currency: NOK, SEK, DKK — Stripe handles all natively
 - Swish integration (Sweden): [Swish Merchant API](https://developer.swish.nu)
 - Swedish property registry (Lantmäteriet) API for cadastral lookup

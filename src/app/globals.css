@@ -1,0 +1,150 @@
+@import "leaflet/dist/leaflet.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f6f1e7;
+  --background-soft: #efe8db;
+  --foreground: #102a21;
+  --foreground-strong: #0b1d18;
+  --muted: #5d625b;
+  --forest: #15352b;
+  --forest-soft: #245040;
+  --forest-elevated: #2d6351;
+  --orange: #f56a14;
+  --orange-soft: #f78f53;
+  --amber: #f56a14;
+  --sage: #a9c3a2;
+  --card: rgba(255, 252, 246, 0.84);
+  --card-strong: rgba(255, 251, 244, 0.96);
+  --border: rgba(16, 42, 33, 0.12);
+  --hero-overlay: linear-gradient(135deg, rgba(246, 241, 231, 0.88), rgba(246, 241, 231, 0.74));
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background:
+    radial-gradient(circle at top left, rgba(245, 106, 20, 0.14), transparent 24%),
+    radial-gradient(circle at top right, rgba(169, 195, 162, 0.12), transparent 26%),
+    linear-gradient(180deg, #f7f2e8 0%, #f2ede2 52%, #efe9dc 100%);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--foreground);
+  background: transparent;
+  font-family: var(--font-heyra-serif), Georgia, "Times New Roman", serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: rgba(245, 106, 20, 0.35);
+}
+
+.heyra-shell {
+  background:
+    linear-gradient(180deg, rgba(255, 252, 246, 0.96), rgba(248, 243, 235, 0.98)),
+    radial-gradient(circle at top right, rgba(245, 106, 20, 0.06), transparent 28%);
+}
+
+.heyra-hero {
+  background:
+    var(--hero-overlay),
+    linear-gradient(180deg, rgba(246, 241, 231, 0.2), rgba(246, 241, 231, 0.8)),
+    url("https://images.unsplash.com/photo-1516939884455-1445c8652f83?auto=format&fit=crop&w=1600&q=80")
+      center/cover;
+}
+
+.heyra-pill {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.74);
+  color: var(--foreground);
+  backdrop-filter: blur(10px);
+}
+
+.heyra-accent-button {
+  background: var(--orange);
+  color: #160b05;
+  box-shadow: 0 14px 36px rgba(245, 106, 20, 0.22);
+}
+
+.heyra-secondary-button {
+  border: 1px solid rgba(16, 42, 33, 0.12);
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--foreground);
+}
+
+.heyra-map {
+  height: 360px;
+  width: 100%;
+}
+
+.heyra-boundary-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heyra-boundary-marker span {
+  display: inline-flex;
+  height: 28px;
+  width: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--forest-elevated);
+  color: var(--foreground);
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(16, 42, 33, 0.25);
+}
+
+.heyra-search-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heyra-search-marker span {
+  display: inline-flex;
+  height: 32px;
+  width: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--orange);
+  color: #160b05;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(16, 42, 33, 0.22);
+}
+
+@media (max-width: 768px) {
+  .heyra-map {
+    height: 280px;
+  }
+}
+
+.heyra-mobile-tray {
+  position: fixed;
+  inset-inline: 0.75rem;
+  bottom: 5.5rem;
+  z-index: 35;
+}
+
+.heyra-mobile-tray > div + div {
+  transform-origin: bottom center;
+}

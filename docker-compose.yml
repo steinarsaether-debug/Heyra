@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: heyra-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: heyra
+      POSTGRES_USER: heyra
+      POSTGRES_PASSWORD: localdev
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./prisma/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U heyra -d heyra"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:

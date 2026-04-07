@@ -1,0 +1,20 @@
+.next
+.next-dev
+node_modules
+coverage
+dist
+.DS_Store
+*.log
+*.tsbuildinfo
+.heyra-dev.pid
+backups/
+.env
+.env.local
+.env.*.local
+prisma/.env
+
+# Prisma local development env
+!prisma/.env.local
+
+# Local uploaded assets for development
+public/uploads

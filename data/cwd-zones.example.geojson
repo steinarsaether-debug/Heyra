@@ -1,0 +1,30 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "example-nordfjella",
+      "properties": {
+        "name": "Example Nordfjella monitoring zone",
+        "description": "Example polygon for local development and import verification.",
+        "contactName": "Mattilsynet vakttelefon",
+        "contactPhone": "+47 22 40 00 00",
+        "contactEmail": "postmottak@mattilsynet.no",
+        "contactWebsite": "https://www.mattilsynet.no/",
+        "samplingInstructions": "Use labelled sample bags and report the animal ID before you leave the area."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [8.0500, 60.4500],
+            [8.2500, 60.4500],
+            [8.2500, 60.6200],
+            [8.0500, 60.6200],
+            [8.0500, 60.4500]
+          ]
+        ]
+      }
+    }
+  ]
+}

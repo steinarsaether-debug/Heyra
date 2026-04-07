@@ -7,32 +7,750 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Landowner {
-  id String @id @default(uuid())
-  name String
-  contactInfo String
-  propertyBoundary String @db(GEOMETRY)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+enum UserRole {
+  LANDOWNER
+  HUNTER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  PENDING_REVIEW
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum ConsentType {
+  TERMS_OF_SERVICE
+  PRIVACY_POLICY
+  MARKETING
+  JOINT_CONTROLLER_DPA
+}
+
+enum PropertyStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  SUSPENDED
+}
+
+enum TerrainType {
+  FOREST
+  MOUNTAIN
+  FJORD
+  WETLAND
+  FARMLAND
+  COASTAL
+}
+
+enum ListingType {
+  HUNTING
+  FISHING
+}
+
+enum PricingModel {
+  PER_DAY
+  PER_SEASON
+  PER_ANIMAL
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ServiceCategory {
+  DOG_HANDLER
+  BUTCHER
+  ACCOMMODATION
+  TRANSPORT
+}
+
+enum ServiceListingStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ServiceProviderReviewStatus {
+  PENDING
+  APPROVED
+  FLAGGED
+}
+
+enum ListingGovernanceModel {
+  INDIVIDUAL_PROPERTY
+  VALD_MANAGED
+}
+
+enum ConfidenceLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ValdVerificationMethod {
+  SELF_DECLARED
+  MUNICIPAL_REFERENCE
+  MANUAL_REVIEW
+  EXTERNAL_REGISTRY
+}
+
+enum SharedApprovalStatus {
+  NOT_REQUESTED
+  PENDING
+  CONFIRMED
+}
+
+enum BookingStatus {
+  REQUESTED
+  APPROVED
+  SHARED_CONFIRMATION_PENDING
+  DECLINED
+  CONTRACT_PENDING
+  CONFIRMED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  DISPUTED
+}
+
+enum BookingFlowType {
+  REQUEST
+  INSTANT_FISHING
+}
+
+enum ContractStatus {
+  DRAFT
+  PENDING_SIGNATURE
+  PARTIALLY_SIGNED
+  SIGNED
+  VOID
+}
+
+enum PaymentProvider {
+  STRIPE_SIMULATED
+  VIPPS_SIMULATED
+  MANUAL
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  CAPTURED
+  PARTIALLY_REFUNDED
+  REFUNDED
+  FAILED
+  CANCELLED
+}
+
+enum CancellationPolicy {
+  FLEXIBLE
+  MODERATE
+  STRICT
+}
+
+enum NotificationChannel {
+  EMAIL
+  INTERNAL
+  PUSH
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum ExperienceModerationStatus {
+  PENDING
+  APPROVED
+  FLAGGED
+  REJECTED
+}
+
+enum ReviewModerationStatus {
+  PENDING
+  APPROVED
+  FLAGGED
+  REJECTED
+}
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  CLOSED
+}
+
+enum ComplianceTaskType {
+  CWD_GUIDANCE
+  FISHING_FEE_CONFIRMATION
+  HJORTEVILT_REPORTING
+  SALMON_REPORTING
+  VALD_QUOTA_REVIEW
+}
+
+enum ComplianceTaskStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  DISMISSED
+}
+
+enum Species {
+  ELG
+  HJORT
+  RADYR
+  VILLREIN
+  REV
+  RYPE
+  HARE
+  AND
+  LAKS
+  SJOOERRET
+  ROYE
+  OERRET
+  ABBOR
+  GJEDDE
+}
+
+model User {
+  id                      String                   @id @default(cuid())
+  role                    UserRole
+  status                  UserStatus               @default(ACTIVE)
+  statusReason            String?                  @db.Text
+  suspendedAt             DateTime?
+  deactivatedAt           DateTime?
+  email                   String                   @unique
+  passwordHash            String?
+  emailVerified           DateTime?
+  pii                     UserPii?
+  valds                   Vald[]
+  properties              Property[]
+  bookings                Booking[]                @relation("HunterBookings")
+  hunterExperiences       HunterExperience[]
+  writtenReviews          Review[]                 @relation("ReviewAuthor")
+  receivedReviews         Review[]                 @relation("ReviewSubject")
+  openedDisputes          DisputeTicket[]          @relation("DisputeOpenedBy")
+  assignedDisputes        DisputeTicket[]          @relation("DisputeAssignedTo")
+  adminNotes              AdminUserNote[]          @relation("AdminNoteTarget")
+  authouredAdminNotes     AdminUserNote[]          @relation("AdminNoteAuthor")
+  auditLogsAsActor        AdminAuditLog[]          @relation("AdminAuditActor")
+  auditLogsAsTarget       AdminAuditLog[]          @relation("AdminAuditTarget")
+  notifications           NotificationOutbox[]
+  notificationPreference  NotificationPreference?
+  consentRecords          ConsentRecord[]
+  complianceTasks         ComplianceTask[]
+  serviceProviderProfile  ServiceProviderProfile?
+  emailVerificationTokens EmailVerificationToken[]
+  passwordResetTokens     PasswordResetToken[]
+  stripeConnectAccountId  String?
+  vippsSubject            String?                  @unique
+  bankIdSubject           String?                  @unique
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+
+  @@index([role, status])
+}
+
+model UserPii {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName        String   @db.Text
+  nationalId      String?  @db.Text
+  address         String?  @db.Text
+  phone           String?  @db.Text
+  emergencyName   String?  @db.Text
+  emergencyPhone  String?  @db.Text
+  hunterNumber    String?
+  shootingCertRef String?
+  bankIdVerified  Boolean  @default(false)
+  vippsVerified   Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ConsentRecord {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      ConsentType
+  version   String
+  grantedAt DateTime    @default(now())
+  revokedAt DateTime?
+  ipAddress String
+
+  @@index([userId, type])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, expiresAt])
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, expiresAt])
+}
+
+model Property {
+  id             String                                  @id @default(cuid())
+  ownerId        String
+  owner          User                                    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  valdId         String?
+  vald           Vald?                                   @relation(fields: [valdId], references: [id], onDelete: SetNull)
+  cadastralRef   String
+  municipality   String
+  county         String
+  areaHectares   Float
+  boundary       Unsupported("geometry(Polygon, 4326)")?
+  centerPoint    Unsupported("geometry(Point, 4326)")?
+  geometryConfidence ConfidenceLevel                     @default(LOW)
+  rightsConfidence   ConfidenceLevel                     @default(LOW)
+  governanceConfidence ConfidenceLevel                  @default(LOW)
+  boundaryIsApproximate Boolean                         @default(false)
+  rightsDifferFromBoundary Boolean                      @default(false)
+  terrainTypes   TerrainType[]
+  infrastructure Json
+  isInCwdZone    Boolean                                 @default(false)
+  cwdZoneId      String?
+  cwdZone        CwdZone?                                @relation(fields: [cwdZoneId], references: [id], onDelete: SetNull)
+  status         PropertyStatus                          @default(DRAFT)
+  listings       Listing[]
+  createdAt      DateTime                                @default(now())
+  updatedAt      DateTime                                @updatedAt
+
+  @@index([ownerId, status])
+  @@index([valdId])
+}
+
+model Vald {
+  id                  String     @id @default(cuid())
+  ownerId             String
+  owner               User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name                String
+  municipality        String
+  county              String
+  representativeName  String
+  representativePhone String?
+  representativeEmail String?
+  localReference      String?
+  authorityContactName String?
+  authorityContactPhone String?
+  authorityContactEmail String?
+  bestandsplanName    String?
+  coApprovalRequired  Boolean    @default(true)
+  verificationMethod  ValdVerificationMethod @default(SELF_DECLARED)
+  dataConfidence      ConfidenceLevel        @default(LOW)
+  representativeConfirmationStatus SharedApprovalStatus @default(NOT_REQUESTED)
+  representativeConfirmedAt DateTime?
+  representativeConfirmationNotes String?    @db.Text
+  lastVerifiedAt      DateTime?
+  notes               String?    @db.Text
+  properties          Property[]
+  listings            Listing[]
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  @@index([ownerId, county])
+}
+
+model CwdZone {
+  id                   String                                      @id @default(cuid())
+  externalId           String                                      @unique
+  name                 String
+  description          String?
+  source               String                                      @default("Miljodirektoratet")
+  contactName          String?
+  contactPhone         String?
+  contactEmail         String?
+  contactWebsite       String?
+  samplingInstructions String?                                     @db.Text
+  metadata             Json?
+  geometry             Unsupported("geometry(MultiPolygon, 4326)")
+  properties           Property[]
+  complianceTasks ComplianceTask[]
+  createdAt            DateTime                                    @default(now())
+  updatedAt            DateTime                                    @updatedAt
+}
+
+model Listing {
+  id                   String                 @id @default(cuid())
+  propertyId           String
+  property             Property               @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  valdId               String?
+  vald                 Vald?                  @relation(fields: [valdId], references: [id], onDelete: SetNull)
+  slug                 String                 @unique
+  type                 ListingType
+  governanceModel      ListingGovernanceModel @default(INDIVIDUAL_PROPERTY)
+  geometryConfidence   ConfidenceLevel        @default(LOW)
+  rightsConfidence     ConfidenceLevel        @default(LOW)
+  governanceConfidence ConfidenceLevel        @default(LOW)
+  boundaryIsApproximate Boolean               @default(false)
+  rightsDifferFromBoundary Boolean            @default(false)
+  representativeConfirmationStatus SharedApprovalStatus @default(NOT_REQUESTED)
+  coApprovalRequired   Boolean                @default(false)
+  governanceNotes      String?                @db.Text
+  governanceEvidenceNotes String?             @db.Text
+  municipalityProcessNotes String?            @db.Text
+  title                String
+  description          String                 @db.Text
+  species              Species[]
+  quota                Json?
+  rules                Json?
+  reviewerNotes        String?                @db.Text
+  reviewedAt           DateTime?
+  pricingModel         PricingModel
+  priceNok             Float
+  maxGroupSize         Int
+  minNights            Int?
+  instantBookEnabled   Boolean                @default(false)
+  cancellationPolicy   CancellationPolicy     @default(MODERATE)
+  availabilityCalendar Json
+  photos               String[]
+  status               ListingStatus          @default(DRAFT)
+  bookings             Booking[]
+  hunterExperiences    HunterExperience[]
+  reviews              Review[]
+  complianceTasks      ComplianceTask[]
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  @@index([propertyId, status])
+  @@index([valdId, status])
+}
+
+model ServiceProviderProfile {
+  id                  String           @id @default(cuid())
+  userId              String           @unique
+  user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewStatus        ServiceProviderReviewStatus @default(PENDING)
+  businessName        String
+  publicContactName   String?
+  phone               String?
+  email               String?
+  website             String?
+  municipality        String
+  county              String
+  latitude            Float?
+  longitude           Float?
+  yearsExperience     Int?
+  qualifications      Json?
+  description         String           @db.Text
+  moderationNotes     String?          @db.Text
+  reviewedAt          DateTime?
+  verifiedAt          DateTime?
+  services            ServiceListing[]
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  @@index([reviewStatus, county])
+  @@index([county, municipality])
+}
+
+model ServiceListing {
+  id                String               @id @default(cuid())
+  providerProfileId String
+  providerProfile   ServiceProviderProfile @relation(fields: [providerProfileId], references: [id], onDelete: Cascade)
+  slug              String               @unique
+  category          ServiceCategory
+  title             String
+  description       String               @db.Text
+  municipality      String
+  county            String
+  latitude          Float?
+  longitude         Float?
+  priceFromNok      Float?
+  qualifications    Json?
+  reviewerNotes     String?              @db.Text
+  reviewedAt        DateTime?
+  publishedAt       DateTime?
+  status            ServiceListingStatus @default(DRAFT)
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  @@index([providerProfileId, status])
+  @@index([category, status, county])
+}
+
+model AdminUserNote {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation("AdminNoteTarget", fields: [userId], references: [id], onDelete: Cascade)
+  adminUserId  String
+  adminUser    User     @relation("AdminNoteAuthor", fields: [adminUserId], references: [id], onDelete: Cascade)
+  body         String   @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([adminUserId, createdAt])
+}
+
+model AdminAuditLog {
+  id            String   @id @default(cuid())
+  actorUserId   String
+  actorUser     User     @relation("AdminAuditActor", fields: [actorUserId], references: [id], onDelete: Cascade)
+  targetUserId  String?
+  targetUser    User?    @relation("AdminAuditTarget", fields: [targetUserId], references: [id], onDelete: SetNull)
+  action        String
+  summary       String
+  payload       Json?
+  createdAt     DateTime @default(now())
+
+  @@index([actorUserId, createdAt])
+  @@index([targetUserId, createdAt])
+  @@index([action, createdAt])
 }
 
 model Booking {
-  id String @id @default(uuid())
-  hunterId String
-  landownerId String
-  startDate DateTime
-  endDate DateTime
-  status String @default("pending")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  landowner Landowner @relation(name: "LandownerBookings", fields: [landownerId], references: [id])
+  id                    String               @id @default(cuid())
+  listingId             String
+  listing               Listing              @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  hunterId              String
+  hunter                User                 @relation("HunterBookings", fields: [hunterId], references: [id], onDelete: Cascade)
+  startDate             DateTime
+  endDate               DateTime
+  flowType              BookingFlowType      @default(REQUEST)
+  requestMessage        String?              @db.Text
+  landownerResponse     String?              @db.Text
+  hunterAttestations    Json?
+  status                BookingStatus        @default(REQUESTED)
+  stripePaymentIntentId String?
+  totalNok              Float
+  platformFeeNok        Float                @default(0)
+  payoutNok             Float                @default(0)
+  contract              Contract?
+  payment               PaymentRecord?
+  invoice               Invoice?
+  hunterExperience      HunterExperience?
+  reviews               Review[]
+  disputes              DisputeTicket[]
+  notifications         NotificationOutbox[]
+  complianceTasks       ComplianceTask[]
+  requestedAt           DateTime             @default(now())
+  respondedAt           DateTime?
+  confirmedAt           DateTime?
+  cancelledAt           DateTime?
+  completedAt           DateTime?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  @@index([listingId, status])
+  @@index([hunterId, status])
 }
 
-model ComplianceAlert {
-  id String @id @default(uuid())
-  bookingId String
-  alertType String
-  message String
-  createdAt DateTime @default(now())
-  booking Booking @relation(name: "BookingAlerts", fields: [bookingId], references: [id])
+model Contract {
+  id                String         @id @default(cuid())
+  bookingId         String         @unique
+  booking           Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  documentNumber    String         @unique
+  contentHtml       String         @db.Text
+  termsVersion      String
+  status            ContractStatus @default(DRAFT)
+  generatedAt       DateTime       @default(now())
+  hunterSignedAt    DateTime?
+  landownerSignedAt DateTime?
+  lastSentAt        DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+}
+
+model PaymentRecord {
+  id                String          @id @default(cuid())
+  bookingId         String          @unique
+  booking           Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  provider          PaymentProvider
+  status            PaymentStatus   @default(PENDING)
+  providerReference String?
+  amountNok         Float
+  authorizedNok     Float           @default(0)
+  capturedNok       Float           @default(0)
+  refundedNok       Float           @default(0)
+  platformFeeNok    Float           @default(0)
+  payoutNok         Float           @default(0)
+  payoutAvailableAt DateTime?
+  payoutReleasedAt  DateTime?
+  authorizedAt      DateTime?
+  capturedAt        DateTime?
+  lastError         String?         @db.Text
+  metadata          Json?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([status, payoutAvailableAt])
+}
+
+model Invoice {
+  id            String   @id @default(cuid())
+  bookingId     String   @unique
+  booking       Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  invoiceNumber String   @unique
+  subtotalNok   Float
+  vatRate       Float    @default(0.25)
+  vatNok        Float
+  totalNok      Float
+  contentHtml   String   @db.Text
+  issuedAt      DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model NotificationOutbox {
+  id           String              @id @default(cuid())
+  userId       String?
+  user         User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+  bookingId    String?
+  booking      Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  channel      NotificationChannel
+  template     String
+  subject      String
+  body         String              @db.Text
+  status       NotificationStatus  @default(PENDING)
+  scheduledFor DateTime            @default(now())
+  sentAt       DateTime?
+  errorMessage String?             @db.Text
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@index([userId, status, scheduledFor])
+  @@index([bookingId, status])
+}
+
+model NotificationPreference {
+  id                  String    @id @default(cuid())
+  userId              String    @unique
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookingUpdates      Boolean   @default(true)
+  contractUpdates     Boolean   @default(true)
+  payoutUpdates       Boolean   @default(true)
+  complianceReminders Boolean   @default(true)
+  marketingUpdates    Boolean   @default(false)
+  pushEnabled         Boolean   @default(false)
+  pushPermission      String?
+  pushTestedAt        DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+model ComplianceTask {
+  id             String               @id @default(cuid())
+  userId         String
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookingId      String?
+  booking        Booking?             @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  listingId      String?
+  listing        Listing?             @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  cwdZoneId      String?
+  cwdZone        CwdZone?             @relation(fields: [cwdZoneId], references: [id], onDelete: SetNull)
+  assigneeRole   UserRole
+  taskType       ComplianceTaskType
+  title          String
+  description    String               @db.Text
+  actionLabel    String?
+  actionUrl      String?
+  dueAt          DateTime?
+  status         ComplianceTaskStatus @default(OPEN)
+  completedAt    DateTime?
+  dismissedAt    DateTime?
+  notes          String?              @db.Text
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@index([userId, assigneeRole, status, dueAt])
+  @@index([bookingId, taskType, status])
+  @@index([listingId, taskType, status])
+  @@index([cwdZoneId, status])
+}
+
+model DisputeTicket {
+  id              String        @id @default(cuid())
+  bookingId       String
+  booking         Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  openedByUserId  String
+  openedByUser    User          @relation("DisputeOpenedBy", fields: [openedByUserId], references: [id], onDelete: Cascade)
+  assignedAdminId String?
+  assignedAdmin   User?         @relation("DisputeAssignedTo", fields: [assignedAdminId], references: [id], onDelete: SetNull)
+  title           String
+  description     String        @db.Text
+  status          DisputeStatus @default(OPEN)
+  resolutionNotes String?       @db.Text
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  resolvedAt      DateTime?
+
+  @@index([bookingId, status])
+  @@index([openedByUserId, status])
+  @@index([assignedAdminId, status])
+}
+
+model Review {
+  id               String                 @id @default(cuid())
+  bookingId        String
+  booking          Booking                @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  listingId        String
+  listing          Listing                @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  reviewerId       String
+  reviewer         User                   @relation("ReviewAuthor", fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewerRole     UserRole
+  subjectUserId    String
+  subjectUser      User                   @relation("ReviewSubject", fields: [subjectUserId], references: [id], onDelete: Cascade)
+  rating           Int
+  title            String
+  body             String                 @db.Text
+  isFlagged        Boolean                @default(false)
+  moderationStatus ReviewModerationStatus @default(PENDING)
+  moderatorNotes   String?                @db.Text
+  publishedAt      DateTime?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+
+  @@unique([bookingId, reviewerId])
+  @@index([listingId, moderationStatus, publishedAt])
+  @@index([subjectUserId, moderationStatus, publishedAt])
+  @@index([reviewerId, moderationStatus])
+}
+
+model HunterExperience {
+  id                 String                     @id @default(cuid())
+  bookingId          String                     @unique
+  booking            Booking                    @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  listingId          String
+  listing            Listing                    @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  hunterId           String
+  hunter             User                       @relation(fields: [hunterId], references: [id], onDelete: Cascade)
+  title              String
+  summary            String                     @db.Text
+  areaQualityNotes   String?                    @db.Text
+  accessNotes        String?                    @db.Text
+  localServicesNotes String?                    @db.Text
+  accommodationNotes String?                    @db.Text
+  safetyNotes        String?                    @db.Text
+  moderationStatus   ExperienceModerationStatus @default(PENDING)
+  moderatorNotes     String?                    @db.Text
+  publishedAt        DateTime?
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+
+  @@index([listingId, moderationStatus, publishedAt])
+  @@index([hunterId, moderationStatus])
 }
