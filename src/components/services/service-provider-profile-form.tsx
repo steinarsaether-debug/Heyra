@@ -56,12 +56,12 @@ export function ServiceProviderProfileForm({
     const data = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      setError(data.error ?? "Unable to save the provider profile.");
+      setError(data.error ?? "Kunne ikke lagre leverandørprofilen.");
       setIsSaving(false);
       return;
     }
 
-    setMessage("Provider profile saved.");
+    setMessage("Leverandørprofilen er lagret.");
     setIsSaving(false);
     router.refresh();
   }
@@ -70,17 +70,17 @@ export function ServiceProviderProfileForm({
     <form onSubmit={onSubmit} className="space-y-4 rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-          Provider onboarding
+          Leverandøroppsett
         </p>
-        <h2 className="mt-3 text-2xl text-[var(--forest)]">Set up your public provider profile.</h2>
+        <h2 className="mt-3 text-2xl text-[var(--forest)]">Sett opp den offentlige leverandørprofilen din.</h2>
         <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-          This profile sits behind every service you publish, so keep it practical and easy to trust.
+          Denne profilen ligger bak hver tjeneste du publiserer, så hold den praktisk, tydelig og lett å stole på.
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-          Business or provider name
+          Firmanavn eller leverandørnavn
           <input
             value={form.businessName}
             onChange={(event) => setForm((current) => ({ ...current, businessName: event.target.value }))}
@@ -88,7 +88,7 @@ export function ServiceProviderProfileForm({
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-          Public contact name
+          Offentlig kontaktperson
           <input
             value={form.publicContactName}
             onChange={(event) => setForm((current) => ({ ...current, publicContactName: event.target.value }))}
@@ -96,7 +96,7 @@ export function ServiceProviderProfileForm({
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-          Phone
+          Telefon
           <input
             value={form.phone}
             onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
@@ -104,7 +104,7 @@ export function ServiceProviderProfileForm({
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-          Public email
+          Offentlig e-post
           <input
             type="email"
             value={form.email}
@@ -113,7 +113,7 @@ export function ServiceProviderProfileForm({
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)] md:col-span-2">
-          Website
+          Nettside
           <input
             value={form.website}
             onChange={(event) => setForm((current) => ({ ...current, website: event.target.value }))}
@@ -121,7 +121,7 @@ export function ServiceProviderProfileForm({
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-          Municipality
+          Kommune
           <input
             value={form.municipality}
             onChange={(event) => setForm((current) => ({ ...current, municipality: event.target.value }))}
@@ -129,7 +129,7 @@ export function ServiceProviderProfileForm({
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-          County
+          Fylke
           <input
             value={form.county}
             onChange={(event) => setForm((current) => ({ ...current, county: event.target.value }))}
@@ -137,7 +137,7 @@ export function ServiceProviderProfileForm({
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-          Latitude
+          Breddegrad
           <input
             type="number"
             step="0.000001"
@@ -152,7 +152,7 @@ export function ServiceProviderProfileForm({
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-          Longitude
+          Lengdegrad
           <input
             type="number"
             step="0.000001"
@@ -167,7 +167,7 @@ export function ServiceProviderProfileForm({
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-          Years of experience
+          Antall år med erfaring
           <input
             type="number"
             min="0"
@@ -184,7 +184,7 @@ export function ServiceProviderProfileForm({
       </div>
 
       <label className="block space-y-2 text-sm font-semibold text-[var(--foreground)]">
-        Public description
+        Offentlig beskrivelse
         <textarea
           rows={5}
           value={form.description}
@@ -195,7 +195,7 @@ export function ServiceProviderProfileForm({
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-          Licences and approvals
+          Lisenser og godkjenninger
           <textarea
             rows={4}
             value={form.qualifications.licenseSummary}
@@ -209,7 +209,7 @@ export function ServiceProviderProfileForm({
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-          Equipment and practical setup
+          Utstyr og praktisk opplegg
           <textarea
             rows={4}
             value={form.qualifications.equipmentSummary}
@@ -223,7 +223,7 @@ export function ServiceProviderProfileForm({
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-          Transport coverage
+          Transportdekning
           <textarea
             rows={4}
             value={form.qualifications.transportCoverage}
@@ -237,7 +237,7 @@ export function ServiceProviderProfileForm({
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-          Accommodation details
+          Overnattingsdetaljer
           <textarea
             rows={4}
             value={form.qualifications.accommodationDetails}
@@ -258,7 +258,7 @@ export function ServiceProviderProfileForm({
           disabled={isSaving}
           className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-white disabled:opacity-70"
         >
-          {isSaving ? "Saving..." : "Save provider profile"}
+          {isSaving ? "Lagrer..." : "Lagre leverandørprofil"}
         </button>
         {message ? <p className="text-sm text-[var(--forest)]">{message}</p> : null}
         {error ? <p className="text-sm text-[#7f3127]">{error}</p> : null}

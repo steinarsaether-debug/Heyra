@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   defaultLocale,
   localeLabels,
@@ -18,7 +18,6 @@ export function LanguageSwitcher({
 }) {
   const t = useTranslations();
   const pathname = usePathname();
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   function switchLanguage(nextLocale: AppLocale) {
@@ -27,7 +26,7 @@ export function LanguageSwitcher({
     const nextUrl = `${localizedPath}${searchParams.toString() ? `?${searchParams}` : ""}`;
 
     document.cookie = `HEYRA_LOCALE=${nextLocale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
-    router.push(nextUrl);
+    window.location.assign(nextUrl);
   }
 
   return (

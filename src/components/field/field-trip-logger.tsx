@@ -45,16 +45,16 @@ const emptyDraft: StoredDraft = {
 
 const quickEntryTypes: Record<LoggerMode, Array<{ label: string; value: LogEntryType }>> = {
   hunting: [
-    { label: "Sighting", value: "SIGHTING" },
-    { label: "Track", value: "TRACK" },
-    { label: "Shot", value: "SHOT" },
-    { label: "Note", value: "NOTE" },
+    { label: "Observasjon", value: "SIGHTING" },
+    { label: "Spor", value: "TRACK" },
+    { label: "Skudd", value: "SHOT" },
+    { label: "Notat", value: "NOTE" },
   ],
   fishing: [
-    { label: "Catch", value: "CATCH" },
-    { label: "Water", value: "WATER" },
-    { label: "Access", value: "ACCESS" },
-    { label: "Note", value: "NOTE" },
+    { label: "Fangst", value: "CATCH" },
+    { label: "Vannforhold", value: "WATER" },
+    { label: "Adkomst", value: "ACCESS" },
+    { label: "Notat", value: "NOTE" },
   ],
 };
 
@@ -138,7 +138,7 @@ export function FieldTripLogger({
             longitude: position.coords.longitude.toFixed(6),
             capturedAt: new Date().toISOString(),
           },
-          "Location saved to the field log.",
+          "Posisjonen er lagret i feltloggen.",
         );
       },
       () => {
@@ -155,12 +155,12 @@ export function FieldTripLogger({
   function clearDraft() {
     window.localStorage.removeItem(storageKey);
     setDraft(emptyDraft);
-    setMessage("Field log cleared on this device.");
+    setMessage("Feltloggen er slettet på denne enheten.");
   }
 
   function saveEntry(type: LogEntryType) {
     if (!draft.notes.trim()) {
-      setMessage("Add a short note before saving it to the log.");
+      setMessage("Legg til et kort notat før du lagrer det i loggen.");
       return;
     }
 
@@ -180,7 +180,7 @@ export function FieldTripLogger({
           ...draft.entries,
         ],
       },
-      "Log entry saved on this device.",
+      "Loggoppføringen er lagret på denne enheten.",
     );
   }
 
@@ -190,20 +190,20 @@ export function FieldTripLogger({
         ...draft,
         entries: draft.entries.filter((entry) => entry.id !== entryId),
       },
-      "Log entry removed.",
+      "Loggoppføringen er fjernet.",
     );
   }
 
   function exportLog() {
     if (!draft.entries.length && !draft.notes.trim()) {
-      setMessage("There is nothing to export yet.");
+      setMessage("Det er ingenting å eksportere ennå.");
       return;
     }
 
     const lines = [
       `${title}`,
-      `Mode: ${mode}`,
-      `Exported: ${new Date().toLocaleString("nb-NO")}`,
+      `Modus: ${mode === "hunting" ? "jakt" : "fiske"}`,
+      `Eksportert: ${new Date().toLocaleString("nb-NO")}`,
       "",
       ...draft.entries.map((entry) =>
         [
@@ -216,7 +216,7 @@ export function FieldTripLogger({
           .join("\n"),
       ),
       ...(draft.notes.trim()
-        ? ["Unsaved draft note:", draft.notes.trim(), ""]
+        ? ["Ulagret utkastnotat:", draft.notes.trim(), ""]
         : []),
     ].join("\n");
 
@@ -227,7 +227,7 @@ export function FieldTripLogger({
     anchor.download = `${storageKey.replace(/[^a-z0-9-]+/gi, "-")}.txt`;
     anchor.click();
     URL.revokeObjectURL(url);
-    setMessage("Field log exported as a text file.");
+    setMessage("Feltloggen er eksportert som tekstfil.");
   }
 
   function handlePhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -245,7 +245,7 @@ export function FieldTripLogger({
           photoName: file.name,
           photoPreview: typeof reader.result === "string" ? reader.result : null,
         },
-        "Photo saved to the offline field log.",
+        "Bildet er lagret i den frakoblede feltloggen.",
       );
     };
     reader.readAsDataURL(file);
@@ -254,16 +254,16 @@ export function FieldTripLogger({
   return (
     <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-        {mode === "hunting" ? "Jaktlogg" : "Field log"}
+        {mode === "hunting" ? "Jaktlogg" : "Fiskelogg"}
       </p>
       <h2 className="mt-3 text-2xl text-[var(--forest)]">{title}</h2>
       <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-        This draft stays on the device so you can keep notes offline, capture a position, and attach a camera photo while you are in the field.
+        Dette utkastet blir liggende på enheten, slik at du kan føre notater offline, lagre posisjon og legge ved bilde mens du er ute i felt.
       </p>
 
       <div className="mt-4 space-y-4">
         <label className="block space-y-2 text-sm font-semibold text-[var(--foreground)]">
-          {mode === "hunting" ? "Trip or harvest notes" : "Water, conditions, or catch notes"}
+          {mode === "hunting" ? "Tur- eller fangstnotater" : "Notater om vann, forhold eller fangst"}
           <textarea
             value={draft.notes}
             onChange={(event) =>
@@ -276,8 +276,8 @@ export function FieldTripLogger({
             className="w-full rounded-[1.2rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
             placeholder={
               mode === "hunting"
-                ? "Tracks, weather, sightings, harvest details, or practical reminders."
-                : "Water level, fish activity, best pool, access reminders, or local conditions."
+                ? "Spor, vær, observasjoner, fellingsdetaljer eller praktiske påminnelser."
+                : "Vannstand, fiskeaktivitet, beste kulp, adkomstpåminnelser eller lokale forhold."
             }
           />
         </label>
@@ -297,22 +297,22 @@ export function FieldTripLogger({
                   : "border border-[var(--border)] text-[var(--foreground)]"
               }`}
             >
-              Save as {option.label.toLowerCase()}
+              Lagre som {option.label.toLowerCase()}
             </button>
           ))}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-[1.2rem] border border-[var(--border)] bg-[#fbf8f1] p-4 text-sm leading-7 text-[var(--foreground)]">
-            <p className="font-semibold">Saved position</p>
+            <p className="font-semibold">Lagret posisjon</p>
             <p className="mt-2 text-[var(--muted)]">
               {draft.latitude && draft.longitude
                 ? `${draft.latitude}, ${draft.longitude}`
-                : "No location saved yet."}
+                : "Ingen posisjon lagret ennå."}
             </p>
             {draft.capturedAt ? (
               <p className="text-[var(--muted)]">
-                Captured {new Date(draft.capturedAt).toLocaleString("nb-NO")}
+                Lagret {new Date(draft.capturedAt).toLocaleString("nb-NO")}
               </p>
             ) : null}
             <button
@@ -321,17 +321,17 @@ export function FieldTripLogger({
               disabled={isCapturingLocation}
               className="mt-3 rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-70"
             >
-              {isCapturingLocation ? "Capturing..." : "Save current position"}
+              {isCapturingLocation ? "Lagrer..." : "Lagre nåværende posisjon"}
             </button>
           </div>
 
           <div className="rounded-[1.2rem] border border-[var(--border)] bg-[#fbf8f1] p-4 text-sm leading-7 text-[var(--foreground)]">
-            <p className="font-semibold">Camera capture</p>
+            <p className="font-semibold">Kamerabilde</p>
             <p className="mt-2 text-[var(--muted)]">
-              {draft.photoName ? `Saved photo: ${draft.photoName}` : "No field photo saved yet."}
+              {draft.photoName ? `Lagret bilde: ${draft.photoName}` : "Ingen feltbilder lagret ennå."}
             </p>
             <label className="mt-3 inline-flex cursor-pointer rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]">
-              Capture photo
+              Ta bilde
               <input
                 type="file"
                 accept="image/*"
@@ -348,7 +348,7 @@ export function FieldTripLogger({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={draft.photoPreview}
-              alt={draft.photoName ?? "Field capture"}
+              alt={draft.photoName ?? "Feltbilde"}
               className="h-64 w-full object-cover"
             />
           </div>
@@ -357,7 +357,7 @@ export function FieldTripLogger({
         {draft.entries.length > 0 ? (
           <div className="space-y-3">
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
-              Saved timeline
+              Lagret tidslinje
             </p>
             {draft.entries.map((entry) => (
               <div
@@ -376,13 +376,13 @@ export function FieldTripLogger({
                     onClick={() => removeEntry(entry.id)}
                     className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)]"
                   >
-                    Remove
+                    Fjern
                   </button>
                 </div>
                 <p className="mt-2">{entry.note}</p>
                 {entry.latitude && entry.longitude ? (
                   <p className="mt-2 text-[var(--muted)]">
-                    Position: {entry.latitude}, {entry.longitude}
+                    Posisjon: {entry.latitude}, {entry.longitude}
                   </p>
                 ) : null}
               </div>
@@ -398,7 +398,7 @@ export function FieldTripLogger({
           disabled={!hasContent}
           className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
         >
-          Export field log
+          Eksporter feltlogg
         </button>
         <button
           type="button"
@@ -406,7 +406,7 @@ export function FieldTripLogger({
           disabled={!hasContent}
           className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] disabled:opacity-50"
         >
-          Clear local draft
+          Tøm lokalt utkast
         </button>
       </div>
       {message ? <p className="mt-3 text-sm text-[var(--muted)]">{message}</p> : null}

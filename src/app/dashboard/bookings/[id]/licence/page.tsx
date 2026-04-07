@@ -76,29 +76,29 @@ export default async function FishingLicenceProofPage({
       <section className="mx-auto max-w-3xl space-y-5">
         <div className="rounded-[1.8rem] bg-[var(--forest)] p-6 text-[var(--background)]">
           <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
-            Fishing proof
+            Fiskebevis
           </p>
           <h1 className="mt-3 text-3xl leading-tight sm:text-4xl">{booking.listing.title}</h1>
           <p className="mt-3 text-base leading-7 text-white/75">
-            Show this screen in the field as your practical proof page. It keeps the key timing, booking reference, and local rules in one place.
+            Vis denne siden ute i felt som praktisk bevisvisning. Den samler tidspunkt, bestillingsreferanse og lokale regler på ett sted.
           </p>
         </div>
 
         <OfflinePageNote
-          onlineText="Save this proof page before you leave signal behind so it remains available on the bank."
-          offlineText="You are offline. This proof page is cached locally, but if the booking changed very recently you should sync again when coverage returns."
+          onlineText="Lagre denne bevisvisningen før du mister dekning, så den fortsatt er tilgjengelig ved vannet."
+          offlineText="Du er frakoblet. Denne bevisvisningen er lagret lokalt, men hvis bestillingen nylig er endret bør du synkronisere igjen når dekningen kommer tilbake."
         />
         <OfflineFreshnessNote
           updatedAt={booking.updatedAt.toISOString()}
-          label="This proof page"
+          label="Denne bevisvisningen"
         />
         <OfflineSaveLinks
           scope={`licence-proof-${booking.id}`}
           links={[
-            { href: `/dashboard/bookings/${booking.id}/licence`, label: "Fishing proof" },
-            { href: `/dashboard/bookings/${booking.id}`, label: "Booking workspace" },
-            { href: `/listings/${booking.listing.slug}/field`, label: "Field mode" },
-            { href: `/api/listings/${booking.listingId}/area`, label: "Saved fishing area" },
+            { href: `/dashboard/bookings/${booking.id}/licence`, label: "Fiskebevis" },
+            { href: `/dashboard/bookings/${booking.id}`, label: "Bestillingsflate" },
+            { href: `/listings/${booking.listing.slug}/field`, label: "Feltmodus" },
+            { href: `/api/listings/${booking.listingId}/area`, label: "Lagret fiskeområde" },
           ]}
         />
 
@@ -106,18 +106,18 @@ export default async function FishingLicenceProofPage({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-[1.2rem] border border-[var(--border)] bg-[#fbf8f1] p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-                Valid for
+                Gyldig for
               </p>
               <p className="mt-2 text-lg font-semibold text-[var(--forest)]">
-                {booking.startDate.toLocaleDateString("nb-NO")} to {booking.endDate.toLocaleDateString("nb-NO")}
+                {booking.startDate.toLocaleDateString("nb-NO")} til {booking.endDate.toLocaleDateString("nb-NO")}
               </p>
               <p className="mt-2 text-sm text-[var(--muted)]">
-                Booking reference: {booking.id.slice(0, 12).toUpperCase()}
+                Bestillingsreferanse: {booking.id.slice(0, 12).toUpperCase()}
               </p>
             </div>
             <div className="rounded-[1.2rem] border border-[var(--border)] bg-[#fbf8f1] p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-                Guest
+                Gjest
               </p>
               <p className="mt-2 text-lg font-semibold text-[var(--forest)]">
                 {booking.hunter.pii?.fullName ?? booking.hunter.email}
@@ -128,18 +128,18 @@ export default async function FishingLicenceProofPage({
             </div>
             <div className="rounded-[1.2rem] border border-[var(--border)] bg-[#fbf8f1] p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-                Contract
+                Kontrakt
               </p>
               <p className="mt-2 text-lg font-semibold text-[var(--forest)]">
-                {booking.contract ? formatContractStatus(booking.contract.status) : "Not issued yet"}
+                {booking.contract ? formatContractStatus(booking.contract.status) : "Ikke utstedt ennå"}
               </p>
             </div>
             <div className="rounded-[1.2rem] border border-[var(--border)] bg-[#fbf8f1] p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-                Payment
+                Betaling
               </p>
               <p className="mt-2 text-lg font-semibold text-[var(--forest)]">
-                {booking.payment ? formatPaymentStatus(booking.payment.status) : "Pending"}
+                {booking.payment ? formatPaymentStatus(booking.payment.status) : "Venter"}
               </p>
             </div>
           </div>
@@ -147,22 +147,22 @@ export default async function FishingLicenceProofPage({
           <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
             {rules.areaNotes ? (
               <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                Area notes: {rules.areaNotes}
+                Områdemerknader: {rules.areaNotes}
               </p>
             ) : null}
             {rules.gearRules ? (
               <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                Gear rules: {rules.gearRules}
+                Regler for utstyr: {rules.gearRules}
               </p>
             ) : null}
             {rules.bagLimitNotes ? (
               <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                Limits: {rules.bagLimitNotes}
+                Begrensninger: {rules.bagLimitNotes}
               </p>
             ) : null}
             {rules.requiresNationalFishingLicense ? (
               <p className="rounded-2xl border border-[#d0dfd6] bg-[#eef5f0] px-4 py-3 text-[#29543a]">
-                National fishing licence may still be required in addition to this local booking.
+                Nasjonal fiskeravgift kan fortsatt være påkrevd i tillegg til denne lokale bestillingen.
               </p>
             ) : null}
           </div>
@@ -172,24 +172,24 @@ export default async function FishingLicenceProofPage({
               href={`/dashboard/bookings/${booking.id}`}
               className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white"
             >
-              Booking workspace
+              Bestillingsflate
             </Link>
             <Link
               href={`/listings/${booking.listing.slug}/field`}
               className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
             >
-              Field mode
+              Feltmodus
             </Link>
           </div>
         </article>
       </section>
       <MobileActionTray
-        title="Licence actions"
+        title="Bevishandlinger"
         items={[
-          { href: `/dashboard/bookings/${booking.id}`, label: "Workspace" },
-          { href: `/listings/${booking.listing.slug}/field`, label: "Field mode" },
-          { href: `/listings/${booking.listing.slug}`, label: "Listing" },
-          { href: "/dashboard/bookings", label: "Trips" },
+          { href: `/dashboard/bookings/${booking.id}`, label: "Arbeidsflate" },
+          { href: `/listings/${booking.listing.slug}/field`, label: "Feltmodus" },
+          { href: `/listings/${booking.listing.slug}`, label: "Annonse" },
+          { href: "/dashboard/bookings", label: "Turer" },
         ]}
       />
     </main>

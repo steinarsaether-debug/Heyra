@@ -4,7 +4,7 @@ import { getHostQualityBadge, getTrustSummary } from "./trust-summary";
 describe("trust summary helpers", () => {
   it("returns a strong trust label for repeated high ratings", () => {
     const summary = getTrustSummary({ averageRating: 4.9, reviewCount: 12 });
-    expect(summary.label).toBe("Highly trusted");
+    expect(summary.label).toBe("Svært høy tillit");
   });
 
   it("returns a host badge when the rating and cancellation thresholds are met", () => {

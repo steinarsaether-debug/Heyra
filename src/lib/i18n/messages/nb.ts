@@ -6,6 +6,7 @@ const nbMessages = {
       browseServices: "Se tjenester",
       createAccount: "Opprett konto",
       logIn: "Logg inn",
+      signOut: "Logg ut",
       search: "Søk",
       save: "Lagre",
       clear: "Nullstill",
@@ -14,6 +15,11 @@ const nbMessages = {
     legal: {
       privacy: "Personvern",
       terms: "Vilkår",
+    },
+    roles: {
+      landowner: "grunneier",
+      hunter: "jeger / fisker",
+      admin: "administrator",
     },
   },
   locales: {
@@ -30,9 +36,11 @@ const nbMessages = {
     tagline: "Jakt, fiske og trygg lokal tilgang",
     nav: {
       home: "Hjem",
+      explore: "Utforsk",
       listings: "Annonser",
       services: "Tjenester",
       dashboard: "Oversikt",
+      more: "Mer",
       profile: "Profil",
       alerts: "Varsler",
       compliance: "Etterlevelse",
@@ -47,6 +55,17 @@ const nbMessages = {
       trips: "Turer",
       land: "Areal",
       account: "Konto",
+      nearbyFishing: "Fiske i nærheten",
+      adminPanel: "Adminpanel",
+      backToApp: "Til hovedappen",
+    },
+    sections: {
+      account: "Konto",
+      legal: "Juridisk",
+      landowner: "Grunneier",
+      provider: "Leverandør",
+      admin: "Admin",
+      discover: "Utforsk",
     },
     guest: {
       logIn: "Logg inn",
@@ -140,6 +159,28 @@ const nbMessages = {
     name: "Heyra",
     description:
       "Markedsplass for jaktterreng, fiskekort og trygge lokale verter i Norge.",
+  },
+  legalPages: {
+    terms: {
+      eyebrow: "Vilkår",
+      title: "Markedsplassvilkår for Heyra",
+      paragraphs: [
+        "Heyra fungerer som en markedsplass for jakt, fiske og tilhørende tjenester. Grunneiere publiserer tilgang og opplevelser, jegere og fiskere sender forespørsler, og begge parter følger opp prosessen gjennom plattformen.",
+        "En annonse garanterer ikke en bestilling. En bestillingsforespørsel blir først aktiv når grunneieren eller ansvarlig part har godkjent den, og eventuelle krav til kontrakt, betaling eller annen avklaring er gjennomført.",
+        "Grunneiere og tilbydere er ansvarlige for at informasjon om område, grenser, regler, tilgjengelighet og praktiske forhold er så korrekt som mulig. Gjester er ansvarlige for å oppgi riktige opplysninger og følge lokale regler, lisenskrav og sikkerhetsforventninger.",
+        "Varsler om etterlevelse, som for eksempel overlapp med CWD-sone, er hjelp til arbeidsflyten. De erstatter ikke partenes egne juridiske plikter eller offentlige rapporteringskrav.",
+      ],
+    },
+    privacy: {
+      eyebrow: "Personvern",
+      title: "Slik håndterer Heyra personopplysninger",
+      paragraphs: [
+        "Heyra lagrer bare informasjonen som trengs for å drive markedsplassen: kontoid, rolle, profilopplysninger, eiendomsutkast, annonser, bestillinger, samtykker og relevante etterlevelsesmarkører som for eksempel CWD-overlapp.",
+        "Sensitive profilopplysninger skilles ut i beskyttede poster, og samtykkehistorikken versjoneres. Valgfritt markedsføringssamtykke holdes adskilt fra de samtykkene som kreves for å bruke tjenesten.",
+        "I utviklingsmiljø kan opplastede bilder og vedlegg lagres lokalt sammen med appen. Før produksjonslansering skal lagring, verifikasjonstjenester og betalingsleverandører dokumenteres tydelig her.",
+        "Hvis du vil se eller korrigere profildata, bruker du profilsidene i oversikten. Hvis du vil stoppe valgfritt markedsføringssamtykke, kan du oppdatere kakevalgene eller fremtidige kontoinnstillinger.",
+      ],
+    },
   },
 } as const;
 

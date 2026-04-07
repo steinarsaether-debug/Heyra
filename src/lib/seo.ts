@@ -10,8 +10,12 @@ export function buildListingMetadataDescription(input: {
   type: ListingType;
   species: Species[];
   priceNok: number;
+  locale?: "nb" | "en";
 }) {
-  return `${input.title} in ${input.municipality}, ${input.county}. ${formatListingType(input.type)} for ${formatSpecies(input.species)} from NOK ${input.priceNok.toLocaleString("nb-NO")}.`;
+  const locale = input.locale ?? "nb";
+  return locale === "en"
+    ? `${input.title} in ${input.municipality}, ${input.county}. ${formatListingType(input.type, "en")} for ${formatSpecies(input.species, "en")} from NOK ${input.priceNok.toLocaleString("nb-NO")}.`
+    : `${input.title} i ${input.municipality}, ${input.county}. ${formatListingType(input.type, "nb")} for ${formatSpecies(input.species, "nb")} fra kr ${input.priceNok.toLocaleString("nb-NO")}.`;
 }
 
 export function buildListingJsonLd(input: {
@@ -25,13 +29,15 @@ export function buildListingJsonLd(input: {
   pricingModel: PricingModel;
   priceNok: number;
   photos: string[];
+  locale?: "nb" | "en";
 }) {
+  const locale = input.locale ?? "nb";
   return {
     "@context": "https://schema.org",
     "@type": "Product",
     name: input.title,
     description: input.description,
-    category: `${formatListingType(input.type)}: ${formatSpecies(input.species)}`,
+    category: `${formatListingType(input.type, locale)}: ${formatSpecies(input.species, locale)}`,
     image: input.photos.map((photo) => absoluteUrl(photo)),
     brand: {
       "@type": "Brand",
@@ -49,7 +55,7 @@ export function buildListingJsonLd(input: {
         name: "Norway",
       },
       areaServed: `${input.municipality}, ${input.county}`,
-      category: formatPricingModel(input.pricingModel),
+      category: formatPricingModel(input.pricingModel, locale),
     },
   };
 }

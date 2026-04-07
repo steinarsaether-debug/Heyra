@@ -160,33 +160,33 @@ export default async function DashboardBookingsPage() {
       <section className="space-y-6">
         <div className="max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--amber)]">
-            Bookings
+            Bestillinger
           </p>
           <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
-            Manage requests, approvals, and trip timing.
+            Administrer forespørsler, godkjenninger og tidspunkt for turene.
           </h1>
           <p className="mt-4 text-lg leading-8 text-[var(--muted)]">
-            This is the first end-to-end booking lane: hunters can send requests, and landowners can approve or decline them from one dashboard.
+            Dette er den første komplette bestillingsflyten: jegere kan sende forespørsler, og grunneiere kan godkjenne eller avslå dem fra ett og samme dashbord.
           </p>
         </div>
 
         <OfflinePageNote
-          onlineText="This bookings overview is worth opening before you travel. It helps keep the current trip picture available if signal drops later."
-          offlineText="You are offline. Booking cards shown here come from the latest cached version, so approvals, disputes, and timing may have changed since the last sync."
+          onlineText="Det er lurt å åpne denne bestillingsoversikten før du reiser. Da blir den siste turoversikten lettere tilgjengelig hvis dekningen forsvinner senere."
+          offlineText="Du er frakoblet. Bestillingskortene som vises her kommer fra sist lagrede versjon, så godkjenninger, tvister og tidspunkt kan ha endret seg siden forrige synkronisering."
         />
         {latestBookingUpdate ? (
           <OfflineFreshnessNote
             updatedAt={latestBookingUpdate.toISOString()}
-            label="This booking overview"
+            label="Denne bestillingsoversikten"
           />
         ) : null}
         <OfflineSaveLinks
           scope={`bookings-overview-${session.user.id}`}
           links={[
-            { href: "/dashboard/bookings", label: "Bookings overview" },
+            { href: "/dashboard/bookings", label: "Bestillingsoversikt" },
             ...allBookings.slice(0, 6).map((booking) => ({
               href: `/dashboard/bookings/${booking.id}`,
-              label: `${booking.listing.title} workspace`,
+              label: `${booking.listing.title} arbeidsflate`,
             })),
           ]}
         />
@@ -195,9 +195,9 @@ export default async function DashboardBookingsPage() {
           <section className="space-y-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-                Incoming requests
+                Innkommende forespørsler
               </p>
-              <h2 className="mt-2 text-2xl text-[var(--forest)]">Requests on your listings</h2>
+              <h2 className="mt-2 text-2xl text-[var(--forest)]">Forespørsler på annonsene dine</h2>
             </div>
             <div className="grid gap-4">
               {inboundBookings.map((booking) => (
@@ -222,7 +222,7 @@ export default async function DashboardBookingsPage() {
                         {booking.listing.property.cadastralRef} · {booking.listing.property.municipality}, {booking.listing.property.county}
                       </p>
                       <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                        Hunter: {booking.hunter.pii?.fullName ?? booking.hunter.email}
+                        Jeger: {booking.hunter.pii?.fullName ?? booking.hunter.email}
                         {booking.hunter.pii?.phone ? ` · ${booking.hunter.pii.phone}` : ""}
                       </p>
                       <div className="mt-4 flex flex-wrap gap-3">
@@ -230,11 +230,11 @@ export default async function DashboardBookingsPage() {
                           href={`/dashboard/bookings/${booking.id}`}
                           className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
                         >
-                          Open booking workspace
+                          Åpne bestillingsflate
                         </Link>
                       </div>
                       <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                        {booking.startDate.toLocaleDateString("nb-NO")} to {booking.endDate.toLocaleDateString("nb-NO")} · NOK {booking.totalNok.toLocaleString("nb-NO")}
+                        {booking.startDate.toLocaleDateString("nb-NO")} til {booking.endDate.toLocaleDateString("nb-NO")} · kr {booking.totalNok.toLocaleString("nb-NO")}
                       </p>
                       {booking.requestMessage ? (
                         <p className="mt-4 rounded-2xl border border-[var(--border)] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
@@ -254,9 +254,9 @@ export default async function DashboardBookingsPage() {
 
                         return (
                           <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
-                            {quota.summary ? <p><span className="font-semibold">Quota:</span> {quota.summary}</p> : null}
-                            {quota.availabilitySummary ? <p><span className="font-semibold">Availability:</span> {quota.availabilitySummary}</p> : null}
-                            {quota.reportingResponsibility ? <p><span className="font-semibold">Reporting:</span> {quota.reportingResponsibility}</p> : null}
+                            {quota.summary ? <p><span className="font-semibold">Kvote:</span> {quota.summary}</p> : null}
+                            {quota.availabilitySummary ? <p><span className="font-semibold">Tilgjengelighet:</span> {quota.availabilitySummary}</p> : null}
+                            {quota.reportingResponsibility ? <p><span className="font-semibold">Rapportering:</span> {quota.reportingResponsibility}</p> : null}
                           </div>
                         );
                       })()}
@@ -285,7 +285,7 @@ export default async function DashboardBookingsPage() {
                             href={`/dashboard/bookings/${booking.id}/review`}
                             className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
                           >
-                            Leave review
+                            Skriv anmeldelse
                           </Link>
                         </div>
                       ) : null}
@@ -294,14 +294,14 @@ export default async function DashboardBookingsPage() {
                           {booking.disputes[0] ? (
                             <div className="rounded-2xl border border-[var(--border)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
                               <p className="font-semibold">
-                                Latest dispute: {formatDisputeStatus(booking.disputes[0].status)}
+                                Siste tvist: {formatDisputeStatus(booking.disputes[0].status)}
                               </p>
                               <p className="text-[var(--muted)]">
                                 {getDisputeGuidance(booking.disputes[0].status)}
                               </p>
                               {booking.disputes[0].resolutionNotes ? (
                                 <p className="mt-2 text-[var(--muted)]">
-                                  Moderator notes: {booking.disputes[0].resolutionNotes}
+                                  Merknader fra moderator: {booking.disputes[0].resolutionNotes}
                                 </p>
                               ) : null}
                             </div>
@@ -344,14 +344,14 @@ export default async function DashboardBookingsPage() {
         <section className="space-y-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              My requests
+              Mine forespørsler
             </p>
-            <h2 className="mt-2 text-2xl text-[var(--forest)]">Trips you have requested</h2>
+              <h2 className="mt-2 text-2xl text-[var(--forest)]">Turene du har bedt om</h2>
           </div>
 
           {outboundBookings.length === 0 ? (
             <div className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6 text-sm leading-7 text-[var(--muted)]">
-              You have not requested any bookings yet.
+              Du har ikke sendt noen bestillingsforespørsler ennå.
             </div>
           ) : (
             <div className="grid gap-4">
@@ -377,7 +377,7 @@ export default async function DashboardBookingsPage() {
                         {booking.listing.property.municipality}, {booking.listing.property.county}
                       </p>
                       <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                        {booking.startDate.toLocaleDateString("nb-NO")} to {booking.endDate.toLocaleDateString("nb-NO")} · NOK {booking.totalNok.toLocaleString("nb-NO")}
+                        {booking.startDate.toLocaleDateString("nb-NO")} til {booking.endDate.toLocaleDateString("nb-NO")} · kr {booking.totalNok.toLocaleString("nb-NO")}
                       </p>
                       {booking.requestMessage ? (
                         <p className="mt-4 rounded-2xl border border-[var(--border)] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
@@ -397,9 +397,9 @@ export default async function DashboardBookingsPage() {
 
                         return (
                           <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
-                            {quota.summary ? <p><span className="font-semibold">Quota:</span> {quota.summary}</p> : null}
-                            {quota.availabilitySummary ? <p><span className="font-semibold">Availability:</span> {quota.availabilitySummary}</p> : null}
-                            {quota.reportingResponsibility ? <p><span className="font-semibold">Reporting:</span> {quota.reportingResponsibility}</p> : null}
+                            {quota.summary ? <p><span className="font-semibold">Kvote:</span> {quota.summary}</p> : null}
+                            {quota.availabilitySummary ? <p><span className="font-semibold">Tilgjengelighet:</span> {quota.availabilitySummary}</p> : null}
+                            {quota.reportingResponsibility ? <p><span className="font-semibold">Rapportering:</span> {quota.reportingResponsibility}</p> : null}
                           </div>
                         );
                       })()}

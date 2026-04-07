@@ -147,7 +147,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
             <option value="">{t("listings.form.allOfferTypes")}</option>
             {Object.values(ListingType).map((type) => (
               <option key={type} value={type}>
-                {formatListingType(type)}
+                {formatListingType(type, locale)}
               </option>
             ))}
           </select>
@@ -159,7 +159,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
             <option value="">{t("listings.form.allSpecies")}</option>
             {Object.values(Species).map((species) => (
               <option key={species} value={species}>
-                {species.toLowerCase()}
+                {formatSpecies([species], locale)}
               </option>
             ))}
           </select>
@@ -292,7 +292,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
                 ) : null}
                 <div className="p-6 pt-0">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-                  {formatListingType(listing.type)}
+                  {formatListingType(listing.type, locale)}
                   {listing.distanceKm !== null
                     ? ` · ${t("listings.card.kmAway", { distance: listing.distanceKm.toFixed(1) })}`
                     : ""}
@@ -307,12 +307,12 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
                 <dl className="mt-4 space-y-2 text-sm leading-7 text-[var(--foreground)]">
                   <div>
                     <dt className="font-semibold">{t("listings.card.species")}</dt>
-                    <dd>{formatSpecies(listing.species)}</dd>
+                    <dd>{formatSpecies(listing.species, locale)}</dd>
                   </div>
                   <div>
                     <dt className="font-semibold">{t("listings.card.pricing")}</dt>
                     <dd>
-                      {formatPricingModel(listing.pricingModel)} · NOK{" "}
+                      {formatPricingModel(listing.pricingModel, locale)} · NOK{" "}
                       {listing.priceNok.toLocaleString("nb-NO")}
                     </dd>
                   </div>

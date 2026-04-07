@@ -9,12 +9,14 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "seed:demo": "node ./scripts/seed-demo-accounts.mjs",
-    "db:validate": "prisma validate --schema prisma/schema.prisma",
-    "db:generate": "prisma generate --schema prisma/schema.prisma",
-    "db:migrate:dev": "prisma migrate dev --schema prisma/schema.prisma",
-    "db:migrate:deploy": "prisma migrate deploy --schema prisma/schema.prisma",
-    "cwd:import": "node scripts/import-cwd-zones.mjs"
+    "seed:demo": "sh -ac 'set -a; [ -f ./.env.local ] && . ./.env.local; set +a; node ./scripts/seed-demo-accounts.mjs'",
+    "seed:demo:lite": "sh -ac 'set -a; [ -f ./.env.local ] && . ./.env.local; set +a; node ./scripts/seed-demo-accounts.mjs --lite'",
+    "seed:demo:reset": "sh -ac 'set -a; [ -f ./.env.local ] && . ./.env.local; set +a; node ./scripts/seed-demo-accounts.mjs --reset'",
+    "db:validate": "sh -ac 'set -a; [ -f ./.env.local ] && . ./.env.local; set +a; prisma validate --schema prisma/schema.prisma'",
+    "db:generate": "sh -ac 'set -a; [ -f ./.env.local ] && . ./.env.local; set +a; prisma generate --schema prisma/schema.prisma'",
+    "db:migrate:dev": "sh -ac 'set -a; [ -f ./.env.local ] && . ./.env.local; set +a; prisma migrate dev --schema prisma/schema.prisma'",
+    "db:migrate:deploy": "sh -ac 'set -a; [ -f ./.env.local ] && . ./.env.local; set +a; prisma migrate deploy --schema prisma/schema.prisma'",
+    "cwd:import": "sh -ac 'set -a; [ -f ./.env.local ] && . ./.env.local; set +a; node scripts/import-cwd-zones.mjs'"
   },
   "dependencies": {
     "@prisma/client": "^6.7.0",

@@ -149,7 +149,7 @@ export default async function BookingWorkspacePage({
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--amber)]">
-              Booking workspace
+              Bestillingsflate
             </p>
             <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
               {booking.listing.title}
@@ -189,22 +189,22 @@ export default async function BookingWorkspacePage({
             href="/dashboard/bookings"
             className="rounded-full border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)]"
           >
-            Back to bookings
+            Tilbake til bestillinger
           </Link>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-3">
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Booking status
+              Bestillingsstatus
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{booking.status.toLowerCase().replace("_", " ")}</p>
             <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-              {booking.startDate.toLocaleDateString("nb-NO")} to {booking.endDate.toLocaleDateString("nb-NO")}
+              {booking.startDate.toLocaleDateString("nb-NO")} til {booking.endDate.toLocaleDateString("nb-NO")}
             </p>
             {booking.listing.type === "FISHING" ? (
               <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                This trip uses the simplified fishing flow, so this workspace can double as your on-the-bank reference page.
+                Denne turen bruker den forenklede fiskeflyten, så denne siden kan også fungere som referanse ute ved vannet.
               </p>
             ) : null}
           </article>
@@ -212,9 +212,9 @@ export default async function BookingWorkspacePage({
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
               Total
             </p>
-            <p className="mt-3 text-2xl text-[var(--forest)]">NOK {booking.totalNok.toLocaleString("nb-NO")}</p>
+            <p className="mt-3 text-2xl text-[var(--forest)]">kr {booking.totalNok.toLocaleString("nb-NO")}</p>
             <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-              Cancellation policy: {formatCancellationPolicy(booking.listing.cancellationPolicy)}
+              Avbestillingspolicy: {formatCancellationPolicy(booking.listing.cancellationPolicy)}
             </p>
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
@@ -252,36 +252,36 @@ export default async function BookingWorkspacePage({
           return (
             <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-                Quota and governance
+                Kvote og styring
               </p>
               <div className="mt-4 grid gap-3 text-sm leading-7 text-[var(--foreground)] sm:grid-cols-2">
                 {quota.summary ? (
                   <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                    <p className="font-semibold">Quota summary</p>
+                    <p className="font-semibold">Kvotestatus</p>
                     <p className="mt-1 text-[var(--muted)]">{quota.summary}</p>
                   </div>
                 ) : null}
                 {quota.availabilitySummary ? (
                   <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                    <p className="font-semibold">Likely availability</p>
+                    <p className="font-semibold">Det som trolig er tilgjengelig</p>
                     <p className="mt-1 text-[var(--muted)]">{quota.availabilitySummary}</p>
                   </div>
                 ) : null}
                 {quota.permitNotes ? (
                   <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                    <p className="font-semibold">Permit notes</p>
+                    <p className="font-semibold">Merknader om tillatelser</p>
                     <p className="mt-1 text-[var(--muted)]">{quota.permitNotes}</p>
                   </div>
                 ) : null}
                 {quota.reportingResponsibility ? (
                   <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                    <p className="font-semibold">Reporting responsibility</p>
+                    <p className="font-semibold">Ansvar for rapportering</p>
                     <p className="mt-1 text-[var(--muted)]">{quota.reportingResponsibility}</p>
                   </div>
                 ) : null}
                 {quota.reportingNotes ? (
                   <div className="rounded-2xl border border-[var(--border)] px-4 py-3 sm:col-span-2">
-                    <p className="font-semibold">Reporting notes</p>
+                    <p className="font-semibold">Merknader om rapportering</p>
                     <p className="mt-1 text-[var(--muted)]">{quota.reportingNotes}</p>
                   </div>
                 ) : null}
@@ -291,21 +291,21 @@ export default async function BookingWorkspacePage({
         })()}
 
         <OfflinePageNote
-          onlineText="This booking workspace is a good candidate for offline reuse. Open it before travel and the app can keep a cached copy available if coverage drops."
-          offlineText="You are offline. This cached booking workspace should still help with contracts, timing, and reference details, but actions that change booking state need the connection to return."
+          onlineText="Denne bestillingsflaten egner seg godt til frakoblet bruk. Åpne den før du reiser, så kan appen beholde en lagret kopi hvis dekningen blir borte."
+          offlineText="Du er frakoblet. Den lagrede bestillingsflaten kan fortsatt hjelpe med kontrakt, tidspunkt og referansedetaljer, men handlinger som endrer bestillingsstatus krever at forbindelsen kommer tilbake."
         />
         <OfflineFreshnessNote
           updatedAt={booking.updatedAt.toISOString()}
-          label="This booking workspace"
+          label="Denne bestillingsflaten"
         />
 
         <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Contract
+              Kontrakt
             </p>
             <p className="mt-3 text-lg text-[var(--forest)]">
-              {booking.contract ? formatContractStatus(booking.contract.status) : "Not created yet"}
+              {booking.contract ? formatContractStatus(booking.contract.status) : "Ikke opprettet ennå"}
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
               {booking.contract ? (
@@ -315,7 +315,7 @@ export default async function BookingWorkspacePage({
                   rel="noreferrer"
                   className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
                 >
-                  Open contract
+                  Åpne kontrakt
                 </a>
               ) : null}
             </div>
@@ -331,36 +331,36 @@ export default async function BookingWorkspacePage({
               </div>
             ) : (
               <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                The contract will appear here after the booking moves into contract handling.
+                Kontrakten dukker opp her når bestillingen går videre til kontraktbehandling.
               </p>
             )}
           </article>
 
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Payment and invoice
+              Betaling og faktura
             </p>
             {booking.payment ? (
               <div className="mt-3 space-y-2 text-sm leading-7 text-[var(--foreground)]">
                 <p>
-                  Provider: <span className="font-semibold">{formatPaymentProvider(booking.payment.provider)}</span>
+                  Leverandør: <span className="font-semibold">{formatPaymentProvider(booking.payment.provider)}</span>
                 </p>
                 <p>
                   Status: <span className="font-semibold">{formatPaymentStatus(booking.payment.status)}</span>
                 </p>
                 <p>
-                  Authorized: NOK {booking.payment.authorizedNok.toLocaleString("nb-NO")}
+                  Reservert: kr {booking.payment.authorizedNok.toLocaleString("nb-NO")}
                 </p>
                 <p>
-                  Captured: NOK {booking.payment.capturedNok.toLocaleString("nb-NO")}
+                  Trukket: kr {booking.payment.capturedNok.toLocaleString("nb-NO")}
                 </p>
                 <p>
-                  Refunded: NOK {booking.payment.refundedNok.toLocaleString("nb-NO")}
+                  Refundert: kr {booking.payment.refundedNok.toLocaleString("nb-NO")}
                 </p>
               </div>
             ) : (
               <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-                No payment has been authorized yet.
+                Ingen betaling er reservert ennå.
               </p>
             )}
             {isHunter || isAdmin ? (
@@ -378,7 +378,7 @@ export default async function BookingWorkspacePage({
                 rel="noreferrer"
                 className="mt-4 inline-flex rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
               >
-                Open invoice
+                Åpne faktura
               </a>
             ) : null}
           </article>
@@ -387,19 +387,19 @@ export default async function BookingWorkspacePage({
         <OfflineSaveLinks
           scope={`booking-${booking.id}`}
           links={[
-            { href: `/dashboard/bookings/${booking.id}`, label: "Booking workspace" },
+            { href: `/dashboard/bookings/${booking.id}`, label: "Bestillingsflate" },
             ...(booking.listing.type === "FISHING"
-              ? [{ href: `/listings/${booking.listing.slug}/field`, label: "Fishing field mode" }]
+              ? [{ href: `/listings/${booking.listing.slug}/field`, label: "Feltmodus for fiske" }]
               : []),
             ...(booking.listing.type === "FISHING"
-              ? [{ href: `/api/listings/${booking.listingId}/area`, label: "Fishing area boundary" }]
+              ? [{ href: `/api/listings/${booking.listingId}/area`, label: "Grense for fiskeområde" }]
               : []),
-            { href: `/api/listings/${booking.listingId}/calendar.ics`, label: "Calendar export" },
+            { href: `/api/listings/${booking.listingId}/calendar.ics`, label: "Kalendereksport" },
             ...(booking.contract
-              ? [{ href: `/api/bookings/${booking.id}/documents/contract`, label: "Contract document" }]
+              ? [{ href: `/api/bookings/${booking.id}/documents/contract`, label: "Kontraktdokument" }]
               : []),
             ...(booking.invoice
-              ? [{ href: `/api/bookings/${booking.id}/documents/invoice`, label: "Invoice document" }]
+              ? [{ href: `/api/bookings/${booking.id}/documents/invoice`, label: "Fakturadokument" }]
               : []),
           ]}
         />
@@ -408,36 +408,36 @@ export default async function BookingWorkspacePage({
           <div id="field-guidance" className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
             <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-                Fishing trip in the field
+                Fisketur ute i felt
               </p>
               <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
                 <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                  Area: {booking.listing.property.municipality}, {booking.listing.property.county}
+                  Område: {booking.listing.property.municipality}, {booking.listing.property.county}
                 </p>
                 {(booking.listing.rules as { areaNotes?: string } | null)?.areaNotes ? (
                   <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                    Area notes: {(booking.listing.rules as { areaNotes?: string }).areaNotes}
+                    Områdemerknader: {(booking.listing.rules as { areaNotes?: string }).areaNotes}
                   </p>
                 ) : null}
                 {(booking.listing.rules as { gearRules?: string } | null)?.gearRules ? (
                   <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                    Gear rules: {(booking.listing.rules as { gearRules?: string }).gearRules}
+                    Regler for utstyr: {(booking.listing.rules as { gearRules?: string }).gearRules}
                   </p>
                 ) : null}
                 {(booking.listing.rules as { bagLimitNotes?: string } | null)?.bagLimitNotes ? (
                   <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                    Limits: {(booking.listing.rules as { bagLimitNotes?: string }).bagLimitNotes}
+                    Begrensninger: {(booking.listing.rules as { bagLimitNotes?: string }).bagLimitNotes}
                   </p>
                 ) : null}
                 {(booking.listing.rules as { requiresNationalFishingLicense?: boolean } | null)
                   ?.requiresNationalFishingLicense ? (
                   <p className="rounded-2xl border border-[#d0dfd6] bg-[#eef5f0] px-4 py-3 text-[#29543a]">
-                    National fishing licence may also be required before you start fishing.
+                    Nasjonal fiskeravgift kan også være påkrevd før du begynner å fiske.
                   </p>
                 ) : null}
                 {booking.listing.property.cwdZone ? (
                   <p className="rounded-2xl border border-[#e7d6ae] bg-[#fff8eb] px-4 py-3 text-[#6e5630]">
-                    CWD overlap recorded on the property: {booking.listing.property.cwdZone.name}
+                    CWD-overlapp registrert på eiendommen: {booking.listing.property.cwdZone.name}
                   </p>
                 ) : null}
               </div>
@@ -446,19 +446,19 @@ export default async function BookingWorkspacePage({
                   href={`/listings/${booking.listing.slug}/field`}
                   className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white"
                 >
-                  Open field mode
+                  Åpne feltmodus
                 </Link>
                 <Link
                   href={`/dashboard/bookings/${booking.id}/licence`}
                   className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
                 >
-                  Proof screen
+                  Bevisvisning
                 </Link>
                 <Link
                   href={`/listings/${booking.listing.slug}`}
                   className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
                 >
-                  Full listing
+                  Full annonse
                 </Link>
               </div>
             </article>
@@ -466,8 +466,8 @@ export default async function BookingWorkspacePage({
             <FishingAreaWarning
               listingId={booking.listingId}
               areaNotes={(booking.listing.rules as { areaNotes?: string } | null)?.areaNotes ?? ""}
-              title="Boundary check"
-              description="Use this from the booking workspace while you are moving between pools, banks, or access paths. It helps you confirm that you are still inside the saved licence area."
+              title="Grensesjekk"
+              description="Bruk denne fra bestillingsflaten mens du beveger deg mellom kulper, bredder eller adkomststier. Den hjelper deg å bekrefte at du fortsatt er innenfor det lagrede lisensområdet."
             />
           </div>
         ) : null}
@@ -475,7 +475,7 @@ export default async function BookingWorkspacePage({
         {booking.complianceTasks.length > 0 ? (
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Compliance follow-up
+              Oppfølging av etterlevelse
             </p>
             <div className="mt-4 space-y-4">
               {booking.complianceTasks.map((task) => (
@@ -490,23 +490,23 @@ export default async function BookingWorkspacePage({
                   <p className="mt-2 text-sm leading-7 text-[var(--foreground)]">{task.description}</p>
                   <div className="mt-3 space-y-2 rounded-2xl border border-[#d8e6dc] bg-[#f4faf6] px-4 py-4 text-sm leading-7 text-[#29543a]">
                     <p>
-                      <span className="font-semibold">Why this exists:</span>{" "}
+                      <span className="font-semibold">Hvorfor dette finnes:</span>{" "}
                       {getComplianceTaskWhy(task.taskType)}
                     </p>
                     <p>
-                      <span className="font-semibold">Next step:</span>{" "}
+                      <span className="font-semibold">Neste steg:</span>{" "}
                       {getComplianceTaskNextStep(task.taskType)}
                     </p>
                   </div>
                   <div className="mt-3 space-y-1 text-sm leading-7 text-[var(--muted)]">
-                    {task.dueAt ? <p>Due: {task.dueAt.toLocaleDateString("nb-NO")}</p> : null}
-                    {task.cwdZone?.name ? <p>CWD zone: {task.cwdZone.name}</p> : null}
-                    {task.cwdZone?.contactName ? <p>Contact: {task.cwdZone.contactName}</p> : null}
-                    {task.cwdZone?.contactPhone ? <p>Phone: {task.cwdZone.contactPhone}</p> : null}
-                    {task.cwdZone?.contactEmail ? <p>Email: {task.cwdZone.contactEmail}</p> : null}
-                    {task.cwdZone?.contactWebsite ? <p>Website: {task.cwdZone.contactWebsite}</p> : null}
+                    {task.dueAt ? <p>Frist: {task.dueAt.toLocaleDateString("nb-NO")}</p> : null}
+                    {task.cwdZone?.name ? <p>CWD-sone: {task.cwdZone.name}</p> : null}
+                    {task.cwdZone?.contactName ? <p>Kontakt: {task.cwdZone.contactName}</p> : null}
+                    {task.cwdZone?.contactPhone ? <p>Telefon: {task.cwdZone.contactPhone}</p> : null}
+                    {task.cwdZone?.contactEmail ? <p>E-post: {task.cwdZone.contactEmail}</p> : null}
+                    {task.cwdZone?.contactWebsite ? <p>Nettsted: {task.cwdZone.contactWebsite}</p> : null}
                     {task.cwdZone?.samplingInstructions ? (
-                      <p>Sampling: {task.cwdZone.samplingInstructions}</p>
+                      <p>Prøvetaking: {task.cwdZone.samplingInstructions}</p>
                     ) : null}
                     {task.notes ? <p>{task.notes}</p> : null}
                   </div>
@@ -518,14 +518,14 @@ export default async function BookingWorkspacePage({
                         rel="noreferrer"
                         className="mt-4 inline-flex rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
                       >
-                        {task.actionLabel ?? "Open task link"}
+                        {task.actionLabel ?? "Åpne oppgave"}
                       </a>
                     ) : (
                       <Link
                         href={task.actionUrl}
                         className="mt-4 inline-flex rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
                       >
-                        {task.actionLabel ?? "Open task link"}
+                        {task.actionLabel ?? "Åpne oppgave"}
                       </Link>
                     )
                   ) : null}
@@ -539,25 +539,25 @@ export default async function BookingWorkspacePage({
           <FieldTripLogger
             storageKey={`heyra-booking-log:${booking.id}`}
             mode={booking.listing.type === "FISHING" ? "fishing" : "hunting"}
-            title={booking.listing.type === "FISHING" ? "Fishing trip log" : "Jaktlogg"}
+            title={booking.listing.type === "FISHING" ? "Fiskelogg" : "Jaktlogg"}
           />
         </div>
 
         {isHunter && booking.status === "COMPLETED" ? (
           <ShareToolkit
-            heading="Share your trip"
-            description="If you had a good experience, this gives you a simple way to tell other hunters or fishers about it on social media and send them back to the public listing."
+            heading="Del turen din"
+            description="Hvis du hadde en god opplevelse, gir dette deg en enkel måte å fortelle andre jegere eller fiskere om den i sosiale medier og sende dem videre til den offentlige annonsen."
             shareUrl={guestShareUrl}
             nativeTitle={booking.listing.title}
             nativeText={guestShareCaption}
             links={guestShareLinks}
             captionOptions={[
               {
-                label: "General post",
+                label: "Generelt innlegg",
                 text: guestShareCaption,
               },
               {
-                label: "Short recommendation",
+                label: "Kort anbefaling",
                 text: `Worth a look: ${booking.listing.title} on Heyra. ${guestShareUrl}`,
               },
             ]}
@@ -566,11 +566,11 @@ export default async function BookingWorkspacePage({
 
         <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-            Notification outbox
+          Varslingsutboks
           </p>
           <div className="mt-4 space-y-3">
             {booking.notifications.length === 0 ? (
-              <p className="text-sm leading-7 text-[var(--muted)]">No local notifications have been recorded yet.</p>
+              <p className="text-sm leading-7 text-[var(--muted)]">Ingen lokale varsler er registrert ennå.</p>
             ) : (
               booking.notifications.map((notification) => (
                 <div key={notification.id} className="rounded-2xl border border-[var(--border)] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
@@ -583,16 +583,16 @@ export default async function BookingWorkspacePage({
         </article>
       </section>
       <MobileActionTray
-        title="Trip actions"
+        title="Turehandlinger"
         items={[
-          { href: "/dashboard/bookings", label: "Trips" },
+          { href: "/dashboard/bookings", label: "Turer" },
           booking.listing.type === "FISHING"
-            ? { onClickAnchorId: "field-guidance", label: "Boundary" }
-            : { href: `/listings/${booking.listing.slug}`, label: "Listing" },
-          { onClickAnchorId: "trip-log", label: "Log" },
+            ? { onClickAnchorId: "field-guidance", label: "Grense" }
+            : { href: `/listings/${booking.listing.slug}`, label: "Annonse" },
+          { onClickAnchorId: "trip-log", label: "Logg" },
           booking.listing.type === "FISHING"
-            ? { href: `/dashboard/bookings/${booking.id}/licence`, label: "Proof" }
-            : { href: `/listings/${booking.listing.slug}`, label: "Listing" },
+            ? { href: `/dashboard/bookings/${booking.id}/licence`, label: "Bevis" }
+            : { href: `/listings/${booking.listing.slug}`, label: "Annonse" },
         ]}
       />
     </main>

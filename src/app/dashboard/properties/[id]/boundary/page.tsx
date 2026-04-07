@@ -27,6 +27,8 @@ export default async function PropertyBoundaryPage({
       cadastralRef: true,
       municipality: true,
       county: true,
+      boundarySource: true,
+      boundarySourceLabel: true,
     },
   });
 
@@ -45,7 +47,7 @@ export default async function PropertyBoundaryPage({
             Add the map boundary for {property.cadastralRef}.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-white/75">
-            This route is the next landing zone for map drawing. For now it gives landowners a calm explanation of what comes next, instead of dropping them into a technical GIS task without context.
+            Start with either a manual boundary or a Kartverket parcel import, then add separate hunting, fishing, and access layers if the actual offer area differs from the cadastral parcel.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -66,13 +68,13 @@ export default async function PropertyBoundaryPage({
             </p>
             <ul className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
               <li className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                You can save a real boundary today without learning a full GIS tool.
+                You can import a parcel, edit it manually, and still save a working boundary without learning a full GIS tool.
               </li>
               <li className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                The system stores a PostGIS polygon and center point for later search and map work.
+                The system stores parcel provenance, a PostGIS boundary, and separate rights overlays for later search and map work.
               </li>
               <li className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                A future map-based editor can refine the same geometry later.
+                Public listing maps can later prefer a hunting or fishing rights layer instead of showing raw cadastral detail.
               </li>
             </ul>
           </section>
@@ -83,6 +85,12 @@ export default async function PropertyBoundaryPage({
             </p>
             <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
               {property.municipality}, {property.county}
+            </p>
+            <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
+              Current source:{" "}
+              {property.boundarySource === "KARTVERKET_IMPORT"
+                ? property.boundarySourceLabel ?? "Kartverket parcel import"
+                : "Manual boundary"}
             </p>
           </section>
         </div>

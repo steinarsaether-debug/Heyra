@@ -8,52 +8,138 @@ import {
   type Listing,
   type Property,
 } from "@prisma/client";
+import type { AppLocale } from "@/lib/i18n/config";
 
 export type ListingEditorRecord = Listing & {
   property: Pick<Property, "id" | "cadastralRef" | "municipality" | "county" | "status">;
 };
 
-export function formatListingStatus(status: ListingStatus) {
-  return status
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+const localeGroup = (locale: AppLocale) => (locale === "en" ? "en" : "nb");
+
+const listingStatusLabels = {
+  nb: {
+    DRAFT: "Utkast",
+    PENDING_REVIEW: "Til gjennomgang",
+    PUBLISHED: "Publisert",
+    ARCHIVED: "Arkivert",
+  },
+  en: {
+    DRAFT: "Draft",
+    PENDING_REVIEW: "Pending review",
+    PUBLISHED: "Published",
+    ARCHIVED: "Archived",
+  },
+} satisfies Record<"nb" | "en", Record<ListingStatus, string>>;
+
+const listingTypeLabels = {
+  nb: {
+    HUNTING: "Jakt",
+    FISHING: "Fiske",
+  },
+  en: {
+    HUNTING: "Hunting",
+    FISHING: "Fishing",
+  },
+} satisfies Record<"nb" | "en", Record<ListingType, string>>;
+
+const governanceLabels = {
+  nb: {
+    INDIVIDUAL_PROPERTY: "Enkeltstående eiendom",
+    VALD_MANAGED: "Vald-styrt",
+  },
+  en: {
+    INDIVIDUAL_PROPERTY: "Individual property",
+    VALD_MANAGED: "Vald-managed",
+  },
+} satisfies Record<"nb" | "en", Record<ListingGovernanceModel, string>>;
+
+const pricingLabels = {
+  nb: {
+    PER_DAY: "Per dag",
+    PER_SEASON: "Per sesong",
+    PER_ANIMAL: "Per dyr",
+  },
+  en: {
+    PER_DAY: "Per day",
+    PER_SEASON: "Per season",
+    PER_ANIMAL: "Per animal",
+  },
+} satisfies Record<"nb" | "en", Record<PricingModel, string>>;
+
+const cancellationLabels = {
+  nb: {
+    FLEXIBLE: "Fleksibel",
+    MODERATE: "Moderat",
+    STRICT: "Streng",
+  },
+  en: {
+    FLEXIBLE: "Flexible",
+    MODERATE: "Moderate",
+    STRICT: "Strict",
+  },
+} satisfies Record<"nb" | "en", Record<CancellationPolicy, string>>;
+
+const speciesLabels = {
+  nb: {
+    ELG: "Elg",
+    HJORT: "Hjort",
+    RADYR: "Rådyr",
+    VILLREIN: "Villrein",
+    REV: "Rev",
+    RYPE: "Rype",
+    HARE: "Hare",
+    AND: "And",
+    LAKS: "Laks",
+    SJOOERRET: "Sjøørret",
+    ROYE: "Røye",
+    OERRET: "Ørret",
+    ABBOR: "Abbor",
+    GJEDDE: "Gjedde",
+  },
+  en: {
+    ELG: "Moose",
+    HJORT: "Red deer",
+    RADYR: "Deer",
+    VILLREIN: "Wild reindeer",
+    REV: "Fox",
+    RYPE: "Grouse",
+    HARE: "Hare",
+    AND: "Duck",
+    LAKS: "Salmon",
+    SJOOERRET: "Sea trout",
+    ROYE: "Arctic char",
+    OERRET: "Trout",
+    ABBOR: "Perch",
+    GJEDDE: "Pike",
+  },
+} satisfies Record<"nb" | "en", Record<Species, string>>;
+
+export function formatListingStatus(status: ListingStatus, locale: AppLocale = "nb") {
+  return listingStatusLabels[localeGroup(locale)][status];
 }
 
-export function formatListingType(type: ListingType) {
-  return type.charAt(0) + type.slice(1).toLowerCase();
+export function formatListingType(type: ListingType, locale: AppLocale = "nb") {
+  return listingTypeLabels[localeGroup(locale)][type];
 }
 
-export function formatListingGovernanceModel(model: ListingGovernanceModel) {
-  return model
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+export function formatListingGovernanceModel(model: ListingGovernanceModel, locale: AppLocale = "nb") {
+  return governanceLabels[localeGroup(locale)][model];
 }
 
-export function formatPricingModel(model: PricingModel) {
-  return model
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+export function formatPricingModel(model: PricingModel, locale: AppLocale = "nb") {
+  return pricingLabels[localeGroup(locale)][model];
 }
 
-export function formatCancellationPolicy(policy: CancellationPolicy) {
-  return policy.charAt(0) + policy.slice(1).toLowerCase();
+export function formatCancellationPolicy(policy: CancellationPolicy, locale: AppLocale = "nb") {
+  return cancellationLabels[localeGroup(locale)][policy];
 }
 
-export function formatSpecies(species: Species[]) {
+export function formatSpecies(species: Species[], locale: AppLocale = "nb") {
   if (species.length === 0) {
-    return "Not set";
+    return localeGroup(locale) === "en" ? "Not set" : "Ikke satt";
   }
 
-  return species
-    .map((item) => item.toLowerCase())
-    .map((item) => item.charAt(0).toUpperCase() + item.slice(1))
-    .join(", ");
+  return species.map((item) => speciesLabels[localeGroup(locale)][item]).join(", ");
 }
 
 export function getListingChecklist(listing: Pick<Listing, "title" | "description" | "species" | "photos" | "priceNok"> | null) {

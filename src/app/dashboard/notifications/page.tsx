@@ -52,36 +52,36 @@ export default async function DashboardNotificationsPage() {
       <section className="space-y-6">
         <div className="max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--amber)]">
-            Alerts
+            Varsler
           </p>
           <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
-            Keep track of contracts, payments, and trip updates.
+            Følg med på kontrakter, betalinger og oppdateringer om turene.
           </h1>
           <p className="mt-4 text-lg leading-8 text-[var(--muted)]">
-            This is the first in-app notification center. It mirrors the local outbox so you can still see what the platform tried to tell you, even before external messaging providers are wired in.
+            Dette er det første varslingssenteret i appen. Det speiler den lokale utboksen slik at du fortsatt kan se hva plattformen forsøkte å fortelle deg, også før eksterne meldingsleverandører er koblet til.
           </p>
         </div>
 
         <OfflinePageNote
-          onlineText="This alerts view is worth caching before travel, especially if you want the latest booking and contract messages available in the field."
-          offlineText="You are offline. Alerts shown here come from the latest cached version, so newer confirmations or payment updates may not be visible yet."
+          onlineText="Det er lurt å lagre denne varslingsvisningen før du reiser, særlig hvis du vil ha de siste bestillings- og kontraktsmeldingene tilgjengelige ute i felt."
+          offlineText="Du er frakoblet. Varslene som vises her kommer fra sist lagrede versjon, så nyere bekreftelser eller betalingsoppdateringer er kanskje ikke synlige ennå."
         />
         {latestNotificationUpdate ? (
           <OfflineFreshnessNote
             updatedAt={latestNotificationUpdate.toISOString()}
-            label="This alerts view"
+            label="Denne varslingsvisningen"
           />
         ) : null}
         <OfflineSaveLinks
           scope={`notifications-${session.user.id}`}
           links={[
-            { href: "/dashboard/notifications", label: "Alerts center" },
+            { href: "/dashboard/notifications", label: "Varslingssenter" },
             ...notifications
               .filter((notification) => notification.bookingId)
               .slice(0, 6)
               .map((notification) => ({
                 href: `/dashboard/bookings/${notification.bookingId}`,
-                label: `${notification.booking?.listing.title ?? "Booking"} workspace`,
+                label: `${notification.booking?.listing.title ?? "Bestilling"} arbeidsflate`,
               })),
           ]}
         />
@@ -89,13 +89,13 @@ export default async function DashboardNotificationsPage() {
         <div className="grid gap-4 lg:grid-cols-3">
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Total alerts
+              Totalt antall varsler
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{notifications.length}</p>
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Pending
+              Venter
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">
               {notifications.filter((notification) => notification.status === NotificationStatus.PENDING).length}
@@ -103,7 +103,7 @@ export default async function DashboardNotificationsPage() {
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Sent locally
+              Sendt lokalt
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">
               {notifications.filter((notification) => notification.status === NotificationStatus.SENT).length}
@@ -114,7 +114,7 @@ export default async function DashboardNotificationsPage() {
         <div className="grid gap-4">
           {notifications.length === 0 ? (
             <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6 text-sm leading-7 text-[var(--muted)]">
-              No alerts yet. Booking, contract, and payment activity will start to appear here as you use the app.
+              Ingen varsler ennå. Aktivitet knyttet til bestillinger, kontrakter og betalinger vil vises her etter hvert som du bruker appen.
             </article>
           ) : (
             notifications.map((notification) => (
@@ -132,8 +132,8 @@ export default async function DashboardNotificationsPage() {
                       {notification.body}
                     </p>
                     <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-                      Created {notification.createdAt.toLocaleString("nb-NO")}
-                      {notification.sentAt ? ` · Sent ${notification.sentAt.toLocaleString("nb-NO")}` : ""}
+                      Opprettet {notification.createdAt.toLocaleString("nb-NO")}
+                      {notification.sentAt ? ` · Sendt ${notification.sentAt.toLocaleString("nb-NO")}` : ""}
                     </p>
                     {notification.errorMessage ? (
                       <p className="mt-3 rounded-2xl border border-[#e7d6ae] bg-[#fff8eb] px-4 py-3 text-sm leading-7 text-[#6e5630]">
@@ -147,7 +147,7 @@ export default async function DashboardNotificationsPage() {
                         href={`/dashboard/bookings/${notification.booking.id}`}
                         className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
                       >
-                        Open booking
+                        Åpne bestilling
                       </Link>
                     ) : null}
                     {notification.booking?.listing.slug ? (
@@ -155,7 +155,7 @@ export default async function DashboardNotificationsPage() {
                         href={`/listings/${notification.booking.listing.slug}`}
                         className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
                       >
-                        Open listing
+                        Åpne annonse
                       </Link>
                     ) : null}
                   </div>

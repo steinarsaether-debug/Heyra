@@ -31,6 +31,17 @@ export default async function PropertyDetailPage({
     },
     include: {
       vald: true,
+      rightsOverlays: {
+        select: {
+          id: true,
+          title: true,
+          overlayType: true,
+          visibility: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
       listings: {
         orderBy: {
           createdAt: "desc",
@@ -144,7 +155,21 @@ export default async function PropertyDetailPage({
               </div>
               <div>
                 <dt className="font-semibold text-[var(--foreground)]">Boundary captured</dt>
-                <dd>{completion.hasBoundary ? "Yes" : "Not yet"}</dd>
+                <dd>
+                  {completion.hasBoundary
+                    ? property.boundarySource === "KARTVERKET_IMPORT"
+                      ? `Yes · imported from ${property.boundarySourceLabel ?? "Kartverket"}`
+                      : "Yes · manual or adjusted"
+                    : "Not yet"}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-semibold text-[var(--foreground)]">Rights and access layers</dt>
+                <dd>
+                  {property.rightsOverlays.length > 0
+                    ? `${property.rightsOverlays.length} layer${property.rightsOverlays.length === 1 ? "" : "s"} stored`
+                    : "No separate hunting, fishing, or access layers yet"}
+                </dd>
               </div>
               <div>
                 <dt className="font-semibold text-[var(--foreground)]">Facilities</dt>

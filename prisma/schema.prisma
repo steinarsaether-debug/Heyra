@@ -92,6 +92,11 @@ enum ConfidenceLevel {
   HIGH
 }
 
+enum BoundarySource {
+  MANUAL
+  KARTVERKET_IMPORT
+}
+
 enum ValdVerificationMethod {
   SELF_DECLARED
   MUNICIPAL_REFERENCE
@@ -103,6 +108,29 @@ enum SharedApprovalStatus {
   NOT_REQUESTED
   PENDING
   CONFIRMED
+}
+
+enum RightsOverlayType {
+  HUNTING_AREA
+  FISHING_ZONE
+  EXCLUDED_ZONE
+  ACCESS_ZONE
+  ENTRY_ZONE
+}
+
+enum RightsOverlayVisibility {
+  PRIVATE_DRAFT
+  INTERNAL_REVIEW
+  PUBLIC_SIMPLIFIED
+  BOOKER_ONLY_DETAILED
+}
+
+enum RightsOverlayProvenance {
+  MANUAL
+  KARTVERKET_IMPORT
+  MUNICIPAL_NOTE
+  VALD_NOTE
+  EXTERNAL_DATASET
 }
 
 enum BookingStatus {
@@ -327,6 +355,10 @@ model Property {
   geometryConfidence ConfidenceLevel                     @default(LOW)
   rightsConfidence   ConfidenceLevel                     @default(LOW)
   governanceConfidence ConfidenceLevel                  @default(LOW)
+  boundarySource       BoundarySource                    @default(MANUAL)
+  boundaryImportedAt   DateTime?
+  boundarySourceRef    String?
+  boundarySourceLabel  String?
   boundaryIsApproximate Boolean                         @default(false)
   rightsDifferFromBoundary Boolean                      @default(false)
   terrainTypes   TerrainType[]
@@ -336,6 +368,7 @@ model Property {
   cwdZone        CwdZone?                                @relation(fields: [cwdZoneId], references: [id], onDelete: SetNull)
   status         PropertyStatus                          @default(DRAFT)
   listings       Listing[]
+  rightsOverlays RightsOverlay[]
   createdAt      DateTime                                @default(now())
   updatedAt      DateTime                                @updatedAt
 
@@ -432,11 +465,34 @@ model Listing {
   hunterExperiences    HunterExperience[]
   reviews              Review[]
   complianceTasks      ComplianceTask[]
+  rightsOverlays       RightsOverlay[]
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
 
   @@index([propertyId, status])
   @@index([valdId, status])
+}
+
+model RightsOverlay {
+  id           String                  @id @default(cuid())
+  propertyId   String
+  property     Property                @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  listingId    String?
+  listing      Listing?                @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  title        String
+  description  String?                 @db.Text
+  overlayType  RightsOverlayType
+  visibility   RightsOverlayVisibility @default(PRIVATE_DRAFT)
+  provenance   RightsOverlayProvenance @default(MANUAL)
+  confidence   ConfidenceLevel         @default(LOW)
+  sourceRef    String?
+  sourceLabel  String?
+  geometry     Unsupported("geometry(MultiPolygon, 4326)")
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+
+  @@index([propertyId, visibility, overlayType])
+  @@index([listingId, visibility])
 }
 
 model ServiceProviderProfile {

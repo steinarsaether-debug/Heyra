@@ -82,13 +82,13 @@ export default async function ServiceInsightsPage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--amber)]">
-              Service insights
+              Tjenesteinnsikt
             </p>
             <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
-              Track marketplace coverage before launch.
+              Følg markedsdekningen før lansering.
             </h1>
             <p className="mt-4 text-lg leading-8 text-[var(--muted)]">
-              This view is for launch readiness rather than ad-style analytics. It answers whether the service layer is broad enough, reviewed enough, and close enough to active areas.
+              Denne visningen er laget for lanseringsberedskap, ikke annonseanalyse. Den svarer på om tjenestelaget er bredt nok, godt nok gjennomgått og nær nok aktive områder.
             </p>
           </div>
 
@@ -96,20 +96,20 @@ export default async function ServiceInsightsPage() {
             href="/dashboard/services"
             className="rounded-full border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)]"
           >
-            Back to services
+            Tilbake til tjenester
           </Link>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-4">
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Services
+              Tjenester
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{services.length}</p>
           </article>
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Published
+              Publisert
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">
               {services.filter((service) => service.status === "PUBLISHED").length}
@@ -117,13 +117,13 @@ export default async function ServiceInsightsPage() {
           </article>
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Reviewed providers
+              Gjennomgåtte leverandører
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{approvedProviders}</p>
           </article>
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Nearby coverage
+              Nærdekning
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{listingsWithNearbyServices.length}</p>
           </article>
@@ -132,7 +132,7 @@ export default async function ServiceInsightsPage() {
         <div className="grid gap-4 lg:grid-cols-2">
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Category coverage
+              Kategoridekning
             </p>
             <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
               {categorySummary.length > 0 ? (
@@ -143,7 +143,7 @@ export default async function ServiceInsightsPage() {
                 ))
               ) : (
                 <div className="rounded-2xl border border-[var(--border)] px-4 py-3 text-[var(--muted)]">
-                  No services yet.
+                  Ingen tjenester ennå.
                 </div>
               )}
             </div>
@@ -151,17 +151,17 @@ export default async function ServiceInsightsPage() {
 
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Launch-readiness view
+              Vurdering av lanseringsberedskap
             </p>
             <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
               <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                Reviewed providers should cover more than one category before Norway launch confidence is high.
+                Gjennomgåtte leverandører bør dekke mer enn én kategori før tilliten til Norges-lanseringen er høy.
               </div>
               <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                Nearby coverage matters more than total count. The goal is practical usefulness around published listings, not a large empty directory.
+                Nærdekning betyr mer enn totalantall. Målet er praktisk nytte rundt publiserte annonser, ikke en stor tom katalog.
               </div>
               <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                Service reviews are intentionally deferred until a real service booking or bundled purchase model exists.
+                Tjenesteanmeldelser er bevisst utsatt til det finnes en reell modell for tjenestebestilling eller sammenslått kjøp.
               </div>
             </div>
           </article>

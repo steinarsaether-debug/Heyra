@@ -54,26 +54,26 @@ export default async function DashboardServicesPage() {
         <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
           <div className="rounded-[1.8rem] bg-[var(--forest)] p-8 text-[var(--background)]">
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
-              Services
+              Tjenester
             </p>
             <h1 className="mt-5 text-4xl leading-tight sm:text-5xl">
-              Add the local services guests need around the trip.
+              Legg til lokale tjenester gjestene trenger rundt turen.
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-white/75">
-              Start with one trusted provider profile, then publish dog handling, butchering, accommodation, or transport services that fit the areas you already know.
+              Start med én troverdig leverandørprofil, og publiser så ettersøkshund, slakting, overnatting eller transport som passer områdene du allerede kjenner.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href={profile ? "/dashboard/services/new" : "#provider-profile"}
                 className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-[var(--forest)]"
               >
-                Add service
+                Legg til tjeneste
               </Link>
               <Link
                 href="/services"
                 className="rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white"
               >
-                Browse public services
+                Se offentlige tjenester
               </Link>
             </div>
           </div>
@@ -81,11 +81,11 @@ export default async function DashboardServicesPage() {
           <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-1">
             <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-                Provider profile
+                Leverandørprofil
               </p>
-              <p className="mt-3 text-2xl text-[var(--forest)]">{profile ? "Ready" : "Missing"}</p>
+              <p className="mt-3 text-2xl text-[var(--forest)]">{profile ? "Klar" : "Mangler"}</p>
               <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                One provider profile supports every service you publish.
+                Én leverandørprofil brukes på alle tjenestene du publiserer.
               </p>
               {serviceTrustSummary ? (
                 <p className="mt-3 text-sm leading-7 text-[var(--foreground)]">{serviceTrustSummary}</p>
@@ -94,13 +94,13 @@ export default async function DashboardServicesPage() {
             </article>
             <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-                Pending review
+                Til gjennomgang
               </p>
               <p className="mt-3 text-2xl text-[var(--forest)]">{pendingCount}</p>
             </article>
             <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-                Published
+                Publisert
               </p>
               <p className="mt-3 text-2xl text-[var(--forest)]">{publishedCount}</p>
             </article>
@@ -143,9 +143,9 @@ export default async function DashboardServicesPage() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[var(--amber)]">
-                Your services
+                Dine tjenester
               </p>
-              <h2 className="mt-2 text-3xl text-[var(--forest)]">Manage service drafts and published offers.</h2>
+              <h2 className="mt-2 text-3xl text-[var(--forest)]">Administrer tjenesteutkast og publiserte tilbud.</h2>
             </div>
             {profile ? (
               <div className="flex flex-wrap gap-3">
@@ -153,13 +153,13 @@ export default async function DashboardServicesPage() {
                   href="/dashboard/services/insights"
                   className="rounded-full border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)]"
                 >
-                  Service insights
+                  Tjenesteinnsikt
                 </Link>
                 <Link
                   href="/dashboard/services/new"
                   className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-white"
                 >
-                  Add service
+                  Legg til tjeneste
                 </Link>
               </div>
             ) : null}
@@ -167,11 +167,11 @@ export default async function DashboardServicesPage() {
 
           {!profile ? (
             <div className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6 text-sm leading-7 text-[var(--muted)]">
-              Save the provider profile first, then you can add individual services.
+              Lagre leverandørprofilen først, så kan du legge til enkelttjenester.
             </div>
           ) : profile.services.length === 0 ? (
             <div className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6 text-sm leading-7 text-[var(--muted)]">
-              No services yet. Start with one practical local offer and send it to review.
+              Ingen tjenester ennå. Start med ett praktisk lokalt tilbud og send det til gjennomgang.
             </div>
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
@@ -196,14 +196,14 @@ export default async function DashboardServicesPage() {
                       href={`/dashboard/services/${service.id}`}
                       className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white"
                     >
-                      Edit service
+                      Rediger tjeneste
                     </Link>
                     {service.status === "PUBLISHED" ? (
                       <Link
                         href={`/services/${service.slug}`}
                         className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
                       >
-                        View public page
+                        Se offentlig side
                       </Link>
                     ) : null}
                   </div>

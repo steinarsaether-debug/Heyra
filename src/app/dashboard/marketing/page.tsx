@@ -56,13 +56,13 @@ export default async function MarketingPage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--amber)]">
-              Marketing
+              Markedsføring
             </p>
             <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
-              See which shared listings are creating real demand.
+              Se hvilke delte annonser som faktisk skaper etterspørsel.
             </h1>
             <p className="mt-4 text-lg leading-8 text-[var(--muted)]">
-              This is the first cross-listing marketing view. It focuses on attributed booking requests rather than raw traffic, so the signal stays closer to actual business value.
+              Dette er den første markedsoversikten på tvers av annonser. Den fokuserer på attribuerte bestillingsforespørsler fremfor rå trafikk, slik at signalet ligger nærmere faktisk forretningsverdi.
             </p>
           </div>
 
@@ -70,32 +70,32 @@ export default async function MarketingPage() {
             href="/dashboard/properties"
             className="rounded-full border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)]"
           >
-            Back to properties
+            Tilbake til eiendommer
           </Link>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-4">
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Listings
+              Annonser
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{listings.length}</p>
           </article>
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Attributed requests
+              Attribuerte forespørsler
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{attributedBookings}</p>
           </article>
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Latest sources
+              Siste kilder
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{overallSummary.lastTouch.length}</p>
           </article>
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Attributed share rate
+              Attribuert delingsrate
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{attributedRate}%</p>
           </article>
@@ -104,18 +104,18 @@ export default async function MarketingPage() {
         <div className="grid gap-4 lg:grid-cols-2">
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              First touch across listings
+              Første berøringspunkt på tvers av annonser
             </p>
             <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
               {overallSummary.firstTouch.length > 0 ? (
                 overallSummary.firstTouch.map((item) => (
                   <div key={item.key} className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                    <span className="font-semibold">{item.label}</span>: {item.count} booking request{item.count === 1 ? "" : "s"}
+                    <span className="font-semibold">{item.label}</span>: {item.count} bestillingsforespørsel{item.count === 1 ? "" : "er"}
                   </div>
                 ))
               ) : (
                 <div className="rounded-2xl border border-[var(--border)] px-4 py-3 text-[var(--muted)]">
-                  No first-touch attribution has been recorded yet.
+                  Ingen førsteberørings-attribusjon er registrert ennå.
                 </div>
               )}
             </div>
@@ -123,18 +123,18 @@ export default async function MarketingPage() {
 
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Last touch across listings
+              Siste berøringspunkt på tvers av annonser
             </p>
             <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
               {overallSummary.lastTouch.length > 0 ? (
                 overallSummary.lastTouch.map((item) => (
                   <div key={item.key} className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                    <span className="font-semibold">{item.label}</span>: {item.count} booking request{item.count === 1 ? "" : "s"}
+                    <span className="font-semibold">{item.label}</span>: {item.count} bestillingsforespørsel{item.count === 1 ? "" : "er"}
                   </div>
                 ))
               ) : (
                 <div className="rounded-2xl border border-[var(--border)] px-4 py-3 text-[var(--muted)]">
-                  No last-touch attribution has been recorded yet.
+                  Ingen attribusjon for siste berøringspunkt er registrert ennå.
                 </div>
               )}
             </div>
@@ -143,17 +143,17 @@ export default async function MarketingPage() {
 
         <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-            Posting guidance
+            Veiledning for deling
           </p>
           <div className="mt-4 grid gap-3 text-sm leading-7 text-[var(--foreground)] lg:grid-cols-3">
             <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
-              Use the campaign presets from each listing workspace when you post to your own network, Facebook groups, or returning guests. That keeps the attribution cleaner.
+              Bruk kampanjeforslagene fra hver annonseflate når du deler i eget nettverk, Facebook-grupper eller til tidligere gjester. Det gir renere attribusjon.
             </div>
             <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
-              Prefer the branded preview image when posting manually. It gives the listing a consistent visual identity even if the platform does not generate the card automatically.
+              Bruk helst det merkevarede forhåndsvisningsbildet når du publiserer manuelt. Det gir annonsen en jevn visuell identitet også når plattformen ikke lager kortet automatisk.
             </div>
             <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
-              Watch attributed share rate over time instead of only raw booking count. Low rate can mean the audience is broad but not well matched to the listing.
+              Følg attribuert delingsrate over tid, ikke bare rått antall bestillinger. Lav rate kan bety at publikumet er bredt, men ikke godt nok tilpasset annonsen.
             </div>
           </div>
         </article>
@@ -181,15 +181,15 @@ export default async function MarketingPage() {
                       {listing.property.cadastralRef} · {listing.property.municipality}
                     </p>
                     <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                      {listingAttributedBookings} attributed booking request{listingAttributedBookings === 1 ? "" : "s"}
+                      {listingAttributedBookings} attribuert bestillingsforespørsel{listingAttributedBookings === 1 ? "" : "er"}
                     </p>
                     <p className="mt-1 text-sm leading-7 text-[var(--muted)]">
-                      Attributed share rate: {listingShareRate}% of {listing.bookings.length} booking request{listing.bookings.length === 1 ? "" : "s"}
+                      Attribuert delingsrate: {listingShareRate}% av {listing.bookings.length} bestillingsforespørsel{listing.bookings.length === 1 ? "" : "er"}
                     </p>
                     <p className="mt-1 text-sm leading-7 text-[var(--muted)]">
                       {summary.lastTouch[0]
-                        ? `Top latest source: ${summary.lastTouch[0].label}`
-                        : "No tagged source recorded yet"}
+                        ? `Viktigste siste kilde: ${summary.lastTouch[0].label}`
+                        : "Ingen tagget kilde er registrert ennå"}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-3">
@@ -197,20 +197,20 @@ export default async function MarketingPage() {
                       href={`/dashboard/properties/${listing.property.id}/listing`}
                       className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
                     >
-                      Listing workspace
+                      Annonseflate
                     </Link>
                     <Link
                       href={`/dashboard/properties/${listing.property.id}/insights`}
                       className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
                     >
-                      Property insights
+                      Eiendomsinnsikt
                     </Link>
                     {listing.slug ? (
                       <Link
                         href={`/listings/${listing.slug}`}
                         className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
                       >
-                        Public listing
+                        Offentlig annonse
                       </Link>
                     ) : null}
                   </div>

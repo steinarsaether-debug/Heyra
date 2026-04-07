@@ -7,35 +7,35 @@ export function getTrustSummary({
 }) {
   if (!averageRating || reviewCount === 0) {
     return {
-      label: "No trust history yet",
-      detail: "No completed-trip reviews have been approved yet.",
+      label: "Ingen tillitshistorikk ennå",
+      detail: "Ingen vurderinger fra fullførte turer er godkjent ennå.",
     };
   }
 
   if (reviewCount >= 10 && averageRating >= 4.8) {
     return {
-      label: "Highly trusted",
-      detail: "Strong pattern of positive completed-trip reviews.",
+      label: "Svært høy tillit",
+      detail: "Tydelig mønster av positive vurderinger fra fullførte turer.",
     };
   }
 
   if (reviewCount >= 5 && averageRating >= 4) {
     return {
-      label: "Established trust",
-      detail: "Consistent review history across completed trips.",
+      label: "Etablert tillit",
+      detail: "Jevn vurderingshistorikk på tvers av fullførte turer.",
     };
   }
 
   if (reviewCount >= 2) {
     return {
-      label: "Early trust signal",
-      detail: "Some approved review history is now available.",
+      label: "Tidlig tillitssignal",
+      detail: "Det finnes nå noe godkjent vurderingshistorikk.",
     };
   }
 
   return {
-    label: "First trust signal",
-    detail: "A small amount of review history is available so far.",
+    label: "Første tillitssignal",
+    detail: "Det finnes foreløpig en liten mengde vurderingshistorikk.",
   };
 }
 
@@ -65,7 +65,7 @@ export function getHostQualityBadge({
   if (averageRating >= 4.8 && cancellationRate < 0.02) {
     return {
       label: "Highly rated host",
-      detail: "Based on review score and a very low cancellation rate.",
+      detail: "Basert på vurderingsscore og svært lav avbestillingsrate.",
       tone: "forest",
     };
   }
@@ -73,7 +73,7 @@ export function getHostQualityBadge({
   if (averageRating >= 4.5 && approvedReviewCount >= 5 && cancellationRate < 0.08) {
     return {
       label: "Reliable host",
-      detail: "Consistent ratings and a low cancellation rate across completed trips.",
+      detail: "Jevne vurderinger og lav avbestillingsrate på tvers av fullførte turer.",
       tone: "amber",
     };
   }
@@ -81,7 +81,7 @@ export function getHostQualityBadge({
   if (averageRating >= 4.2 && cancellationRate < 0.15) {
     return {
       label: "Consistent host",
-      detail: "A steady first record of positive completed-trip hosting.",
+      detail: "Et stabilt første grunnlag av positive fullførte vertskapsturer.",
       tone: "amber",
     };
   }

@@ -9,13 +9,30 @@ import {
   Polygon,
   ScaleControl,
   TileLayer,
+  WMSTileLayer,
   useMapEvents,
 } from "react-leaflet";
 
+type Point = {
+  lat: number;
+  lng: number;
+};
+
+type OverlayShape = {
+  id: string;
+  title: string;
+  overlayType: string;
+  polygons: Point[][];
+};
+
 type BoundaryMapProps = {
-  points: Array<{ lat: number; lng: number }>;
-  onAddPoint: (point: { lat: number; lng: number }) => void;
-  onMovePoint: (index: number, point: { lat: number; lng: number }) => void;
+  points: Point[];
+  onAddPoint: (point: Point) => void;
+  onMovePoint: (index: number, point: Point) => void;
+  onCenterChange?: (point: Point) => void;
+  rightsOverlays?: OverlayShape[];
+  kartverketWmsUrl?: string;
+  kartverketWmsLayers?: string;
 };
 
 const norwayCenter: [number, number] = [61.0, 10.5];
@@ -33,16 +50,43 @@ function createPointIcon(index: number) {
   });
 }
 
-function MapClickHandler({
+function colorForOverlayType(overlayType: string) {
+  switch (overlayType) {
+    case "FISHING_ZONE":
+      return { color: "#2563eb", fillColor: "#93c5fd" };
+    case "ACCESS_ZONE":
+    case "ENTRY_ZONE":
+      return { color: "#1d4ed8", fillColor: "#bfdbfe" };
+    case "EXCLUDED_ZONE":
+      return { color: "#b91c1c", fillColor: "#fecaca" };
+    default:
+      return { color: "#166534", fillColor: "#bbf7d0" };
+  }
+}
+
+function MapInteractionHandler({
   onAddPoint,
+  onCenterChange,
 }: {
-  onAddPoint: (point: { lat: number; lng: number }) => void;
+  onAddPoint: (point: Point) => void;
+  onCenterChange?: (point: Point) => void;
 }) {
   useMapEvents({
     click(event) {
       onAddPoint({
         lat: Number(event.latlng.lat.toFixed(6)),
         lng: Number(event.latlng.lng.toFixed(6)),
+      });
+    },
+    moveend(event) {
+      if (!onCenterChange) {
+        return;
+      }
+
+      const center = event.target.getCenter();
+      onCenterChange({
+        lat: Number(center.lat.toFixed(6)),
+        lng: Number(center.lng.toFixed(6)),
       });
     },
   });
@@ -54,6 +98,10 @@ export default function BoundaryMapInner({
   points,
   onAddPoint,
   onMovePoint,
+  onCenterChange,
+  rightsOverlays = [],
+  kartverketWmsUrl,
+  kartverketWmsLayers,
 }: BoundaryMapProps) {
   const center: [number, number] =
     points.length > 0 ? [points[0].lat, points[0].lng] : norwayCenter;
@@ -76,11 +124,50 @@ export default function BoundaryMapInner({
               />
             </LayersControl.BaseLayer>
             <LayersControl.BaseLayer name="OpenStreetMap fallback">
-              <TileLayer attribution={osmAttribution} url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              <TileLayer
+                attribution={osmAttribution}
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
             </LayersControl.BaseLayer>
+            {kartverketWmsUrl && kartverketWmsLayers ? (
+              <LayersControl.Overlay checked name="Eiendomsgrenser (Kartverket)">
+                <WMSTileLayer
+                  url={kartverketWmsUrl}
+                  layers={kartverketWmsLayers}
+                  format="image/png"
+                  transparent
+                  attribution={kartverketAttribution}
+                />
+              </LayersControl.Overlay>
+            ) : null}
+            {rightsOverlays.map((overlay) => {
+              const colors = colorForOverlayType(overlay.overlayType);
+              const positions = overlay.polygons.map((polygon) =>
+                polygon.map((point) => [point.lat, point.lng] as [number, number]),
+              );
+
+              return (
+                <LayersControl.Overlay
+                  checked
+                  key={overlay.id}
+                  name={`Lag: ${overlay.title}`}
+                >
+                  <Polygon
+                    positions={positions}
+                    pathOptions={{
+                      color: colors.color,
+                      fillColor: colors.fillColor,
+                      fillOpacity: 0.2,
+                      weight: 2,
+                      dashArray: "6 4",
+                    }}
+                  />
+                </LayersControl.Overlay>
+              );
+            })}
           </LayersControl>
           <ScaleControl imperial={false} />
-          <MapClickHandler onAddPoint={onAddPoint} />
+          <MapInteractionHandler onAddPoint={onAddPoint} onCenterChange={onCenterChange} />
           {polygonPositions.length >= 3 ? (
             <Polygon
               positions={polygonPositions}
@@ -112,10 +199,12 @@ export default function BoundaryMapInner({
         </MapContainer>
       </div>
       <div className="flex flex-wrap items-center gap-3 rounded-[1.2rem] border border-[var(--border)] bg-white/75 px-4 py-3 text-sm text-[var(--muted)]">
-        <span>Kartverket topo tiles are the default background so the boundary step feels closer to the Norwegian cadastral context.</span>
+        <span>
+          Kartverket topo is the default base map, and the parcel overlay can be toggled on for cadastral context while Heyra layers show the actual offer area.
+        </span>
         {points.length > 0 ? (
           <Link
-            href={`https://norgeskart.no/#!?project=seeiendom&layers=1002&zoom=12&lat=${points[0].lat}&lon=${points[0].lng}`}
+            href={`https://norgeskart.no/?zoom=12&lat=${points[0].lat}&lon=${points[0].lng}&backgroundLayer=topo&panel=Seeiendom`}
             target="_blank"
             rel="noreferrer"
             className="font-semibold text-[var(--forest)]"

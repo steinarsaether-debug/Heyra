@@ -154,7 +154,7 @@ export default async function ListingFieldModePage({
             </p>
             <div className="mt-4 grid gap-3 text-sm leading-7 text-[var(--foreground)]">
               <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                {formatSpecies(listing.species)} · {formatPricingModel(listing.pricingModel)} · NOK {listing.priceNok.toLocaleString("nb-NO")}
+                {formatSpecies(listing.species, "nb")} · {formatPricingModel(listing.pricingModel, "nb")} · NOK {listing.priceNok.toLocaleString("nb-NO")}
               </p>
               <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
                 Area: {listing.property.municipality}, {listing.property.county}

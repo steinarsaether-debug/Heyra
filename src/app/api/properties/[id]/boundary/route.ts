@@ -3,21 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { boundarySchema } from "@/lib/boundary-schema";
 import { refreshPropertyCwdStatus } from "@/lib/cwd-zones";
+import { buildPolygonWkt, geometryJsonToPoints } from "@/lib/geometry";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
-
-function buildPolygonWkt(points: Array<{ lat: number; lng: number }>) {
-  const normalized = [...points];
-  const first = normalized[0];
-  const last = normalized[normalized.length - 1];
-
-  if (first.lat !== last.lat || first.lng !== last.lng) {
-    normalized.push(first);
-  }
-
-  return `POLYGON((${normalized.map((point) => `${point.lng} ${point.lat}`).join(", ")}))`;
-}
 
 export async function GET(
   _request: NextRequest,
@@ -32,8 +21,21 @@ export async function GET(
   const { id } = await context.params;
 
   try {
-    const rows = await prisma.$queryRaw<Array<{ geometry_json: string | null }>>`
-      SELECT ST_AsGeoJSON("boundary") AS geometry_json
+    const rows = await prisma.$queryRaw<
+      Array<{
+        geometry_json: string | null;
+        boundary_source: string | null;
+        boundary_imported_at: Date | null;
+        boundary_source_ref: string | null;
+        boundary_source_label: string | null;
+      }>
+    >`
+      SELECT
+        ST_AsGeoJSON("boundary") AS geometry_json,
+        "boundarySource"::text AS boundary_source,
+        "boundaryImportedAt" AS boundary_imported_at,
+        "boundarySourceRef" AS boundary_source_ref,
+        "boundarySourceLabel" AS boundary_source_label
       FROM "Property"
       WHERE "id" = ${id} AND "ownerId" = ${session.user.id}
       LIMIT 1
@@ -46,18 +48,22 @@ export async function GET(
     const geometryJson = rows[0]?.geometry_json;
 
     if (!geometryJson) {
-      return NextResponse.json({ points: [] });
+      return NextResponse.json({
+        points: [],
+        boundarySource: rows[0]?.boundary_source ?? "MANUAL",
+        boundaryImportedAt: rows[0]?.boundary_imported_at?.toISOString() ?? null,
+        boundarySourceRef: rows[0]?.boundary_source_ref ?? null,
+        boundarySourceLabel: rows[0]?.boundary_source_label ?? null,
+      });
     }
 
-    const geometry = JSON.parse(geometryJson) as {
-      coordinates?: number[][][];
-    };
-
-    const ring = geometry.coordinates?.[0] ?? [];
-    const openRing = ring.length > 1 ? ring.slice(0, -1) : ring;
-    const points = openRing.map(([lng, lat]) => ({ lat, lng }));
-
-    return NextResponse.json({ points });
+    return NextResponse.json({
+      points: geometryJsonToPoints(geometryJson),
+      boundarySource: rows[0]?.boundary_source ?? "MANUAL",
+      boundaryImportedAt: rows[0]?.boundary_imported_at?.toISOString() ?? null,
+      boundarySourceRef: rows[0]?.boundary_source_ref ?? null,
+      boundarySourceLabel: rows[0]?.boundary_source_label ?? null,
+    });
   } catch (error) {
     console.error("Boundary load failed", error);
     return NextResponse.json(

@@ -241,7 +241,7 @@ export function ServiceListingEditor({
           </div>
 
           <label className="block space-y-2 text-sm font-semibold text-[var(--foreground)]">
-            Public description
+            Offentlig beskrivelse
             <textarea
               rows={6}
               value={form.description}
@@ -252,7 +252,7 @@ export function ServiceListingEditor({
 
           <div className="grid gap-4 md:grid-cols-2">
             <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-              Licences and approvals
+              Lisenser og godkjenninger
               <textarea
                 rows={4}
                 value={form.qualifications.licenseSummary}
@@ -266,7 +266,7 @@ export function ServiceListingEditor({
               />
             </label>
             <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-              Equipment and practical setup
+              Utstyr og praktisk opplegg
               <textarea
                 rows={4}
                 value={form.qualifications.equipmentSummary}
@@ -280,7 +280,7 @@ export function ServiceListingEditor({
               />
             </label>
             <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-              Transport coverage
+              Transportdekning
               <textarea
                 rows={4}
                 value={form.qualifications.transportCoverage}
@@ -294,7 +294,7 @@ export function ServiceListingEditor({
               />
             </label>
             <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-              Accommodation details
+              Overnattingsdetaljer
               <textarea
                 rows={4}
                 value={form.qualifications.accommodationDetails}
@@ -316,7 +316,7 @@ export function ServiceListingEditor({
               disabled={isWorking}
               className="rounded-full border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] disabled:opacity-70"
             >
-              {isWorking ? "Saving..." : "Save draft"}
+              {isWorking ? "Lagrer..." : "Lagre utkast"}
             </button>
             <button
               type="button"
@@ -324,13 +324,13 @@ export function ServiceListingEditor({
               disabled={isWorking}
               className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-white disabled:opacity-70"
             >
-              Submit for review
+              Send til gjennomgang
             </button>
             <Link
               href="/dashboard/services"
               className="rounded-full px-5 py-3 text-sm font-semibold text-[var(--muted)]"
             >
-              Back to services
+              Tilbake til tjenester
             </Link>
           </div>
 
@@ -340,13 +340,13 @@ export function ServiceListingEditor({
         <aside className="space-y-4">
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-              Readiness
+              Klarhet for publisering
             </p>
             <p className="mt-3 text-4xl text-[var(--forest)]">{checklist.percent}%</p>
             <ul className="mt-4 space-y-2 text-sm leading-7 text-[var(--muted)]">
               {checklist.steps.map((step) => (
                 <li key={step.key}>
-                  {step.complete ? "Ready" : "Still needed"}: {step.label}
+                  {step.complete ? "Klar" : "Mangler fortsatt"}: {step.label}
                 </li>
               ))}
             </ul>
@@ -354,7 +354,7 @@ export function ServiceListingEditor({
 
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-              Public provider card
+              Offentlig leverandørkort
             </p>
             <h2 className="mt-3 text-2xl text-[var(--forest)]">{providerProfile.businessName}</h2>
             <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
@@ -363,7 +363,7 @@ export function ServiceListingEditor({
             <p className="mt-4 text-sm leading-7 text-[var(--foreground)]">{providerProfile.description}</p>
             {reviewerNotes ? (
               <div className="mt-4 rounded-[1.2rem] border border-[var(--border)] bg-[var(--sand)] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
-                <span className="font-semibold">Reviewer notes:</span> {reviewerNotes}
+                <span className="font-semibold">Merknader fra gjennomgang:</span> {reviewerNotes}
               </div>
             ) : null}
           </article>

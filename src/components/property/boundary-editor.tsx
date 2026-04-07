@@ -3,6 +3,8 @@
 import { PointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BoundaryMap } from "@/components/property/boundary-map";
+import { RightsOverlayEditor } from "@/components/property/rights-overlay-editor";
+import { getKartverketOverlayConfig } from "@/lib/kartverket-parcels";
 
 type BoundaryEditorProps = {
   propertyId: string;
@@ -11,6 +13,32 @@ type BoundaryEditorProps = {
 type BoundaryPoint = {
   lat: string;
   lng: string;
+};
+
+type ParcelCandidate = {
+  sourceRef: string;
+  title: string;
+  municipalityCode?: string | null;
+  municipalityName?: string | null;
+  gnr?: string | null;
+  bnr?: string | null;
+  festenr?: string | null;
+  snr?: string | null;
+  center?: { lat: number; lng: number } | null;
+  matchScore?: number;
+  exactMatch?: boolean;
+  matchReason?: string | null;
+};
+
+type RightsOverlay = {
+  id: string;
+  title: string;
+  description: string | null;
+  overlayType: string;
+  visibility: string;
+  provenance: string;
+  confidence: string;
+  polygons: Array<Array<{ lat: number; lng: number }>>;
 };
 
 const initialPoints: BoundaryPoint[] = [
@@ -22,6 +50,7 @@ const initialPoints: BoundaryPoint[] = [
 const previewWidth = 460;
 const previewHeight = 320;
 const previewPadding = 28;
+const overlayConfig = getKartverketOverlayConfig();
 
 export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
   const router = useRouter();
@@ -31,6 +60,21 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingExisting, setIsLoadingExisting] = useState(true);
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
+  const [boundarySource, setBoundarySource] = useState("MANUAL");
+  const [boundaryImportedAt, setBoundaryImportedAt] = useState<string | null>(null);
+  const [boundarySourceLabel, setBoundarySourceLabel] = useState<string | null>(null);
+  const [parcelSearch, setParcelSearch] = useState({
+    municipalityCode: "",
+    gnr: "",
+    bnr: "",
+    festenr: "",
+    snr: "",
+  });
+  const [parcelResults, setParcelResults] = useState<ParcelCandidate[]>([]);
+  const [isSearchingParcel, setIsSearchingParcel] = useState(false);
+  const [isImportingParcel, setIsImportingParcel] = useState<string | null>(null);
+  const [rightsOverlays, setRightsOverlays] = useState<RightsOverlay[]>([]);
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   const filledCount = useMemo(
@@ -111,27 +155,58 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
   useEffect(() => {
     let cancelled = false;
 
-    async function loadExistingBoundary() {
+    async function loadBoundaryContext() {
       try {
-        const response = await fetch(`/api/properties/${propertyId}/boundary`);
-        const data = (await response.json()) as {
+        const [boundaryResponse, overlayResponse] = await Promise.all([
+          fetch(`/api/properties/${propertyId}/boundary`),
+          fetch(`/api/properties/${propertyId}/rights-overlays`),
+        ]);
+
+        const boundaryData = (await boundaryResponse.json()) as {
           error?: string;
           points?: Array<{ lat: number; lng: number }>;
+          boundarySource?: string;
+          boundaryImportedAt?: string | null;
+          boundarySourceLabel?: string | null;
+        };
+        const overlayData = (await overlayResponse.json()) as {
+          error?: string;
+          overlays?: RightsOverlay[];
         };
 
-        if (!response.ok) {
-          if (!cancelled) {
-            setError(data.error || "We could not load the existing boundary.");
-          }
+        if (!boundaryResponse.ok) {
+          throw new Error(boundaryData.error || "Vi klarte ikke å laste grensene.");
+        }
+
+        if (!overlayResponse.ok) {
+          throw new Error(overlayData.error || "Vi klarte ikke å laste lagene.");
+        }
+
+        if (cancelled) {
           return;
         }
 
-        if (!cancelled && data.points && data.points.length >= 3) {
-          setPoints(data.points.map((point) => ({ lat: String(point.lat), lng: String(point.lng) })));
+        if (boundaryData.points && boundaryData.points.length >= 3) {
+          setPoints(
+            boundaryData.points.map((point) => ({
+              lat: String(point.lat),
+              lng: String(point.lng),
+            })),
+          );
+          setMapCenter(boundaryData.points[0] ?? null);
         }
-      } catch {
+
+        setBoundarySource(boundaryData.boundarySource ?? "MANUAL");
+        setBoundaryImportedAt(boundaryData.boundaryImportedAt ?? null);
+        setBoundarySourceLabel(boundaryData.boundarySourceLabel ?? null);
+        setRightsOverlays(overlayData.overlays ?? []);
+      } catch (loadError) {
         if (!cancelled) {
-          setError("We could not load the existing boundary.");
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : "Vi klarte ikke å laste grensestegene.",
+          );
         }
       } finally {
         if (!cancelled) {
@@ -140,7 +215,7 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
       }
     }
 
-    loadExistingBoundary();
+    loadBoundaryContext();
 
     return () => {
       cancelled = true;
@@ -164,6 +239,7 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
       ...current,
       { lat: point.lat.toFixed(6), lng: point.lng.toFixed(6) },
     ]);
+    setMapCenter(point);
   }
 
   function removePoint(index: number) {
@@ -218,35 +294,143 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
     setSuccess(null);
     setIsSubmitting(true);
 
-    const response = await fetch(`/api/properties/${propertyId}/boundary`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ points }),
-    });
+    try {
+      const response = await fetch(`/api/properties/${propertyId}/boundary`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ points }),
+      });
 
-    const data = (await response.json()) as { error?: string };
-    setIsSubmitting(false);
+      const data = (await response.json()) as { error?: string };
 
-    if (!response.ok) {
-      setError(data.error || "We could not save the boundary.");
-      return;
+      if (!response.ok) {
+        throw new Error(data.error || "Vi klarte ikke å lagre grensen.");
+      }
+
+      setSuccess("Grensen er lagret.");
+      router.push(`/dashboard/properties/${propertyId}`);
+      router.refresh();
+    } catch (saveError) {
+      setError(
+        saveError instanceof Error ? saveError.message : "Vi klarte ikke å lagre grensen.",
+      );
+    } finally {
+      setIsSubmitting(false);
     }
+  }
 
-    setSuccess("Boundary saved.");
-    router.push(`/dashboard/properties/${propertyId}`);
-    router.refresh();
+  async function searchParcel(mode: "center" | "matrikkel") {
+    setError(null);
+    setSuccess(null);
+    setIsSearchingParcel(true);
+
+    try {
+      const params = new URLSearchParams();
+
+      if (mode === "center") {
+        if (!mapCenter) {
+          throw new Error(
+            "Flytt kartet eller legg inn minst ett punkt før du søker på området i kartet.",
+          );
+        }
+
+        params.set("lat", String(mapCenter.lat));
+        params.set("lng", String(mapCenter.lng));
+      } else {
+        if (!parcelSearch.gnr.trim() || !parcelSearch.bnr.trim()) {
+          throw new Error("Oppgi minst gårdsnummer og bruksnummer for matrikkelsøk.");
+        }
+
+        Object.entries(parcelSearch).forEach(([key, value]) => {
+          if (value.trim()) {
+            params.set(key, value.trim());
+          }
+        });
+      }
+
+      const response = await fetch(`/api/properties/parcel-search?${params.toString()}`);
+      const data = (await response.json()) as {
+        error?: string;
+        results?: ParcelCandidate[];
+      };
+
+      if (!response.ok) {
+        throw new Error(data.error || "Kartverket-søket svarte ikke som forventet.");
+      }
+
+      setParcelResults(data.results ?? []);
+      if ((data.results ?? []).length === 0) {
+        setSuccess("Ingen teiger ble funnet. Du kan fortsatt tegne grensen manuelt.");
+      }
+    } catch (searchError) {
+      setError(
+        searchError instanceof Error
+          ? searchError.message
+          : "Vi klarte ikke å søke i Kartverket-data akkurat nå.",
+      );
+    } finally {
+      setIsSearchingParcel(false);
+    }
+  }
+
+  async function importParcel(candidate: ParcelCandidate) {
+    setError(null);
+    setSuccess(null);
+    setIsImportingParcel(candidate.sourceRef);
+
+    try {
+      const response = await fetch(`/api/properties/${propertyId}/parcel-import`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(candidate),
+      });
+      const data = (await response.json()) as {
+        error?: string;
+        points?: Array<{ lat: number; lng: number }>;
+        parcel?: ParcelCandidate;
+      };
+
+      if (!response.ok) {
+        throw new Error(data.error || "Vi klarte ikke å importere teigen.");
+      }
+
+      if (data.points && data.points.length >= 3) {
+        setPoints(
+          data.points.map((point) => ({
+            lat: String(point.lat),
+            lng: String(point.lng),
+          })),
+        );
+      }
+
+      setBoundarySource("KARTVERKET_IMPORT");
+      setBoundaryImportedAt(new Date().toISOString());
+      setBoundarySourceLabel(data.parcel?.title ?? candidate.title);
+      setSuccess("Teigen er hentet inn som utgangspunkt. Juster gjerne videre hvis jakt- eller fiskerettene avviker fra eiendomsgrensen.");
+      router.refresh();
+    } catch (importError) {
+      setError(
+        importError instanceof Error
+          ? importError.message
+          : "Vi klarte ikke å importere teigen.",
+      );
+    } finally {
+      setIsImportingParcel(null);
+    }
   }
 
   return (
     <div className="space-y-5">
       <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-          Map editor
+          Kart og eiendomsgrense
         </p>
         <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-          Click on the map to add boundary points. Drag the numbered points to adjust them. If this feels awkward, you can ignore the map and use the coordinate fields below instead.
+          Klikk i kartet for å legge til punkter manuelt, eller bruk Kartverket-søk for å hente inn en teig som utgangspunkt. Parcelgrensen er bare matrikkel-kontekst. Jakt- og fiskerett kan fortsatt avvike.
         </p>
 
         <div className="mt-5">
@@ -254,8 +438,154 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
             points={parsedPoints.map((point) => ({ lat: point.lat, lng: point.lng }))}
             onAddPoint={addPointFromMap}
             onMovePoint={movePointFromMap}
+            onCenterChange={setMapCenter}
+            rightsOverlays={rightsOverlays}
+            kartverketWmsUrl={overlayConfig.wmsUrl}
+            kartverketWmsLayers={overlayConfig.wmsLayers}
           />
         </div>
+
+        <div className="mt-4 flex flex-wrap gap-3 text-sm text-[var(--muted)]">
+          <div className="rounded-full border border-[var(--border)] bg-white px-4 py-2">
+            {isLoadingExisting ? "Laster eksisterende grense..." : "Kartet er klart"}
+          </div>
+          <div className="rounded-full border border-[var(--border)] bg-white px-4 py-2">
+            Kartsentrum: {mapCenter ? `${mapCenter.lat.toFixed(4)}, ${mapCenter.lng.toFixed(4)}` : "flytt kartet for å sette søkepunkt"}
+          </div>
+          <div className="rounded-full border border-[var(--border)] bg-white px-4 py-2">
+            Kilde:{" "}
+            {boundarySource === "KARTVERKET_IMPORT"
+              ? boundarySourceLabel ?? "Kartverket-import"
+              : "Manuell tegning"}
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
+          Hent teig fra Kartverket
+        </p>
+        <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
+          Søk enten ved kartets sentrum eller med matrikkelreferanse. Dette henter teigen som et arbeidsutgangspunkt. Du kan fortsatt justere manuelt etterpå.
+        </p>
+
+        <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr]">
+          <article className="rounded-2xl border border-[var(--border)] p-4">
+            <p className="text-sm font-semibold text-[var(--foreground)]">Søk ved kartets sentrum</p>
+            <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
+              Praktisk når du allerede står i riktig område på kartet.
+            </p>
+            <button
+              type="button"
+              onClick={() => searchParcel("center")}
+              disabled={isSearchingParcel}
+              className="mt-4 rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+            >
+              {isSearchingParcel ? "Søker..." : "Finn teig ved kartet"}
+            </button>
+          </article>
+
+          <article className="rounded-2xl border border-[var(--border)] p-4">
+            <p className="text-sm font-semibold text-[var(--foreground)]">Søk med matrikkelreferanse</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <input
+                placeholder="Kommunenummer"
+                value={parcelSearch.municipalityCode}
+                onChange={(event) =>
+                  setParcelSearch((current) => ({
+                    ...current,
+                    municipalityCode: event.target.value,
+                  }))
+                }
+                className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-sm"
+              />
+              <input
+                placeholder="Gårdsnummer"
+                value={parcelSearch.gnr}
+                onChange={(event) =>
+                  setParcelSearch((current) => ({ ...current, gnr: event.target.value }))
+                }
+                className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-sm"
+              />
+              <input
+                placeholder="Bruksnummer"
+                value={parcelSearch.bnr}
+                onChange={(event) =>
+                  setParcelSearch((current) => ({ ...current, bnr: event.target.value }))
+                }
+                className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-sm"
+              />
+              <input
+                placeholder="Festenummer (valgfritt)"
+                value={parcelSearch.festenr}
+                onChange={(event) =>
+                  setParcelSearch((current) => ({
+                    ...current,
+                    festenr: event.target.value,
+                  }))
+                }
+                className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-sm"
+              />
+              <input
+                placeholder="Seksjonsnummer (valgfritt)"
+                value={parcelSearch.snr}
+                onChange={(event) =>
+                  setParcelSearch((current) => ({ ...current, snr: event.target.value }))
+                }
+                className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-sm sm:col-span-2"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => searchParcel("matrikkel")}
+              disabled={isSearchingParcel}
+              className="mt-4 rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] disabled:opacity-60"
+            >
+              {isSearchingParcel ? "Søker..." : "Søk på matrikkel"}
+            </button>
+          </article>
+        </div>
+
+        {parcelResults.length > 0 ? (
+          <div className="mt-5 space-y-3">
+            {parcelResults.map((candidate) => (
+              <div
+                key={candidate.sourceRef}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--border)] px-4 py-3"
+              >
+                <div className="space-y-1">
+                  <p className="font-semibold text-[var(--foreground)]">{candidate.title}</p>
+                  <p className="text-sm text-[var(--muted)]">
+                    {candidate.municipalityCode ? `Kommune ${candidate.municipalityCode}` : "Kartverket"} ·{" "}
+                    {candidate.gnr && candidate.bnr
+                      ? `gnr ${candidate.gnr} / bnr ${candidate.bnr}`
+                      : "teig funnet i området"}
+                  </p>
+                  {candidate.matchReason ? (
+                    <p className="text-sm text-[var(--muted)]">
+                      {candidate.exactMatch ? "Eksakt matrikkeltreff" : candidate.matchReason}
+                    </p>
+                  ) : null}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => importParcel(candidate)}
+                  disabled={isImportingParcel === candidate.sourceRef}
+                  className="rounded-full bg-[var(--amber)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] disabled:opacity-60"
+                >
+                  {isImportingParcel === candidate.sourceRef ? "Importerer..." : "Bruk denne teigen"}
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        {boundaryImportedAt ? (
+          <p className="mt-4 text-sm text-[var(--muted)]">
+            Siste Kartverket-import: {new Date(boundaryImportedAt).toLocaleString("nb-NO")}
+            {boundarySourceLabel ? ` · ${boundarySourceLabel}` : ""}
+          </p>
+        ) : null}
       </section>
 
       <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
@@ -263,7 +593,7 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
           Visual boundary board
         </p>
         <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-          Use this preview to understand the shape as you type. When you already have points entered, you can drag the numbered markers to fine-tune them. The coordinate fields remain the primary fallback input.
+          Bruk dette brettet til å forstå formen mens du skriver. Når du allerede har punkter lagt inn, kan du dra markørene for å finjustere dem.
         </p>
 
         <div className="mt-5 overflow-hidden rounded-[1.4rem] border border-[var(--border)] bg-[#f4f0e5]">
@@ -331,26 +661,31 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
             ))}
           </svg>
         </div>
-
-        <div className="mt-4 flex flex-wrap gap-3 text-sm text-[var(--muted)]">
-          <div className="rounded-full border border-[var(--border)] bg-white px-4 py-2">
-            {isLoadingExisting ? "Loading existing boundary..." : "Boundary board ready"}
-          </div>
-          <div className="rounded-full border border-[var(--border)] bg-white px-4 py-2">
-            Drag markers to adjust saved or typed points
-          </div>
-          <div className="rounded-full border border-[var(--border)] bg-white px-4 py-2">
-            Click the map to add points visually
-          </div>
-        </div>
       </section>
+
+      <RightsOverlayEditor
+        propertyId={propertyId}
+        propertyBoundaryPoints={parsedPoints.map((point) => ({
+          lat: point.lat,
+          lng: point.lng,
+        }))}
+        overlays={rightsOverlays}
+        onOverlaysChange={setRightsOverlays}
+        onStatus={({ error: nextError, success: nextSuccess }) => {
+          setError(nextError ?? null);
+          setSuccess(nextSuccess ?? null);
+          if (nextSuccess) {
+            router.refresh();
+          }
+        }}
+      />
 
       <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
           Boundary points
         </p>
         <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-          Enter the corner points in order around the property edge. Use latitude and longitude from a GPS app, map reference, or survey notes. You do not need to repeat the first point; the system closes the shape for you.
+          Enter the corner points in order around the property edge. You do not need to repeat the first point; the system closes the shape for you.
         </p>
 
         <div className="mt-5 space-y-4">
@@ -417,17 +752,17 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
 
       <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-          Before you save
+          Før du lagrer
         </p>
         <ul className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
           <li className="rounded-2xl border border-[var(--border)] px-4 py-3">
-            Move around the boundary in one direction only, clockwise or counterclockwise.
+            Gå rundt grensen i én retning, enten med eller mot klokken.
           </li>
           <li className="rounded-2xl border border-[var(--border)] px-4 py-3">
-            Keep the points to the outer edge of the area you want to offer.
+            Hvis jakt- eller fiskerettene er mindre enn eiendommen, opprett et eget Heyra-lag for det faktiske tilbudsområdet.
           </li>
           <li className="rounded-2xl border border-[var(--border)] px-4 py-3">
-            Start simple. You can refine the shape later if needed.
+            Hvis Kartverket-dataene virker unøyaktige, kan du fortsatt lagre en manuell versjon og markere rettighetene som omtrentelige i eiendomsoppsettet.
           </li>
         </ul>
       </section>
@@ -450,7 +785,7 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
         disabled={isSubmitting}
         className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isSubmitting ? "Saving boundary..." : "Save boundary"}
+        {isSubmitting ? "Lagrer grense..." : "Lagre grense"}
       </button>
     </div>
   );

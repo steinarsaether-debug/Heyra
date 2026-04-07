@@ -14,7 +14,8 @@ import {
 
 const dashboardPrefix = "/dashboard";
 const propertyPrefix = "/dashboard/properties";
-const adminPrefix = "/dashboard/admin";
+const legacyAdminPrefix = "/dashboard/admin";
+const adminPrefix = "/admin";
 const authRoutes = ["/auth/login", "/auth/register"];
 
 function detectLocale(request: NextRequest, pathLocale: AppLocale | null) {
@@ -79,10 +80,15 @@ export async function middleware(request: NextRequest) {
   const role = token?.role as UserRole | undefined;
   const status = token?.status as UserStatus | undefined;
 
+  if (normalizedPathname.startsWith(legacyAdminPrefix)) {
+    const redirectedPath = normalizedPathname.replace(legacyAdminPrefix, adminPrefix) || adminPrefix;
+    return NextResponse.redirect(buildLocalizedUrl(request, locale, redirectedPath, search));
+  }
+
   if (
     isSignedIn &&
     (status === UserStatus.SUSPENDED || status === UserStatus.DEACTIVATED) &&
-    normalizedPathname.startsWith(dashboardPrefix)
+    (normalizedPathname.startsWith(dashboardPrefix) || normalizedPathname.startsWith(adminPrefix))
   ) {
     const loginUrl = buildLocalizedUrl(request, locale, "/auth/login");
     loginUrl.searchParams.set("callbackUrl", localizePathname(locale, "/dashboard"));
@@ -93,7 +99,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(buildLocalizedUrl(request, locale, "/dashboard"));
   }
 
-  if (normalizedPathname.startsWith(dashboardPrefix) && !isSignedIn) {
+  if ((normalizedPathname.startsWith(dashboardPrefix) || normalizedPathname.startsWith(adminPrefix)) && !isSignedIn) {
     const loginUrl = buildLocalizedUrl(request, locale, "/auth/login");
     loginUrl.searchParams.set("callbackUrl", `${localizePathname(locale, normalizedPathname)}${search}`);
     return NextResponse.redirect(loginUrl);

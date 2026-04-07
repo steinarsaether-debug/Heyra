@@ -86,30 +86,30 @@ export default async function DashboardCompliancePage() {
       <section className="space-y-6">
         <div className="rounded-[1.8rem] bg-[var(--forest)] p-8 text-[var(--background)]">
           <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
-            Compliance
+            Etterlevelse
           </p>
-          <h1 className="mt-5 text-4xl leading-tight sm:text-5xl">Compliance workspace</h1>
+          <h1 className="mt-5 text-4xl leading-tight sm:text-5xl">Arbeidsflate for etterlevelse</h1>
           <p className="mt-4 max-w-3xl text-lg leading-8 text-white/75">
             {session.user.role === UserRole.LANDOWNER
-              ? "Track the property, quota, and reporting follow-up that sits around your listings."
-              : "Keep the practical legal follow-up visible while you move between booking, field use, and reporting."}
+              ? "Følg opp eiendom, kvote og rapportering knyttet til annonsene dine."
+              : "Hold den praktiske juridiske oppfølgingen synlig mens du beveger deg mellom bestilling, feltbruk og rapportering."}
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <span className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-[var(--forest)]">
-              {openCount} open task{openCount === 1 ? "" : "s"}
+              {openCount} åpne oppgave{openCount === 1 ? "" : "r"}
             </span>
             <Link
               href="/dashboard/bookings"
               className="rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white"
             >
-              Open bookings
+              Åpne bestillinger
             </Link>
           </div>
         </div>
 
         {tasks.length === 0 ? (
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-8 text-base leading-8 text-[var(--muted)]">
-            No compliance tasks have been created for this account yet.
+            Ingen etterlevelsesoppgaver er opprettet for denne kontoen ennå.
           </article>
         ) : (
           grouped.map((group) =>
@@ -120,7 +120,7 @@ export default async function DashboardCompliancePage() {
                     {group.label}
                   </p>
                   <h2 className="mt-2 text-2xl text-[var(--forest)]">
-                    {group.tasks.length} task{group.tasks.length === 1 ? "" : "s"}
+                    {group.tasks.length} oppgave{group.tasks.length === 1 ? "" : "r"}
                   </h2>
                 </div>
                 <div className="grid gap-4">
@@ -140,27 +140,27 @@ export default async function DashboardCompliancePage() {
                           </p>
                           <div className="mt-4 space-y-2 rounded-[1.2rem] border border-[#d8e6dc] bg-[#f4faf6] px-4 py-4 text-sm leading-7 text-[#29543a]">
                             <p>
-                              <span className="font-semibold">Why this exists:</span>{" "}
+                              <span className="font-semibold">Hvorfor dette finnes:</span>{" "}
                               {getComplianceTaskWhy(task.taskType)}
                             </p>
                             <p>
-                              <span className="font-semibold">Next step:</span>{" "}
+                              <span className="font-semibold">Neste steg:</span>{" "}
                               {getComplianceTaskNextStep(task.taskType)}
                             </p>
                           </div>
                           <div className="mt-3 space-y-1 text-sm leading-7 text-[var(--muted)]">
                             {task.dueAt ? (
-                              <p>Due: {task.dueAt.toLocaleDateString("nb-NO")}</p>
+                              <p>Frist: {task.dueAt.toLocaleDateString("nb-NO")}</p>
                             ) : null}
-                            {task.cwdZone?.name ? <p>CWD zone: {task.cwdZone.name}</p> : null}
-                            {task.cwdZone?.contactName ? <p>Contact: {task.cwdZone.contactName}</p> : null}
-                            {task.cwdZone?.contactPhone ? <p>Phone: {task.cwdZone.contactPhone}</p> : null}
-                            {task.cwdZone?.contactEmail ? <p>Email: {task.cwdZone.contactEmail}</p> : null}
+                            {task.cwdZone?.name ? <p>CWD-sone: {task.cwdZone.name}</p> : null}
+                            {task.cwdZone?.contactName ? <p>Kontakt: {task.cwdZone.contactName}</p> : null}
+                            {task.cwdZone?.contactPhone ? <p>Telefon: {task.cwdZone.contactPhone}</p> : null}
+                            {task.cwdZone?.contactEmail ? <p>E-post: {task.cwdZone.contactEmail}</p> : null}
                             {task.cwdZone?.contactWebsite ? (
-                              <p>Website: {task.cwdZone.contactWebsite}</p>
+                              <p>Nettsted: {task.cwdZone.contactWebsite}</p>
                             ) : null}
                             {task.cwdZone?.samplingInstructions ? (
-                              <p>Sampling: {task.cwdZone.samplingInstructions}</p>
+                              <p>Prøvetaking: {task.cwdZone.samplingInstructions}</p>
                             ) : null}
                             {task.notes ? <p>{task.notes}</p> : null}
                           </div>
@@ -173,7 +173,7 @@ export default async function DashboardCompliancePage() {
                                 href={`/dashboard/bookings/${task.booking.id}`}
                                 className="block rounded-2xl border border-[var(--border)] px-4 py-3 font-semibold text-[var(--forest)]"
                               >
-                                Booking: {task.booking.listing.title}
+                                Bestilling: {task.booking.listing.title}
                               </Link>
                             ) : null}
                             {task.listing ? (
@@ -181,7 +181,7 @@ export default async function DashboardCompliancePage() {
                                 href={`/dashboard/properties/${task.listing.propertyId}/listing`}
                                 className="block rounded-2xl border border-[var(--border)] px-4 py-3 font-semibold text-[var(--forest)]"
                               >
-                                Listing: {task.listing.title}
+                                Annonse: {task.listing.title}
                               </Link>
                             ) : null}
                             {task.actionUrl ? (
@@ -192,14 +192,14 @@ export default async function DashboardCompliancePage() {
                                   rel="noreferrer"
                                   className="block rounded-2xl border border-[var(--border)] px-4 py-3 font-semibold text-[var(--foreground)]"
                                 >
-                                  {task.actionLabel ?? "Open task link"}
+                                  {task.actionLabel ?? "Åpne oppgave"}
                                 </a>
                               ) : (
                                 <Link
                                   href={task.actionUrl}
                                   className="block rounded-2xl border border-[var(--border)] px-4 py-3 font-semibold text-[var(--foreground)]"
                                 >
-                                  {task.actionLabel ?? "Open task link"}
+                                  {task.actionLabel ?? "Åpne oppgave"}
                                 </Link>
                               )
                             ) : null}

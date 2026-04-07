@@ -32,8 +32,8 @@ function isPointInsidePolygon(point: Point, polygon: Point[]) {
 export function FishingAreaWarning({
   listingId,
   areaNotes,
-  title = "Fishing area awareness",
-  description = "Use this on the riverbank or in the mountains to sanity-check whether you are still inside the saved area for this licence.",
+  title = "Bevissthet om fiskeområdet",
+  description = "Bruk denne ved elvebredden eller i fjellet for å sjekke om du fortsatt er innenfor det lagrede området for denne lisensen.",
 }: {
   listingId: string;
   areaNotes: string;
@@ -64,7 +64,7 @@ export function FishingAreaWarning({
     const data = (await response.json()) as { error?: string; points?: Point[] };
 
     if (!response.ok || !data.points || data.points.length < 3) {
-      setError(data.error ?? "No saved area boundary is available for this listing yet.");
+      setError(data.error ?? "Det finnes ingen lagret områdegrense for denne annonsen ennå.");
       setIsWorking(false);
       return;
     }
@@ -77,8 +77,8 @@ export function FishingAreaWarning({
       const inside = isPointInsidePolygon(point, data.points ?? []);
       setMessage(
         inside
-          ? "You appear to be inside the saved fishing area."
-          : "You appear to be outside the saved fishing area. Check the map, the local signs, and the area notes before continuing.",
+          ? "Du ser ut til å være innenfor det lagrede fiskeområdet."
+          : "Du ser ut til å være utenfor det lagrede fiskeområdet. Sjekk kartet, lokale skilt og områdemerknadene før du fortsetter.",
       );
       setIsWorking(false);
     };
@@ -144,7 +144,7 @@ export function FishingAreaWarning({
           disabled={isWorking}
           className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-70"
         >
-          {isWorking ? "Checking..." : "Check my position"}
+          {isWorking ? "Sjekker..." : "Sjekk posisjonen min"}
         </button>
         {!isWatching ? (
           <button
@@ -152,7 +152,7 @@ export function FishingAreaWarning({
             onClick={() => checkPosition(true)}
             className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
           >
-            Watch my position
+            Følg posisjonen min
           </button>
         ) : (
           <button
@@ -160,7 +160,7 @@ export function FishingAreaWarning({
             onClick={stopWatching}
             className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
           >
-            Stop watching
+            Stopp sporing
           </button>
         )}
       </div>

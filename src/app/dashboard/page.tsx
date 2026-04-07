@@ -126,10 +126,10 @@ export default async function DashboardPage() {
         <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-[1.8rem] bg-[var(--forest)] p-8 text-[var(--background)]">
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
-              Dashboard
+              Oversikt
             </p>
             <h1 className="mt-5 text-4xl leading-tight sm:text-5xl">
-              Welcome back, {session.user.fullName}.
+              Velkommen tilbake, {session.user.fullName}.
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-white/75">
               {getRoleGuidance(user.role)}
@@ -139,64 +139,64 @@ export default async function DashboardPage() {
                 href="/dashboard/profile"
                 className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-[var(--forest)]"
               >
-                Complete profile
+                Fullfør profil
               </Link>
               {user.role === UserRole.LANDOWNER ? (
                 <Link
                   href="/dashboard/properties/new"
                   className="rounded-full bg-[var(--amber)] px-5 py-3 text-sm font-semibold text-[var(--foreground)]"
                 >
-                  Start property draft
+                  Start eiendomsutkast
                 </Link>
               ) : null}
               <Link
                 href="/listings"
                 className="rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white"
               >
-                Browse listings
+                Se annonser
               </Link>
               <Link
                 href="/dashboard/bookings"
                 className="rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white"
               >
-                Open bookings
+                Åpne bestillinger
               </Link>
               <Link
                 href="/dashboard/services"
                 className="rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white"
               >
-                Services {serviceCount > 0 ? `(${serviceCount})` : ""}
+                Tjenester {serviceCount > 0 ? `(${serviceCount})` : ""}
               </Link>
               <Link
                 href="/dashboard/compliance"
                 className="rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white"
               >
-                Compliance {complianceCount > 0 ? `(${complianceCount})` : ""}
+                Etterlevelse {complianceCount > 0 ? `(${complianceCount})` : ""}
               </Link>
               {user.role === UserRole.LANDOWNER ? (
                 <Link
                   href="/dashboard/marketing"
                   className="rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white"
                 >
-                  Marketing
+                  Markedsføring
                 </Link>
               ) : null}
               <Link
                 href="/dashboard/notifications"
                 className="rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white"
               >
-                Alerts {notificationCount > 0 ? `(${notificationCount})` : ""}
+                Varsler {notificationCount > 0 ? `(${notificationCount})` : ""}
               </Link>
             </div>
           </div>
 
           <div className="rounded-[1.8rem] border border-[var(--border)] bg-white/75 p-8">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-              Account readiness
+              Kontoberedskap
             </p>
             <p className="mt-4 text-5xl text-[var(--forest)]">{completion.percent}%</p>
             <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-              {completion.completed} of {completion.total} core profile fields are complete.
+              {completion.completed} av {completion.total} sentrale profilfelt er utfylt.
             </p>
             <div className="mt-5 h-3 rounded-full bg-[#e7e1d5]">
               <div
@@ -210,43 +210,43 @@ export default async function DashboardPage() {
         <div className="grid gap-4 lg:grid-cols-6">
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Role
+              Rolle
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{user.role.toLowerCase()}</p>
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Active consents
+              Aktive samtykker
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{consentsGranted}</p>
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Properties
+              Eiendommer
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{user.properties.length}</p>
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Bookings
+              Bestillinger
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{user.bookings.length}</p>
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Alerts
+              Varsler
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{notificationCount}</p>
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Services
+              Tjenester
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{publishedServices}/{serviceCount}</p>
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Compliance
+              Etterlevelse
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{complianceCount}</p>
           </article>
@@ -255,12 +255,12 @@ export default async function DashboardPage() {
         <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Trust snapshot
+              Tillitsoversikt
             </p>
             <p className="mt-4 text-2xl text-[var(--forest)]">{trustSummary.label}</p>
             <p className="mt-2 text-sm leading-7 text-[var(--muted)]">{trustSummary.detail}</p>
             <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-              {averageRating ? `${averageRating.toFixed(1)} / 5` : "No reviews yet"} · {user.receivedReviews.length} approved review{user.receivedReviews.length === 1 ? "" : "s"}
+              {averageRating ? `${averageRating.toFixed(1)} / 5` : "Ingen anmeldelser ennå"} · {user.receivedReviews.length} godkjent anmeldelse{user.receivedReviews.length === 1 ? "" : "r"}
             </p>
             {hostBadge ? (
               <div className="mt-4">
@@ -272,42 +272,42 @@ export default async function DashboardPage() {
           {user.role === UserRole.LANDOWNER ? (
             <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-                Marketing snapshot
+                Markedsoversikt
               </p>
               <p className="mt-4 text-2xl text-[var(--forest)]">
-                {attributedBookings} attributed booking request{attributedBookings === 1 ? "" : "s"}
+                {attributedBookings} attribuert bestillingsforespørsel{attributedBookings === 1 ? "" : "er"}
               </p>
               <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                Shared listing links can now feed into booking attribution, so you can see whether your own promotion is leading to real demand.
+                Delte annonselenker kan nå bidra til attribusjon av bestillinger, så du kan se om din egen markedsføring faktisk skaper etterspørsel.
               </p>
               <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
                 <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
                   {marketingSummary?.lastTouch[0]
-                    ? `Top latest source: ${marketingSummary.lastTouch[0].label} (${marketingSummary.lastTouch[0].count})`
-                    : "No tagged booking source has been recorded yet."}
+                    ? `Viktigste siste kilde: ${marketingSummary.lastTouch[0].label} (${marketingSummary.lastTouch[0].count})`
+                    : "Ingen tagget bestillingskilde er registrert ennå."}
                 </p>
                 <Link
                   href="/dashboard/marketing"
                   className="block rounded-2xl border border-[var(--border)] px-4 py-3 font-semibold text-[var(--forest)]"
                 >
-                  Open marketing insights
+                  Åpne markedsinnsikt
                 </Link>
               </div>
             </article>
           ) : (
             <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-                Trust in practice
+                Tillit i praksis
               </p>
               <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
                 <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                  Reviews, disputes, and moderation history now shape how other users see your account.
+                  Anmeldelser, tvister og modereringshistorikk påvirker nå hvordan andre brukere ser kontoen din.
                 </p>
                 <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                  Clear booking communication and low cancellation rates help your trust profile more than promotional copy.
+                  Tydelig kommunikasjon rundt bestillinger og lav avbestillingsrate styrker tillitsprofilen din mer enn markedsføringstekst.
                 </p>
                 <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                  Your reviews and practical experience posts become trust signals for other hunters and fishers.
+                  Anmeldelsene og erfaringene dine blir tillitssignaler for andre jegere og fiskere.
                 </p>
               </div>
             </article>
@@ -317,7 +317,7 @@ export default async function DashboardPage() {
         <div className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
           <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Next onboarding tasks
+              Neste oppstartsoppgaver
             </p>
             <ul className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
               {completion.fields.map((field) => (
@@ -325,7 +325,7 @@ export default async function DashboardPage() {
                   key={field.key}
                   className="rounded-2xl border border-[var(--border)] px-4 py-3"
                 >
-                  {field.complete ? "Complete" : "Needed"}: {field.label}
+                  {field.complete ? "Fullført" : "Trengs"}: {field.label}
                 </li>
               ))}
             </ul>
@@ -333,31 +333,31 @@ export default async function DashboardPage() {
 
           <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              What comes next
+              Hva kommer nå
             </p>
             <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
               <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                Add role-specific onboarding after this shared profile layer.
+                Legg til rollebasert oppfølging etter dette felles profillaget.
               </p>
               {user.role === UserRole.LANDOWNER ? (
                 <>
                   <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                    Landowners should move into property creation and listing setup.
+                    Grunneiere bør gå videre til opprettelse av eiendom og oppsett av annonse.
                   </p>
                   <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                    After the boundary step, create a listing draft and submit it for review.
+                    Etter grense-steget bør du lage et annonseutkast og sende det til gjennomgang.
                   </p>
                   <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                    Watch booking requests in the bookings workspace and respond quickly.
+                    Følg med på bestillingsforespørsler i bestillingsflaten og svar raskt.
                   </p>
                 </>
               ) : (
                 <>
                   <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                    Hunters should move into qualification, discovery, and booking readiness.
+                    Jegere bør gå videre til kvalifisering, oppdagelse og bestillingsberedskap.
                   </p>
                   <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                    Use published listings to request trips, then track approvals from the bookings page.
+                    Bruk publiserte annonser for å be om turer, og følg deretter godkjenninger fra bestillingssiden.
                   </p>
                 </>
               )}

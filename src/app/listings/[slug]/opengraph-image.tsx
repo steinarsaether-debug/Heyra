@@ -36,7 +36,7 @@ export default async function OpenGraphImage({
 
   const title = listing?.title ?? "Heyra";
   const subtitle = listing
-    ? `${formatListingType(listing.type)} · ${formatSpecies(listing.species)}`
+    ? `${formatListingType(listing.type, "nb")} · ${formatSpecies(listing.species, "nb")}`
     : "Hunting and fishing in Norway";
   const location = listing
     ? `${listing.property.municipality}, ${listing.property.county}`

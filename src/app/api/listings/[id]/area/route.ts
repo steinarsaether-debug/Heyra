@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { geometryJsonToPoints } from "@/lib/geometry";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
@@ -10,33 +11,63 @@ export async function GET(
   const { id } = await context.params;
 
   try {
-    const rows = await prisma.$queryRaw<Array<{ geometry_json: string | null }>>`
-      SELECT ST_AsGeoJSON(p."boundary") AS geometry_json
-      FROM "Listing" l
-      INNER JOIN "Property" p ON p."id" = l."propertyId"
-      WHERE l."id" = ${id} AND l."status" = 'PUBLISHED'
-      LIMIT 1
-    `;
+    const listing = await prisma.listing.findFirst({
+      where: {
+        id,
+        status: "PUBLISHED",
+      },
+      select: {
+        id: true,
+        propertyId: true,
+        rightsOverlays: {
+          where: {
+            visibility: "PUBLIC_SIMPLIFIED",
+          },
+          orderBy: {
+            createdAt: "asc",
+          },
+          take: 1,
+        },
+      },
+    });
 
-    if (rows.length === 0) {
+    if (!listing) {
       return NextResponse.json({ error: "Listing area not found." }, { status: 404 });
     }
 
-    const geometryJson = rows[0]?.geometry_json;
+    const overlayId = listing.rightsOverlays[0]?.id ?? null;
 
-    if (!geometryJson) {
-      return NextResponse.json({ points: [] });
+    const parcelRows = await prisma.$queryRaw<Array<{ geometry_json: string | null }>>`
+      SELECT ST_AsGeoJSON("boundary") AS geometry_json
+      FROM "Property"
+      WHERE "id" = ${listing.propertyId}
+      LIMIT 1
+    `;
+    const parcelPoints = geometryJsonToPoints(parcelRows[0]?.geometry_json ?? null);
+
+    if (overlayId) {
+      const overlayRows = await prisma.$queryRaw<Array<{ geometry_json: string | null }>>`
+        SELECT ST_AsGeoJSON("geometry") AS geometry_json
+        FROM "RightsOverlay"
+        WHERE "id" = ${overlayId}
+        LIMIT 1
+      `;
+      const geometryJson = overlayRows[0]?.geometry_json;
+
+      return NextResponse.json({
+        points: geometryJsonToPoints(geometryJson),
+        parcelPoints,
+        publicOverlayTitle: listing.rightsOverlays[0]?.title ?? null,
+        source: "rights-overlay",
+      });
     }
 
-    const geometry = JSON.parse(geometryJson) as {
-      coordinates?: number[][][];
-    };
-
-    const ring = geometry.coordinates?.[0] ?? [];
-    const openRing = ring.length > 1 ? ring.slice(0, -1) : ring;
-    const points = openRing.map(([lng, lat]) => ({ lat, lng }));
-
-    return NextResponse.json({ points });
+    return NextResponse.json({
+      points: parcelPoints,
+      parcelPoints,
+      publicOverlayTitle: null,
+      source: "parcel-boundary",
+    });
   } catch (error) {
     console.error("Public listing area load failed", error);
     return NextResponse.json(
