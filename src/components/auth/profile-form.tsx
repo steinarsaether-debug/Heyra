@@ -47,23 +47,23 @@ export function ProfileForm({ initialValues, roleLabel }: ProfileFormProps) {
     setIsSubmitting(false);
 
     if (!response.ok) {
-      setError(data.error || "We could not update your profile.");
+      setError(data.error || "Vi kunne ikke oppdatere profilen din.");
       return;
     }
 
-    setSuccess("Profile updated.");
+    setSuccess("Profilen er oppdatert.");
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="rounded-[1.4rem] border border-[var(--border)] bg-white/70 px-4 py-3 text-sm text-[var(--muted)]">
-        Current role: <span className="font-semibold text-[var(--foreground)]">{roleLabel}</span>
+        Nåværende rolle: <span className="font-semibold text-[var(--foreground)]">{roleLabel}</span>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2 sm:col-span-2">
           <label className="text-sm font-semibold text-[var(--foreground)]" htmlFor="fullName">
-            Full name
+            Fullt navn
           </label>
           <input
             id="fullName"
@@ -76,7 +76,7 @@ export function ProfileForm({ initialValues, roleLabel }: ProfileFormProps) {
 
         <div className="space-y-2">
           <label className="text-sm font-semibold text-[var(--foreground)]" htmlFor="phone">
-            Phone
+            Telefon
           </label>
           <input
             id="phone"
@@ -91,7 +91,7 @@ export function ProfileForm({ initialValues, roleLabel }: ProfileFormProps) {
             className="text-sm font-semibold text-[var(--foreground)]"
             htmlFor="hunterNumber"
           >
-            Hunter number
+            Jegernummer
           </label>
           <input
             id="hunterNumber"
@@ -103,7 +103,7 @@ export function ProfileForm({ initialValues, roleLabel }: ProfileFormProps) {
 
         <div className="space-y-2 sm:col-span-2">
           <label className="text-sm font-semibold text-[var(--foreground)]" htmlFor="address">
-            Address
+            Adresse
           </label>
           <textarea
             id="address"
@@ -119,7 +119,7 @@ export function ProfileForm({ initialValues, roleLabel }: ProfileFormProps) {
             className="text-sm font-semibold text-[var(--foreground)]"
             htmlFor="emergencyName"
           >
-            Emergency contact name
+            Navn på nødkontakt
           </label>
           <input
             id="emergencyName"
@@ -134,7 +134,7 @@ export function ProfileForm({ initialValues, roleLabel }: ProfileFormProps) {
             className="text-sm font-semibold text-[var(--foreground)]"
             htmlFor="emergencyPhone"
           >
-            Emergency contact phone
+            Telefon til nødkontakt
           </label>
           <input
             id="emergencyPhone"
@@ -162,7 +162,7 @@ export function ProfileForm({ initialValues, roleLabel }: ProfileFormProps) {
         disabled={isSubmitting}
         className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-[var(--background)] transition hover:bg-[var(--forest-soft)] disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isSubmitting ? "Saving..." : "Save profile"}
+        {isSubmitting ? "Lagrer..." : "Lagre profil"}
       </button>
     </form>
   );

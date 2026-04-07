@@ -11,6 +11,38 @@ NEXT_DIST_DIR="${NEXT_DIST_DIR:-.next-dev}"
 PID_FILE="$ROOT_DIR/.heyra-dev.pid"
 LOG_FILE="$ROOT_DIR/.heyra-dev.log"
 
+load_database_url() {
+  if [ -n "${DATABASE_URL:-}" ]; then
+    printf '%s' "$DATABASE_URL"
+    return 0
+  fi
+
+  if [ -f "$ROOT_DIR/.env.local" ]; then
+    awk -F= '/^DATABASE_URL=/{sub(/^DATABASE_URL=/, ""); gsub(/^"|"$/, "", $0); print; exit}' "$ROOT_DIR/.env.local"
+    return 0
+  fi
+
+  if [ -f "$ROOT_DIR/.env" ]; then
+    awk -F= '/^DATABASE_URL=/{sub(/^DATABASE_URL=/, ""); gsub(/^"|"$/, "", $0); print; exit}' "$ROOT_DIR/.env"
+    return 0
+  fi
+
+  printf '%s' ""
+}
+
+uses_local_database() {
+  DATABASE_URL_VALUE="$(load_database_url)"
+
+  case "$DATABASE_URL_VALUE" in
+    *localhost*|*127.0.0.1*|*@db:*|*@postgres:* )
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
 usage() {
   cat <<EOF
 Usage: ./scripts/heyra-dev.sh <start|restart|stop|status|seed>
@@ -31,11 +63,21 @@ is_running() {
 }
 
 start_db() {
+  if ! uses_local_database; then
+    echo "Skipping local database startup because DATABASE_URL points to an external database."
+    return 0
+  fi
+
   echo "Starting Heyra database..."
   (cd "$ROOT_DIR" && docker compose up -d db >/dev/null)
 }
 
 stop_db() {
+  if ! uses_local_database; then
+    echo "Skipping local database shutdown because DATABASE_URL points to an external database."
+    return 0
+  fi
+
   echo "Stopping Heyra database..."
   (cd "$ROOT_DIR" && docker compose stop db >/dev/null)
 }

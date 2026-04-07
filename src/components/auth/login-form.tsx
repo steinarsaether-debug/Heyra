@@ -30,7 +30,7 @@ export function LoginForm() {
     setIsSubmitting(false);
 
     if (!result || result.error) {
-      setError("We could not sign you in with those credentials.");
+      setError("Vi kunne ikke logge deg inn med disse opplysningene.");
       return;
     }
 
@@ -57,7 +57,7 @@ export function LoginForm() {
 
       <div className="space-y-2">
         <label className="text-sm font-semibold text-[var(--foreground)]" htmlFor="password">
-          Password
+          Passord
         </label>
         <input
           id="password"
@@ -81,21 +81,21 @@ export function LoginForm() {
         disabled={isSubmitting}
         className="w-full rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-[var(--background)] transition hover:bg-[var(--forest-soft)] disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isSubmitting ? "Signing in..." : "Sign in"}
+        {isSubmitting ? "Logger inn..." : "Logg inn"}
       </button>
 
       <p className="text-sm text-[var(--muted)]">
-        Need an account?{" "}
+        Trenger du en konto?{" "}
         <Link href="/auth/register" className="font-semibold text-[var(--forest)]">
-          Create one here
+          Opprett en her
         </Link>
         .
       </p>
 
       <p className="text-sm text-[var(--muted)]">
-        Forgot your password?{" "}
+        Glemt passordet?{" "}
         <Link href="/auth/forgot-password" className="font-semibold text-[var(--forest)]">
-          Start the reset flow
+          Start tilbakestilling
         </Link>
         .
       </p>

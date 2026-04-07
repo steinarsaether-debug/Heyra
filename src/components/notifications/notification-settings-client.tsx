@@ -71,11 +71,11 @@ export function NotificationSettingsClient() {
     setIsSaving(false);
 
     if (!response.ok) {
-      setError(data.error ?? "Could not save notification settings.");
+      setError(data.error ?? "Kunne ikke lagre varslingsinnstillingene.");
       return;
     }
 
-    setMessage(markTested ? "Test notification sent." : "Notification settings updated.");
+    setMessage(markTested ? "Testvarsel sendt." : "Varslingsinnstillingene er oppdatert.");
     window.setTimeout(() => setMessage(null), 2500);
   }
 
@@ -90,7 +90,7 @@ export function NotificationSettingsClient() {
 
   async function enablePush() {
     if (!("Notification" in window)) {
-      setError("This browser does not support notifications.");
+      setError("Denne nettleseren støtter ikke varsler.");
       return;
     }
 
@@ -106,12 +106,12 @@ export function NotificationSettingsClient() {
 
   async function sendTestNotification() {
     if (!("serviceWorker" in navigator) || !("Notification" in window)) {
-      setError("This browser does not support local notifications.");
+      setError("Denne nettleseren støtter ikke lokale varsler.");
       return;
     }
 
     if (Notification.permission !== "granted") {
-      setError("Allow browser notifications first.");
+      setError("Tillat nettleservarsler først.");
       return;
     }
 
@@ -134,7 +134,7 @@ export function NotificationSettingsClient() {
   if (isLoading) {
     return (
       <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
-        <p className="text-sm leading-7 text-[var(--muted)]">Loading notification settings...</p>
+      <p className="text-sm leading-7 text-[var(--muted)]">Laster varslingsinnstillinger...</p>
       </section>
     );
   }
@@ -142,31 +142,31 @@ export function NotificationSettingsClient() {
   return (
     <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-        Notifications
+        Varsler
       </p>
       <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
         <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border)] px-4 py-3">
-          <span>Booking updates</span>
+          <span>Oppdateringer om bestillinger</span>
           <input type="checkbox" checked={preferences.bookingUpdates} onChange={() => toggle("bookingUpdates")} />
         </label>
         <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border)] px-4 py-3">
-          <span>Contract and payment updates</span>
+          <span>Oppdateringer om kontrakt og betaling</span>
           <input type="checkbox" checked={preferences.contractUpdates} onChange={() => toggle("contractUpdates")} />
         </label>
         <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border)] px-4 py-3">
-          <span>Payout updates</span>
+          <span>Oppdateringer om utbetalinger</span>
           <input type="checkbox" checked={preferences.payoutUpdates} onChange={() => toggle("payoutUpdates")} />
         </label>
         <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border)] px-4 py-3">
-          <span>Compliance reminders</span>
+          <span>Påminnelser om etterlevelse</span>
           <input type="checkbox" checked={preferences.complianceReminders} onChange={() => toggle("complianceReminders")} />
         </label>
         <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border)] px-4 py-3">
-          <span>Marketing updates</span>
+          <span>Markedsføringsoppdateringer</span>
           <input type="checkbox" checked={preferences.marketingUpdates} onChange={() => toggle("marketingUpdates")} />
         </label>
         <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
-          <p className="font-semibold">Browser push</p>
+          <p className="font-semibold">Nettleservarsler</p>
           <p className="mt-1 text-[var(--muted)]">
             {getNotificationDeliveryStatus(preferences.pushEnabled, preferences.pushPermission)}
           </p>
@@ -177,7 +177,7 @@ export function NotificationSettingsClient() {
               disabled={isSaving}
               className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-70"
             >
-              Enable push
+              Aktiver varsler
             </button>
             <button
               type="button"
@@ -185,7 +185,7 @@ export function NotificationSettingsClient() {
               disabled={isSaving || preferences.pushPermission !== "granted"}
               className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] disabled:opacity-70"
             >
-              Send test notification
+              Send testvarsel
             </button>
           </div>
         </div>

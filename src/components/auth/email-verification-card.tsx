@@ -33,29 +33,29 @@ export function EmailVerificationCard({
     setIsSubmitting(false);
 
     if (!response.ok) {
-      setError(data.error ?? "Unable to create a verification link.");
+      setError(data.error ?? "Kunne ikke opprette verifiseringslenke.");
       return;
     }
 
     if (data.alreadyVerified) {
-      setSuccess("This email address is already verified.");
+      setSuccess("Denne e-postadressen er allerede verifisert.");
       return;
     }
 
-    setSuccess("Verification link ready.");
+    setSuccess("Verifiseringslenken er klar.");
     setVerifyUrl(data.verifyUrl ?? null);
   }
 
   return (
     <div className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-        Email verification
+        E-postverifisering
       </p>
       <p className="mt-3 text-lg text-[var(--forest)]">{email}</p>
       <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
         {isVerified
-          ? "Your email is verified."
-          : "Verify your email before you publish listings or send booking requests."}
+          ? "E-postadressen din er verifisert."
+          : "Verifiser e-posten før du publiserer annonser eller sender bestillingsforespørsler."}
       </p>
 
       {!isVerified ? (
@@ -66,11 +66,11 @@ export function EmailVerificationCard({
             disabled={isSubmitting}
             className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-70"
           >
-            {isSubmitting ? "Preparing..." : "Create verification link"}
+            {isSubmitting ? "Forbereder..." : "Opprett verifiseringslenke"}
           </button>
           {verifyUrl ? (
             <p className="rounded-2xl border border-[var(--border)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
-              Local verification link:{" "}
+              Lokal verifiseringslenke:{" "}
               <Link href={verifyUrl} className="font-semibold text-[var(--forest)]">
                 {verifyUrl}
               </Link>

@@ -7,8 +7,8 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 const roleOptions: Array<{ value: UserRole; label: string }> = [
-  { value: UserRole.LANDOWNER, label: "Landowner" },
-  { value: UserRole.HUNTER, label: "Hunter / Fisher" },
+  { value: UserRole.LANDOWNER, label: "Grunneier" },
+  { value: UserRole.HUNTER, label: "Jeger / fisker" },
 ];
 
 export function RegisterForm() {
@@ -46,7 +46,7 @@ export function RegisterForm() {
     };
 
     if (!response.ok) {
-      setError(data.error || "We could not create your account.");
+      setError(data.error || "Vi kunne ikke opprette kontoen din.");
       setIsSubmitting(false);
       return;
     }
@@ -61,7 +61,7 @@ export function RegisterForm() {
     setIsSubmitting(false);
 
     if (!signInResult || signInResult.error) {
-      setError("Account created, but automatic sign-in failed. Please log in manually.");
+      setError("Kontoen ble opprettet, men automatisk innlogging mislyktes. Logg inn manuelt.");
       router.push("/auth/login");
       return;
     }
@@ -74,7 +74,7 @@ export function RegisterForm() {
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-2">
         <label className="text-sm font-semibold text-[var(--foreground)]" htmlFor="fullName">
-          Full name
+          Fullt navn
         </label>
         <input
           id="fullName"
@@ -102,7 +102,7 @@ export function RegisterForm() {
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <label className="text-sm font-semibold text-[var(--foreground)]" htmlFor="password">
-            Password
+            Passord
           </label>
           <input
             id="password"
@@ -120,7 +120,7 @@ export function RegisterForm() {
             className="text-sm font-semibold text-[var(--foreground)]"
             htmlFor="confirmPassword"
           >
-            Confirm password
+            Bekreft passord
           </label>
           <input
             id="confirmPassword"
@@ -136,7 +136,7 @@ export function RegisterForm() {
 
       <div className="space-y-2">
         <label className="text-sm font-semibold text-[var(--foreground)]" htmlFor="role">
-          Starting role
+          Startrolle
         </label>
         <select
           id="role"
@@ -156,9 +156,9 @@ export function RegisterForm() {
         <label className="flex items-start gap-3 text-sm leading-6 text-[var(--muted)]">
           <input name="acceptTerms" type="checkbox" className="mt-1" required />
           <span>
-            I accept the{" "}
+            Jeg godtar{" "}
             <Link href="/legal/terms" className="font-semibold text-[var(--forest)]">
-              Terms of Service
+              vilkårene
             </Link>
             .
           </span>
@@ -167,9 +167,9 @@ export function RegisterForm() {
         <label className="flex items-start gap-3 text-sm leading-6 text-[var(--muted)]">
           <input name="acceptPrivacy" type="checkbox" className="mt-1" required />
           <span>
-            I accept the{" "}
+            Jeg godtar{" "}
             <Link href="/legal/privacy" className="font-semibold text-[var(--forest)]">
-              Privacy Policy
+              personvernerklæringen
             </Link>
             .
           </span>
@@ -178,7 +178,7 @@ export function RegisterForm() {
         <label className="flex items-start gap-3 text-sm leading-6 text-[var(--muted)]">
           <input name="acceptMarketing" type="checkbox" className="mt-1" />
           <span>
-            I am happy to receive optional product updates and launch emails from Heyra.
+            Jeg ønsker å motta valgfrie produktoppdateringer og lanseringsinformasjon fra Heyra.
           </span>
         </label>
       </div>
@@ -194,13 +194,13 @@ export function RegisterForm() {
         disabled={isSubmitting}
         className="w-full rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-[var(--background)] transition hover:bg-[var(--forest-soft)] disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isSubmitting ? "Creating account..." : "Create account"}
+        {isSubmitting ? "Oppretter konto..." : "Opprett konto"}
       </button>
 
       <p className="text-sm text-[var(--muted)]">
-        Already registered?{" "}
+        Har du allerede konto?{" "}
         <Link href="/auth/login" className="font-semibold text-[var(--forest)]">
-          Sign in instead
+          Logg inn i stedet
         </Link>
         .
       </p>

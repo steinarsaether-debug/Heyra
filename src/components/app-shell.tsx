@@ -1,8 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ReactNode } from "react";
 import type { Session } from "next-auth";
 import { AppMobileNav } from "@/components/app-mobile-nav";
-import { HeyraLogo } from "@/components/brand/heyra-logo";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { SignOutButton } from "@/components/sign-out-button";
 import { TrustBadge } from "@/components/trust/trust-badge";
@@ -12,6 +12,7 @@ import { createTranslator } from "@/lib/i18n/translate";
 import { UserRole } from "@prisma/client";
 import { HostQualityBadge } from "@/lib/trust-summary";
 import { localizePathname } from "@/lib/i18n/config";
+import logoMark from "../../images/logo2.png";
 
 export function AppShell({
   children,
@@ -93,32 +94,30 @@ export function AppShell({
       ];
 
   return (
-    <div className="min-h-screen px-3 py-4 sm:px-8 lg:px-12">
-      <div className="heyra-shell mx-auto flex min-h-[calc(100vh-2rem)] max-w-7xl flex-col rounded-[1.6rem] border border-[var(--border)] shadow-[0_20px_70px_rgba(16,42,33,0.12)] backdrop-blur sm:rounded-[2rem]">
-        <header className="border-b border-[var(--border)] px-4 py-4 sm:px-8 sm:py-5">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+    <div className="min-h-screen px-3 py-4 sm:px-6 lg:px-10">
+      <div className="heyra-shell mx-auto flex min-h-[calc(100vh-2rem)] max-w-7xl flex-col rounded-[1.6rem] border border-[var(--border)] shadow-[0_20px_70px_rgba(16,42,33,0.10)] backdrop-blur sm:rounded-[2rem]">
+        <header className="border-b border-[var(--border)] bg-white/95 px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div className="flex items-center gap-4">
               <Link href={localizePathname(locale, "/")} className="inline-flex items-center gap-3">
-                <span className="flex h-12 items-center">
-                  <HeyraLogo className="h-11 w-auto" theme="dark" />
-                </span>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--orange)]">
+                <Image src={logoMark} alt="Heyra" className="h-8 w-auto sm:h-9" priority />
+                <div className="hidden sm:block">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-[var(--orange)]">
                     {t("shell.eyebrow")}
                   </p>
-                  <p className="text-sm text-[var(--muted)]">
+                  <p className="text-xs text-[var(--muted)]">
                     {t("shell.tagline")}
                   </p>
                 </div>
               </Link>
             </div>
 
-            <nav className="hidden flex-wrap items-center gap-2 md:flex">
+            <nav className="hidden flex-wrap items-center gap-2 lg:flex">
               {primaryNav.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="heyra-pill rounded-full px-4 py-2 text-sm font-medium transition hover:border-[rgba(16,42,33,0.18)] hover:bg-[rgba(255,255,255,0.94)]"
+                  className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium transition hover:border-[rgba(16,42,33,0.18)] hover:bg-[var(--background-soft)]"
                 >
                   {item.label}
                 </Link>
@@ -130,7 +129,7 @@ export function AppShell({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="heyra-pill rounded-full px-4 py-2 text-sm text-[var(--muted)] transition hover:bg-[rgba(255,255,255,0.94)] hover:text-[var(--foreground)]"
+                  className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm text-[var(--muted)] transition hover:bg-[var(--background-soft)] hover:text-[var(--foreground)]"
                 >
                   {item.label}
                 </Link>
@@ -144,17 +143,17 @@ export function AppShell({
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="heyra-pill rounded-full px-4 py-2 text-sm text-[var(--muted)] transition hover:bg-[rgba(255,255,255,0.94)] hover:text-[var(--foreground)]"
+                      className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm text-[var(--muted)] transition hover:bg-[var(--background-soft)] hover:text-[var(--foreground)]"
                     >
                       {item.label}
                     </Link>
                   ))}
-                  <div className="heyra-pill rounded-full px-4 py-2 text-sm text-[var(--foreground)]">
+                  <div className="rounded-full border border-[var(--border)] bg-[#f7f4ed] px-4 py-2 text-sm text-[var(--foreground)]">
                     {session.user.fullName} · {session.user.role.toLowerCase()}
                   </div>
                   {userTrust ? (
                     <div className="flex flex-wrap gap-2">
-                      <span className="heyra-pill rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
+                      <span className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
                         {userTrust.trustSummary}
                       </span>
                       {userTrust.hostBadge ? <TrustBadge compact {...userTrust.hostBadge} /> : null}
@@ -167,7 +166,7 @@ export function AppShell({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="heyra-pill rounded-full px-4 py-2 text-sm text-[var(--muted)] transition hover:bg-[rgba(255,255,255,0.94)] hover:text-[var(--foreground)]"
+                    className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm text-[var(--muted)] transition hover:bg-[var(--background-soft)] hover:text-[var(--foreground)]"
                   >
                     {item.label}
                   </Link>

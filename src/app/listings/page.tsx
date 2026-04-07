@@ -74,7 +74,9 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   return (
     <main className="px-6 py-10 sm:px-8 md:px-10">
       <section className="space-y-8">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="overflow-hidden rounded-[1.8rem] border border-[var(--border)] bg-white">
+          <div className="heyra-discovery-hero px-6 py-8 sm:px-8 sm:py-10">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--amber)]">
               {t("listings.eyebrow")}
@@ -118,9 +120,11 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
               {t("listings.mapView")}
             </Link>
           </div>
-        </div>
+            </div>
+          </div>
 
-        <form className="grid gap-3 rounded-[1.3rem] border border-[var(--border)] bg-white/70 p-4 text-sm text-[var(--muted)] sm:grid-cols-2 xl:grid-cols-4">
+          <div className="border-t border-[var(--border)] bg-[#fcfaf6] px-4 py-4 sm:px-6">
+        <form className="grid gap-3 rounded-[1.3rem] border border-[var(--border)] bg-white p-4 text-sm text-[var(--muted)] sm:grid-cols-2 xl:grid-cols-4">
           <input
             type="search"
             name="q"
@@ -194,18 +198,20 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
           <div className="flex flex-wrap gap-3 sm:col-span-2 xl:col-span-4">
             <button
               type="submit"
-              className="rounded-xl bg-[var(--forest)] px-4 py-3 font-semibold text-white"
+              className="rounded-full bg-[var(--orange)] px-5 py-3 font-semibold text-white"
             >
               {t("common.actions.updateSearch")}
             </button>
             <Link
               href="/listings"
-              className="rounded-xl border border-[var(--border)] px-4 py-3 font-semibold text-[var(--foreground)]"
+              className="rounded-full border border-[var(--border)] px-5 py-3 font-semibold text-[var(--foreground)]"
             >
               {t("common.actions.clear")}
             </Link>
           </div>
         </form>
+          </div>
+        </div>
 
         <OfflinePageNote
           onlineText={t("listings.offlineOnline")}
@@ -271,19 +277,20 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
               <Link
                 key={listing.slug}
                 href={`/listings/${listing.slug}`}
-                className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6 transition hover:-translate-y-0.5 hover:bg-white"
+                className="overflow-hidden rounded-[1.5rem] border border-[var(--border)] bg-white/88 transition hover:-translate-y-0.5 hover:bg-white"
               >
                 {listing.leadPhoto ? (
-                  <div className="relative mb-4 overflow-hidden rounded-[1.2rem] border border-[var(--border)]">
+                  <div className="relative mb-4 h-48 overflow-hidden border-b border-[var(--border)]">
                     <Image
                       src={listing.leadPhoto}
                       alt={listing.title}
                       width={900}
                       height={560}
-                      className="h-48 w-full object-cover"
+                      className="h-full w-full object-cover"
                     />
                   </div>
                 ) : null}
+                <div className="p-6 pt-0">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
                   {formatListingType(listing.type)}
                   {listing.distanceKm !== null
@@ -328,6 +335,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
                     />
                   </div>
                 ) : null}
+                </div>
               </Link>
             ))}
           </div>

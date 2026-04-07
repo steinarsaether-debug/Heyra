@@ -14,21 +14,20 @@ export default async function RegisterPage() {
       <section className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="rounded-[1.8rem] bg-[var(--forest)] p-8 text-[var(--background)]">
           <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
-            Onboarding
+            Oppstart
           </p>
           <h1 className="mt-5 text-4xl leading-tight sm:text-5xl">
-            Create a Heyra account and choose your starting role.
+            Opprett en Heyra-konto og velg hvordan du vil starte.
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-8 text-white/75">
-            Registration now stores the user record, basic PII profile, and the
-            first legal consent records so later onboarding steps have a real
-            account foundation.
+            Registreringen lagrer nå bruker, grunnleggende profilinformasjon og
+            de første samtykkene, slik at videre onboarding bygger på en ekte konto.
           </p>
         </div>
 
         <div className="rounded-[1.8rem] border border-[var(--border)] bg-white/75 p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-            Account Setup
+            Kontooppsett
           </p>
           <div className="mt-5">
             <RegisterForm />

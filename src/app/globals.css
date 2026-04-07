@@ -68,6 +68,34 @@ a {
       center/cover;
 }
 
+.heyra-home-hero {
+  background:
+    linear-gradient(180deg, rgba(235, 243, 247, 0.18), rgba(251, 245, 232, 0.3)),
+    url("https://images.unsplash.com/photo-1516939884455-1445c8652f83?auto=format&fit=crop&w=1800&q=80")
+      center 58%/cover;
+}
+
+.heyra-home-host-banner {
+  background:
+    linear-gradient(90deg, rgba(10, 25, 22, 0.84), rgba(10, 25, 22, 0.24)),
+    url("https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1800&q=80")
+      center/cover;
+}
+
+.heyra-discovery-hero {
+  background:
+    linear-gradient(135deg, rgba(235, 243, 247, 0.82), rgba(251, 245, 232, 0.9)),
+    url("https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1800&q=80")
+      center/cover;
+}
+
+.heyra-services-hero {
+  background:
+    linear-gradient(135deg, rgba(241, 245, 236, 0.84), rgba(249, 244, 236, 0.92)),
+    url("https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1800&q=80")
+      center/cover;
+}
+
 .heyra-pill {
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.74);

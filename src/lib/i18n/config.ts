@@ -8,9 +8,9 @@ export const localeCookieName = "HEYRA_LOCALE";
 export const localeHeaderName = "x-heyra-locale";
 
 export const localeLabels: Record<AppLocale, string> = {
-  nb: "Bokmal",
+  nb: "Bokmål",
   nn: "Nynorsk",
-  en: "English",
+  en: "Engelsk",
   sv: "Svenska",
   da: "Dansk",
   fi: "Suomi",
@@ -48,4 +48,3 @@ export function stripLocalePrefix(pathname: string) {
     pathname: rest === "/" ? "/" : rest.replace(/\/$/, "") || "/",
   };
 }
-

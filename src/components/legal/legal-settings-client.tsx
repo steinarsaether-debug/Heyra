@@ -37,7 +37,7 @@ export function LegalSettingsClient() {
       }),
     });
 
-    setSaved("Preferences updated.");
+    setSaved("Innstillingene er oppdatert.");
     window.setTimeout(() => setSaved(null), 2500);
   }
 
@@ -56,22 +56,22 @@ export function LegalSettingsClient() {
   return (
     <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-        Cookie preferences
+        Innstillinger for informasjonskapsler
       </p>
       <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
         <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
-          Necessary cookies are always enabled for sign-in and core app functionality.
+          Nødvendige informasjonskapsler er alltid aktivert for innlogging og grunnleggende appfunksjoner.
         </div>
         <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border)] px-4 py-3">
-          <span>Allow analytics cookies</span>
+          <span>Tillat analyseinformasjonskapsler</span>
           <input type="checkbox" checked={consent.analytics} onChange={() => toggle("analytics")} />
         </label>
         <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border)] px-4 py-3">
-          <span>Allow marketing preference syncing</span>
+          <span>Tillat synkronisering av markedsføringsvalg</span>
           <input type="checkbox" checked={consent.marketing} onChange={() => toggle("marketing")} />
         </label>
         <p className="text-sm text-[var(--muted)]">
-          Legal version tracked locally: {consent.version}
+          Lokal registrert juridisk versjon: {consent.version}
         </p>
         {saved ? <p className="text-sm text-[#1f5c3d]">{saved}</p> : null}
       </div>

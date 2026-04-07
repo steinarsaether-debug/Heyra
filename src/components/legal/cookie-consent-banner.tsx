@@ -58,13 +58,13 @@ export function CookieConsentBanner() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-            Cookie preferences
+            Informasjonskapsler
           </p>
           <p className="mt-3 text-sm leading-7 text-[var(--foreground)]">
-            Heyra uses necessary cookies to keep sign-in and core functionality working. You can also choose optional analytics and marketing preferences now, and change them later through legal settings.
+            Heyra bruker nødvendige informasjonskapsler for innlogging og grunnleggende funksjoner. Du kan også velge analyse og markedsføring nå, og endre valgene senere under juridiske innstillinger.
           </p>
           <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-            Read more in <Link href="/legal/privacy" className="font-semibold text-[var(--forest)]">Privacy</Link> and <Link href="/legal/terms" className="font-semibold text-[var(--forest)]">Terms</Link>.
+            Les mer i <Link href="/legal/privacy" className="font-semibold text-[var(--forest)]">personvernerklæringen</Link> og <Link href="/legal/terms" className="font-semibold text-[var(--forest)]">vilkårene</Link>.
           </p>
         </div>
 
@@ -74,21 +74,21 @@ export function CookieConsentBanner() {
             onClick={() => void saveConsent(buildConsentState({ analytics: false, marketing: false }))}
             className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
           >
-            Necessary only
+            Kun nødvendige
           </button>
           <button
             type="button"
             onClick={() => void saveConsent(buildConsentState({ analytics: true, marketing: false }))}
             className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
           >
-            Allow analytics
+            Tillat analyse
           </button>
           <button
             type="button"
             onClick={() => void saveConsent(buildConsentState({ analytics: true, marketing: true }))}
             className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white"
           >
-            Allow all
+            Tillat alle
           </button>
         </div>
       </div>

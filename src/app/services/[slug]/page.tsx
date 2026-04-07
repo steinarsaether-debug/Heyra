@@ -45,7 +45,7 @@ export async function generateMetadata({
 
   if (!service) {
     return {
-      title: "Service not found",
+      title: "Tjenesten ble ikke funnet",
       robots: {
         index: false,
         follow: false,
@@ -132,7 +132,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
               href="/services"
               className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-[var(--forest)]"
             >
-              Browse services
+              Se tjenester
             </Link>
             {service.providerProfile.website ? (
               <a
@@ -141,7 +141,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
                 rel="noreferrer"
                 className="rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white"
               >
-                Open website
+                Åpne nettside
               </a>
             ) : null}
             {serviceTrustBadge ? <TrustBadge compact {...serviceTrustBadge} /> : null}
@@ -150,17 +150,17 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
 
         <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
-            <h2 className="text-2xl text-[var(--forest)]">Service overview</h2>
+            <h2 className="text-2xl text-[var(--forest)]">Om tjenesten</h2>
             <p className="mt-4 text-base leading-8 text-[var(--foreground)]">{service.description}</p>
             <div className="mt-4 rounded-[1.2rem] border border-[var(--border)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
-              <span className="font-semibold">Trust summary:</span> {serviceTrustSummary}
+              <span className="font-semibold">Tillitssammendrag:</span> {serviceTrustSummary}
             </div>
           </article>
 
           <aside className="space-y-4">
             <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-                Contact
+                Kontakt
               </p>
               <h2 className="mt-3 text-2xl text-[var(--forest)]">{service.providerProfile.businessName}</h2>
               <div className="mt-4 space-y-2 text-sm leading-7 text-[var(--muted)]">
@@ -171,28 +171,28 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
                   {service.municipality}, {service.county}
                 </p>
                 {service.providerProfile.yearsExperience !== null ? (
-                  <p>{service.providerProfile.yearsExperience} years of local experience</p>
+                  <p>{service.providerProfile.yearsExperience} års lokal erfaring</p>
                 ) : null}
               </div>
               <p className="mt-4 text-sm font-semibold text-[var(--forest)]">
-                {service.priceFromNok ? `From NOK ${service.priceFromNok.toLocaleString("nb-NO")}` : "Price on request"}
+                {service.priceFromNok ? `Fra kr ${service.priceFromNok.toLocaleString("nb-NO")}` : "Pris på forespørsel"}
               </p>
             </article>
 
             <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-                Practical details
+                Praktiske detaljer
               </p>
               <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--muted)]">
-                {qualifications.licenseSummary ? <p><span className="font-semibold text-[var(--foreground)]">Licences:</span> {qualifications.licenseSummary}</p> : null}
-                {qualifications.equipmentSummary ? <p><span className="font-semibold text-[var(--foreground)]">Equipment:</span> {qualifications.equipmentSummary}</p> : null}
+                {qualifications.licenseSummary ? <p><span className="font-semibold text-[var(--foreground)]">Lisenser:</span> {qualifications.licenseSummary}</p> : null}
+                {qualifications.equipmentSummary ? <p><span className="font-semibold text-[var(--foreground)]">Utstyr:</span> {qualifications.equipmentSummary}</p> : null}
                 {qualifications.transportCoverage ? <p><span className="font-semibold text-[var(--foreground)]">Transport:</span> {qualifications.transportCoverage}</p> : null}
-                {qualifications.accommodationDetails ? <p><span className="font-semibold text-[var(--foreground)]">Accommodation:</span> {qualifications.accommodationDetails}</p> : null}
+                {qualifications.accommodationDetails ? <p><span className="font-semibold text-[var(--foreground)]">Overnatting:</span> {qualifications.accommodationDetails}</p> : null}
                 {!qualifications.licenseSummary &&
                 !qualifications.equipmentSummary &&
                 !qualifications.transportCoverage &&
                 !qualifications.accommodationDetails ? (
-                  <p>No extra practical notes have been added yet.</p>
+                  <p>Ingen ekstra praktiske opplysninger er lagt inn ennå.</p>
                 ) : null}
               </div>
             </article>

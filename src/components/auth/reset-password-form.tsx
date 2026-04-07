@@ -36,11 +36,11 @@ export function ResetPasswordForm() {
     setIsSubmitting(false);
 
     if (!response.ok) {
-      setError(data.error ?? "Unable to reset the password.");
+      setError(data.error ?? "Kunne ikke tilbakestille passordet.");
       return;
     }
 
-    setSuccess("Password updated. You can now sign in with the new password.");
+    setSuccess("Passordet er oppdatert. Du kan nå logge inn med det nye passordet.");
     setPassword("");
     setConfirmPassword("");
   }
@@ -49,13 +49,13 @@ export function ResetPasswordForm() {
     <form onSubmit={handleSubmit} className="space-y-5 rounded-[1.7rem] border border-[var(--border)] bg-white/80 p-8">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-          Set a new password
+          Velg nytt passord
         </p>
-        <h2 className="mt-3 text-3xl text-[var(--forest)]">Choose a new password</h2>
+        <h2 className="mt-3 text-3xl text-[var(--forest)]">Velg et nytt passord</h2>
       </div>
 
       <label className="block space-y-2 text-sm font-semibold text-[var(--foreground)]">
-        Reset token
+        Tilbakestillingstoken
         <input
           type="text"
           value={token}
@@ -65,7 +65,7 @@ export function ResetPasswordForm() {
       </label>
 
       <label className="block space-y-2 text-sm font-semibold text-[var(--foreground)]">
-        New password
+        Nytt passord
         <input
           type="password"
           value={password}
@@ -75,7 +75,7 @@ export function ResetPasswordForm() {
       </label>
 
       <label className="block space-y-2 text-sm font-semibold text-[var(--foreground)]">
-        Confirm password
+        Bekreft passord
         <input
           type="password"
           value={confirmPassword}
@@ -93,13 +93,13 @@ export function ResetPasswordForm() {
           disabled={isSubmitting}
           className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-white disabled:opacity-70"
         >
-          {isSubmitting ? "Saving..." : "Update password"}
+          {isSubmitting ? "Lagrer..." : "Oppdater passord"}
         </button>
         <Link
           href="/auth/login"
           className="rounded-full border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)]"
         >
-          Back to login
+          Tilbake til innlogging
         </Link>
       </div>
     </form>

@@ -10,14 +10,14 @@ import { redirect } from "next/navigation";
 
 function getRoleLabel(role: UserRole) {
   if (role === UserRole.LANDOWNER) {
-    return "Landowner";
+    return "Grunneier";
   }
 
   if (role === UserRole.ADMIN) {
-    return "Admin";
+    return "Administrator";
   }
 
-  return "Hunter / Fisher";
+  return "Jeger / fisker";
 }
 
 export default async function ProfilePage() {
@@ -87,10 +87,10 @@ export default async function ProfilePage() {
         <div className="space-y-6">
           <div className="rounded-[1.8rem] bg-[var(--forest)] p-8 text-[var(--background)]">
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
-              Profile
+              Profil
             </p>
             <h1 className="mt-5 text-4xl leading-tight sm:text-5xl">
-              Complete your core account profile.
+              Fullfør den grunnleggende kontoprofilen din.
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-8 text-white/75">
               {getRoleGuidance(user.role)}
@@ -99,13 +99,13 @@ export default async function ProfilePage() {
 
           <div className="rounded-[1.6rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Completion
+              Fremdrift
             </p>
             <div className="mt-4 flex items-end justify-between gap-4">
               <div>
                 <p className="text-4xl text-[var(--forest)]">{completion.percent}%</p>
                 <p className="mt-2 text-sm text-[var(--muted)]">
-                  {completion.completed} of {completion.total} core fields completed
+                  {completion.completed} av {completion.total} viktige felt er fylt ut
                 </p>
               </div>
               <div className="h-3 flex-1 rounded-full bg-[#e7e1d5]">
@@ -123,7 +123,7 @@ export default async function ProfilePage() {
 
           <div className="rounded-[1.8rem] border border-[var(--border)] bg-white/75 p-8">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-              Edit profile
+              Rediger profil
             </p>
             <div className="mt-5">
               <ProfileForm
@@ -142,7 +142,7 @@ export default async function ProfilePage() {
 
           <div className="rounded-[1.6rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-              Remaining profile tasks
+              Gjenstående profiloppgaver
             </p>
             <ul className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
               {completion.fields.map((field) => (
@@ -150,7 +150,7 @@ export default async function ProfilePage() {
                   key={field.key}
                   className="rounded-2xl border border-[var(--border)] px-4 py-3"
                 >
-                  {field.complete ? "Complete" : "Needed"}: {field.label}
+                  {field.complete ? "Fullført" : "Mangler"}: {field.label}
                 </li>
               ))}
             </ul>
@@ -158,13 +158,13 @@ export default async function ProfilePage() {
 
           <div className="rounded-[1.6rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-              Reputation
+              Omdømme
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">
-              {averageRating ? `${averageRating.toFixed(1)} / 5` : "No reviews yet"}
+              {averageRating ? `${averageRating.toFixed(1)} / 5` : "Ingen vurderinger ennå"}
             </p>
             <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-              {user.receivedReviews.length} approved review{user.receivedReviews.length === 1 ? "" : "s"} received
+              {user.receivedReviews.length} godkjente vurdering{user.receivedReviews.length === 1 ? "" : "er"} mottatt
             </p>
             <p className="mt-2 text-sm leading-7 text-[var(--muted)]">{trustSummary.detail}</p>
             {hostBadge ? (

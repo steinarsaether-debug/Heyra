@@ -16,8 +16,8 @@ type ServicesPageProps = {
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Services",
-    description: "Find trusted outdoor services near hunting and fishing trips in Norway.",
+    title: "Tjenester",
+    description: "Finn trygge lokale tjenester i nærheten av jakt- og fisketurer i Norge.",
     alternates: {
       canonical: absoluteUrl("/services"),
     },
@@ -84,24 +84,28 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
   return (
     <main className="px-6 py-10 sm:px-8 md:px-10">
       <section className="space-y-8">
+        <div className="overflow-hidden rounded-[1.8rem] border border-[var(--border)] bg-white">
+          <div className="heyra-services-hero px-6 py-8 sm:px-8 sm:py-10">
         <div className="max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--amber)]">
-            Services
+            Tjenester
           </p>
           <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
-            Find trusted local help around the trip.
+            Finn lokal hjelp du kan stole på rundt turen.
           </h1>
           <p className="mt-4 text-lg leading-8 text-[var(--muted)]">
-            This is the first Norway service layer for practical support before, during, or after a hunting or fishing visit.
+            Dette er det første tjenestelaget i Heyra for praktisk hjelp før, under eller etter en jakt- eller fisketur.
           </p>
         </div>
+          </div>
 
-        <form className="grid gap-3 rounded-[1.3rem] border border-[var(--border)] bg-white/70 p-4 text-sm text-[var(--muted)] sm:grid-cols-2 xl:grid-cols-4">
+          <div className="border-t border-[var(--border)] bg-[#fcfaf6] px-4 py-4 sm:px-6">
+        <form className="grid gap-3 rounded-[1.3rem] border border-[var(--border)] bg-white p-4 text-sm text-[var(--muted)] sm:grid-cols-2 xl:grid-cols-4">
           <input
             type="search"
             name="q"
             defaultValue={q}
-            placeholder="Search provider or service"
+            placeholder="Søk etter tilbyder eller tjeneste"
             className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)] outline-none xl:col-span-2"
           />
           <select
@@ -109,7 +113,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
             defaultValue={category ?? ""}
             className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)] outline-none"
           >
-            <option value="">All categories</option>
+            <option value="">Alle kategorier</option>
             {serviceCategoryOptions.map((item) => (
               <option key={item} value={item}>
                 {formatServiceCategory(item)}
@@ -120,28 +124,30 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
             type="text"
             name="municipality"
             defaultValue={municipality}
-            placeholder="Municipality"
+            placeholder="Kommune"
             className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)] outline-none"
           />
           <div className="flex flex-wrap gap-3 sm:col-span-2 xl:col-span-4">
             <button
               type="submit"
-              className="rounded-xl bg-[var(--forest)] px-4 py-3 font-semibold text-white"
+              className="rounded-full bg-[var(--orange)] px-5 py-3 font-semibold text-white"
             >
-              Update search
+              Oppdater søk
             </button>
             <Link
               href="/services"
-              className="rounded-xl border border-[var(--border)] px-4 py-3 font-semibold text-[var(--foreground)]"
+              className="rounded-full border border-[var(--border)] px-5 py-3 font-semibold text-[var(--foreground)]"
             >
-              Clear filters
+              Nullstill filtre
             </Link>
           </div>
         </form>
+          </div>
+        </div>
 
         {services.length === 0 ? (
           <div className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-8 text-base leading-8 text-[var(--muted)]">
-            No published services match this search yet.
+            Ingen publiserte tjenester matcher dette søket ennå.
           </div>
         ) : (
           <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
@@ -162,7 +168,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 return (
               <article
                 key={service.id}
-                className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6"
+                className="rounded-[1.6rem] border border-[var(--border)] bg-white p-6 shadow-[0_8px_24px_rgba(16,42,33,0.04)]"
               >
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
                   {formatServiceCategory(service.category)}
@@ -183,13 +189,13 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 </p>
                 <div className="mt-5 flex items-center justify-between gap-4">
                   <span className="text-sm font-semibold text-[var(--forest)]">
-                    {service.priceFromNok ? `From NOK ${service.priceFromNok.toLocaleString("nb-NO")}` : "Price on request"}
+                    {service.priceFromNok ? `Fra kr ${service.priceFromNok.toLocaleString("nb-NO")}` : "Pris på forespørsel"}
                   </span>
                   <Link
                     href={`/services/${service.slug}`}
                     className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white"
                   >
-                    View service
+                    Se tjeneste
                   </Link>
                 </div>
               </article>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { HeyraLogo } from "@/components/brand/heyra-logo";
+import logoMark from "../../images/logo2.png";
 import { localizePathname } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 import { getRequestLocale } from "@/lib/i18n/request";
@@ -27,103 +28,187 @@ export default async function HomePage() {
   const locale = await getRequestLocale();
   const messages = getMessages(locale);
   const t = createTranslator(locale, messages);
-  const routeCards = [
+  const categories = [
     {
       href: localizePathname(locale, "/listings"),
-      title: t("home.cards.listings.title"),
-      body: t("home.cards.listings.body"),
+      title: "Elgjakt",
+      image:
+        "https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=900&q=80",
     },
     {
-      href: localizePathname(locale, "/dashboard"),
-      title: t("home.cards.dashboard.title"),
-      body: t("home.cards.dashboard.body"),
+      href: `${localizePathname(locale, "/listings")}?offer=fishing`,
+      title: "Fluefiske",
+      image:
+        "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      href: `${localizePathname(locale, "/listings")}?species=GROUSE`,
+      title: "Rypejakt",
+      image:
+        "https://images.unsplash.com/photo-1501706362039-c6e80948bb5b?auto=format&fit=crop&w=900&q=80",
     },
     {
       href: localizePathname(locale, "/services"),
-      title: t("home.cards.services.title"),
-      body: t("home.cards.services.body"),
+      title: "Andre naturopplevelser",
+      image:
+        "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
+    },
+  ];
+  const footerGroups = [
+    {
+      title: "Om oss",
+      links: [
+        { href: localizePathname(locale, "/"), label: "Slik fungerer Heyra" },
+        { href: localizePathname(locale, "/beta"), label: "Om oss" },
+        { href: localizePathname(locale, "/legal/privacy"), label: "Kontakt" },
+      ],
     },
     {
-      href: localizePathname(locale, "/beta"),
-      title: t("home.cards.beta.title"),
-      body: t("home.cards.beta.body"),
+      title: "Vertskap",
+      links: [
+        { href: localizePathname(locale, "/auth/register"), label: "Lei ut ditt jord" },
+        { href: localizePathname(locale, "/dashboard/properties/new"), label: "Ansvarlig vertskap" },
+        { href: localizePathname(locale, "/dashboard/payouts"), label: "Utbetalinger" },
+      ],
+    },
+    {
+      title: "Hjelp",
+      links: [
+        { href: localizePathname(locale, "/dashboard/compliance"), label: "Hjelpesenter" },
+        { href: localizePathname(locale, "/legal/terms"), label: "Kansellering" },
+      ],
     },
   ];
 
   return (
-    <main className="px-6 py-10 sm:px-8 md:px-10">
-      <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <div className="heyra-hero overflow-hidden rounded-[1.9rem] text-[var(--foreground)]">
-          <div className="border-b border-[rgba(16,42,33,0.08)] px-8 py-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.32em] text-[var(--forest-soft)]">
-              {t("home.eyebrow")}
-            </p>
+    <main className="px-4 py-4 sm:px-6 md:px-8">
+      <section className="mx-auto max-w-6xl overflow-hidden rounded-[1.8rem] border border-[var(--border)] bg-white shadow-[0_24px_80px_rgba(16,42,33,0.08)]">
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] px-5 py-3 sm:px-6">
+          <Link href={localizePathname(locale, "/")} className="flex items-center gap-3">
+            <Image src={logoMark} alt="Heyra" className="h-8 w-auto" priority />
+          </Link>
+          <div className="flex items-center gap-3 text-sm font-semibold">
+            <Link
+              href={localizePathname(locale, "/auth/register")}
+              className="rounded-md bg-[#4f9e9b] px-3 py-2 text-white transition hover:brightness-95"
+            >
+              Bli vertskap
+            </Link>
+            <Link
+              href={localizePathname(locale, "/auth/login")}
+              className="rounded-md px-3 py-2 text-[var(--foreground)] transition hover:bg-[var(--background-soft)]"
+            >
+              Logg inn
+            </Link>
           </div>
+        </header>
 
-          <div className="space-y-8 px-8 py-10">
-            <div className="max-w-3xl space-y-5">
-              <div className="max-w-[18rem]">
-                <HeyraLogo className="h-auto w-full" theme="dark" />
-              </div>
-              <h1 className="text-5xl leading-tight text-[var(--foreground-strong)] sm:text-6xl">
-                {t("home.title")}
+        <section className="heyra-home-hero flex min-h-[28rem] items-start justify-center px-6 py-8 sm:px-10 sm:py-10">
+          <div className="w-full max-w-3xl rounded-[1.8rem] bg-[rgba(255,255,255,0.2)] p-4 backdrop-blur-[2px] sm:p-6">
+            <div className="rounded-[1.6rem] bg-[rgba(255,255,255,0.74)] px-5 py-5 shadow-[0_18px_50px_rgba(16,42,33,0.12)]">
+              <h1 className="text-center text-2xl font-semibold text-[var(--foreground-strong)] sm:text-3xl">
+                Søk og book din neste jakt- og fisketur her
               </h1>
-              <p className="max-w-2xl text-lg leading-8 text-[rgba(16,42,33,0.74)]">
-                {t("home.body")}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href={localizePathname(locale, "/listings")}
-                className="heyra-accent-button rounded-full px-5 py-3 text-sm font-semibold transition hover:translate-y-[-1px]"
+              <form
+                action={localizePathname(locale, "/listings")}
+                className="mt-5 flex flex-col gap-3 rounded-full border border-[rgba(16,42,33,0.12)] bg-white p-2 shadow-[0_10px_30px_rgba(16,42,33,0.08)] sm:flex-row sm:items-center"
               >
-                {t("common.actions.exploreListings")}
-              </Link>
-              <Link
-                href={localizePathname(locale, "/services")}
-                className="heyra-secondary-button rounded-full px-5 py-3 text-sm font-semibold transition hover:bg-[rgba(255,255,255,0.96)]"
-              >
-                {t("common.actions.browseServices")}
-              </Link>
-              <Link
-                href={localizePathname(locale, "/auth/register")}
-                className="heyra-secondary-button rounded-full px-5 py-3 text-sm font-semibold transition hover:bg-[rgba(255,255,255,0.96)]"
-              >
-                {t("common.actions.createAccount")}
-              </Link>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-3">
-              {(messages.home.highlights as readonly string[]).map((item) => (
-                <div
-                  key={item}
-                  className="rounded-[1.3rem] border border-[rgba(16,42,33,0.1)] bg-[rgba(255,252,246,0.72)] px-4 py-4 text-sm leading-7 text-[rgba(16,42,33,0.76)]"
+                <select
+                  name="offer"
+                  defaultValue=""
+                  className="rounded-full border border-transparent bg-transparent px-4 py-3 text-sm font-medium text-[var(--foreground)] outline-none sm:min-w-[7rem]"
                 >
-                  {item}
-                </div>
+                  <option value="">Dyr</option>
+                  <option value="hunting">Jakt</option>
+                  <option value="fishing">Fiske</option>
+                  <option value="services">Tjenester</option>
+                </select>
+                <input
+                  type="text"
+                  name="q"
+                  placeholder="Hva vil du oppleve?"
+                  className="min-w-0 flex-1 rounded-full border border-transparent bg-transparent px-4 py-3 text-sm text-[var(--foreground)] outline-none"
+                />
+                <input
+                  type="text"
+                  name="municipality"
+                  placeholder="Søk i Vald, vassdrag eller jakt / tjenester"
+                  className="min-w-0 flex-1 rounded-full border border-transparent bg-transparent px-4 py-3 text-sm text-[var(--foreground)] outline-none"
+                />
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center rounded-full bg-[var(--orange)] px-6 py-3 text-sm font-semibold text-white transition hover:brightness-95"
+                >
+                  Søk
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-6 py-8 sm:px-8">
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold text-[var(--foreground-strong)]">Friluftsliv</h2>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {categories.map((card) => (
+                <Link
+                  key={card.title}
+                  href={card.href}
+                  className="group rounded-[1.3rem] transition hover:-translate-y-0.5"
+                >
+                  <div
+                    className="h-32 rounded-[1.1rem] bg-cover bg-center shadow-[0_12px_30px_rgba(16,42,33,0.10)]"
+                    style={{ backgroundImage: `url(${card.image})` }}
+                  />
+                  <p className="mt-3 text-sm font-medium text-[var(--foreground)]">{card.title}</p>
+                </Link>
               ))}
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="grid gap-4">
-          {routeCards.map((card) => (
-            <Link
-              key={card.href}
-              href={card.href}
-              className="rounded-[1.5rem] border border-[var(--border)] bg-[var(--card-strong)] p-6 transition hover:-translate-y-0.5 hover:border-[rgba(16,42,33,0.18)]"
-            >
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--orange)]">
-                {t("home.cardsEyebrow")}
+        <section className="px-6 pb-8 sm:px-8">
+          <div className="heyra-home-host-banner overflow-hidden rounded-[1.5rem] px-6 py-8 text-white sm:px-8">
+            <div className="max-w-sm space-y-3">
+              <p className="text-3xl font-semibold leading-tight">Din jord er verdt å dele</p>
+              <p className="text-sm leading-7 text-white/88">
+                Lei ut jakt- og fiskemuligheter med tryggere styring, tydeligere bookingflyt og lokal støtte.
               </p>
-              <h2 className="mt-3 text-2xl text-[var(--foreground)]">{card.title}</h2>
-              <p className="mt-3 text-base leading-7 text-[var(--muted)]">
-                {card.body}
-              </p>
-            </Link>
-          ))}
-        </div>
+              <Link
+                href={localizePathname(locale, "/auth/register")}
+                className="inline-flex rounded-full bg-white px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[rgba(255,255,255,0.92)]"
+              >
+                Bli vertskap
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <footer className="border-t border-[var(--border)] bg-[#f1efec] px-6 py-8 sm:px-8">
+          <div className="grid gap-8 md:grid-cols-3">
+            {footerGroups.map((group) => (
+              <div key={group.title} className="space-y-3 text-sm">
+                <p className="font-semibold text-[var(--foreground-strong)]">{group.title}</p>
+                <div className="space-y-2 text-[var(--muted)]">
+                  {group.links.map((item) => (
+                    <Link key={item.label} href={item.href} className="block transition hover:text-[var(--foreground)]">
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[rgba(16,42,33,0.08)] pt-5 text-xs text-[var(--muted)]">
+            <p>© Heyra 2026</p>
+            <div className="flex flex-wrap gap-4">
+              <Link href={localizePathname(locale, "/legal/privacy")}>{t("common.legal.privacy")}</Link>
+              <Link href={localizePathname(locale, "/legal/terms")}>{t("common.legal.terms")}</Link>
+              <Link href={localizePathname(locale, "/dashboard/settings/legal")}>Kakevalg</Link>
+            </div>
+          </div>
+        </footer>
       </section>
     </main>
   );
