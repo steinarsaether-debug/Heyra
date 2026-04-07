@@ -21,3 +21,7 @@ public/uploads
 .vercel
 .env*.local
 .claude/
+
+# Local collaborator/private project notes
+docs/COLLABORATOR-SETUP.md
+docs/CRITICAL-INFO.md
