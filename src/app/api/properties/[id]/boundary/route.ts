@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { boundarySchema } from "@/lib/boundary-schema";
 import { refreshPropertyCwdStatus } from "@/lib/cwd-zones";
-import { buildPolygonWkt, geometryJsonToPoints } from "@/lib/geometry";
+import { buildPolygonWkt, geometryJsonToPoints, simplifyPointsForEditor } from "@/lib/geometry";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
@@ -58,7 +58,7 @@ export async function GET(
     }
 
     return NextResponse.json({
-      points: geometryJsonToPoints(geometryJson),
+      points: simplifyPointsForEditor(geometryJsonToPoints(geometryJson)),
       boundarySource: rows[0]?.boundary_source ?? "MANUAL",
       boundaryImportedAt: rows[0]?.boundary_imported_at?.toISOString() ?? null,
       boundarySourceRef: rows[0]?.boundary_source_ref ?? null,
@@ -67,7 +67,7 @@ export async function GET(
   } catch (error) {
     console.error("Boundary load failed", error);
     return NextResponse.json(
-      { error: "Something went wrong while loading the boundary." },
+      { error: "Vi klarte ikke å laste grensen." },
       { status: 500 },
     );
   }
@@ -97,7 +97,7 @@ export async function PUT(
     });
 
     if (!parsed.success) {
-      const message = parsed.error.issues[0]?.message ?? "Invalid boundary payload.";
+      const message = parsed.error.issues[0]?.message ?? "Ugyldig grensedata.";
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
@@ -138,7 +138,7 @@ export async function PUT(
   } catch (error) {
     console.error("Boundary update failed", error);
     return NextResponse.json(
-      { error: "Something went wrong while saving the boundary." },
+      { error: "Vi klarte ikke å lagre grensen." },
       { status: 500 },
     );
   }

@@ -1,7 +1,7 @@
 import { BoundarySource, Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { buildPolygonWkt, type MapPoint } from "@/lib/geometry";
+import { buildPolygonWkt, simplifyPointsForEditor, type MapPoint } from "@/lib/geometry";
 import { importParcelGeometry } from "@/lib/kartverket-parcels";
 import { refreshPropertyCwdStatus } from "@/lib/cwd-zones";
 import { prisma } from "@/lib/prisma";
@@ -130,24 +130,29 @@ export async function POST(
       );
     }
 
-    const polygonWkt = buildPolygonWkt(primaryPolygon);
+    const simplifiedPrimaryPolygon = simplifyPointsForEditor(primaryPolygon);
+    const polygonWkt = buildPolygonWkt(simplifiedPrimaryPolygon);
+    const fullResolutionPolygonWkt = buildPolygonWkt(primaryPolygon);
 
     const rows = await prisma.$queryRaw<Array<{ kartverket_area_hectares: number | null }>>(
       Prisma.sql`
         WITH imported_shape AS (
+          SELECT ST_SetSRID(ST_GeomFromText(${fullResolutionPolygonWkt}), 4326) AS geom
+        ),
+        editable_shape AS (
           SELECT ST_SetSRID(ST_GeomFromText(${polygonWkt}), 4326) AS geom
         )
         UPDATE "Property"
         SET
-          "boundary" = imported_shape.geom,
-          "centerPoint" = ST_Centroid(imported_shape.geom),
+          "boundary" = editable_shape.geom,
+          "centerPoint" = ST_Centroid(editable_shape.geom),
           "kartverketAreaHectares" = ST_Area(ST_Transform(imported_shape.geom, 25833)) / 10000.0,
           "boundarySource" = ${BoundarySource.KARTVERKET_IMPORT}::"BoundarySource",
           "boundaryImportedAt" = NOW(),
           "boundarySourceRef" = ${imported.parcel.sourceRef},
           "boundarySourceLabel" = ${imported.parcel.title},
           "updatedAt" = NOW()
-        FROM imported_shape
+        FROM imported_shape, editable_shape
         WHERE "id" = ${id} AND "ownerId" = ${session.user.id}
         RETURNING "kartverketAreaHectares" AS kartverket_area_hectares
       `,
@@ -164,7 +169,9 @@ export async function POST(
     return NextResponse.json({
       ok: true,
       parcel: imported.parcel,
-      points: primaryPolygon,
+      points: simplifiedPrimaryPolygon,
+      importedPointCount: primaryPolygon.length,
+      simplifiedPointCount: simplifiedPrimaryPolygon.length,
       importedPolygonCount: imported.polygons.length,
       importedAreaHectares,
       areaDifferencePercent,

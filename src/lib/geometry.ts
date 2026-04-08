@@ -3,6 +3,8 @@ export type MapPoint = {
   lng: number;
 };
 
+export const MAX_EDITOR_BOUNDARY_POINTS = 80;
+
 type GeoJsonPolygon = {
   type: "Polygon";
   coordinates: number[][][];
@@ -86,4 +88,30 @@ export function geometryJsonToPolygons(geometryJson: string | null) {
 
   const geometry = JSON.parse(geometryJson) as GeoJsonShape;
   return geoJsonToPolygonPoints(geometry);
+}
+
+export function simplifyPointsForEditor(points: MapPoint[], maxPoints = MAX_EDITOR_BOUNDARY_POINTS) {
+  if (points.length <= maxPoints) {
+    return points;
+  }
+
+  const result: MapPoint[] = [];
+  const usedIndexes = new Set<number>();
+
+  for (let slot = 0; slot < maxPoints; slot += 1) {
+    const index = Math.round((slot * (points.length - 1)) / Math.max(maxPoints - 1, 1));
+
+    if (usedIndexes.has(index)) {
+      continue;
+    }
+
+    usedIndexes.add(index);
+    result.push(points[index]);
+  }
+
+  if (result.length < 3) {
+    return points.slice(0, 3);
+  }
+
+  return result;
 }

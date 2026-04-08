@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MAX_EDITOR_BOUNDARY_POINTS } from "@/lib/geometry";
 
 const coordinateSchema = (label: "Latitude" | "Longitude") =>
   z
@@ -32,6 +33,9 @@ export const boundaryPointSchema = z.object({
 export const boundarySchema = z.object({
   points: z
     .array(boundaryPointSchema)
-    .min(3, "Add at least three boundary points.")
-    .max(50, "Too many points for the first version of this tool."),
+    .min(3, "Legg inn minst tre grensepunkter.")
+    .max(
+      MAX_EDITOR_BOUNDARY_POINTS + 20,
+      "Grensen har fortsatt for mange punkter. Forenkle den litt før du lagrer.",
+    ),
 });

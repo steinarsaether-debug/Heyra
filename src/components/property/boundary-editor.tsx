@@ -450,6 +450,8 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
         points?: Array<{ lat: number; lng: number }>;
         parcel?: ParcelCandidate;
         importedPolygonCount?: number;
+        importedPointCount?: number;
+        simplifiedPointCount?: number;
         importedAreaHectares?: number | null;
         areaDifferencePercent?: number | null;
       };
@@ -487,10 +489,16 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
         typeof data.areaDifferencePercent === "number" && data.areaDifferencePercent >= 10
           ? ` Avviket mot oppgitt areal er omtrent ${data.areaDifferencePercent}%.`
           : "";
+      const simplificationText =
+        typeof data.importedPointCount === "number" &&
+        typeof data.simplifiedPointCount === "number" &&
+        data.importedPointCount > data.simplifiedPointCount
+          ? ` Vi forenklet grensen fra ${data.importedPointCount} til ${data.simplifiedPointCount} punkter slik at den er praktisk å redigere og lagre.`
+          : "";
       setSuccess(
         data.importedPolygonCount && data.importedPolygonCount > 1
-          ? `Den storste teigen er hentet inn som arbeidsutgangspunkt. Juster gjerne videre hvis jakt- eller fiskerettene avviker fra eiendomsgrensen eller om matrikkelen bestar av flere teiger.${importedAreaText}${differenceText}`
-          : `Teigen er hentet inn som utgangspunkt. Juster gjerne videre hvis jakt- eller fiskerettene avviker fra eiendomsgrensen.${importedAreaText}${differenceText}`,
+          ? `Den storste teigen er hentet inn som arbeidsutgangspunkt. Juster gjerne videre hvis jakt- eller fiskerettene avviker fra eiendomsgrensen eller om matrikkelen bestar av flere teiger.${importedAreaText}${differenceText}${simplificationText}`
+          : `Teigen er hentet inn som utgangspunkt. Juster gjerne videre hvis jakt- eller fiskerettene avviker fra eiendomsgrensen.${importedAreaText}${differenceText}${simplificationText}`,
       );
       router.refresh();
     } catch (importError) {
