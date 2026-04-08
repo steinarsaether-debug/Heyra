@@ -10,8 +10,10 @@ import {
   ScaleControl,
   TileLayer,
   WMSTileLayer,
+  useMap,
   useMapEvents,
 } from "react-leaflet";
+import { useEffect } from "react";
 
 type Point = {
   lat: number;
@@ -30,6 +32,7 @@ type BoundaryMapProps = {
   onAddPoint: (point: Point) => void;
   onMovePoint: (index: number, point: Point) => void;
   onCenterChange?: (point: Point) => void;
+  focusPoint?: Point | null;
   rightsOverlays?: OverlayShape[];
   kartverketWmsUrl?: string;
   kartverketWmsLayers?: string;
@@ -94,11 +97,42 @@ function MapInteractionHandler({
   return null;
 }
 
+function MapViewportSync({
+  points,
+  focusPoint,
+}: {
+  points: Point[];
+  focusPoint?: Point | null;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (points.length >= 3) {
+      map.fitBounds(points.map((point) => [point.lat, point.lng] as [number, number]), {
+        padding: [24, 24],
+      });
+      return;
+    }
+
+    if (points[0]) {
+      map.setView([points[0].lat, points[0].lng], Math.max(map.getZoom(), 13));
+      return;
+    }
+
+    if (focusPoint) {
+      map.setView([focusPoint.lat, focusPoint.lng], 14);
+    }
+  }, [focusPoint, map, points]);
+
+  return null;
+}
+
 export default function BoundaryMapInner({
   points,
   onAddPoint,
   onMovePoint,
   onCenterChange,
+  focusPoint,
   rightsOverlays = [],
   kartverketWmsUrl,
   kartverketWmsLayers,
@@ -167,6 +201,7 @@ export default function BoundaryMapInner({
             })}
           </LayersControl>
           <ScaleControl imperial={false} />
+          <MapViewportSync points={points} focusPoint={focusPoint} />
           <MapInteractionHandler onAddPoint={onAddPoint} onCenterChange={onCenterChange} />
           {polygonPositions.length >= 3 ? (
             <Polygon

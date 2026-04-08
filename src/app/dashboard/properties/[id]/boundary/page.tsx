@@ -4,6 +4,43 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+function parseCadastralRef(cadastralRef: string) {
+  const normalized = cadastralRef.trim();
+  const withMunicipality =
+    normalized.match(/^(\d{4})-(\d+)\/(\d+)(?:\/(\d+))?(?:\/(\d+))?$/) ??
+    normalized.match(/^(\d{4})[:\s](\d+)\/(\d+)(?:\/(\d+))?(?:\/(\d+))?$/);
+
+  if (withMunicipality) {
+    return {
+      municipalityCode: withMunicipality[1] ?? "",
+      gnr: withMunicipality[2] ?? "",
+      bnr: withMunicipality[3] ?? "",
+      festenr: withMunicipality[4] ?? "",
+      snr: withMunicipality[5] ?? "",
+    };
+  }
+
+  const simple = normalized.match(/^(\d+)\/(\d+)(?:\/(\d+))?(?:\/(\d+))?$/);
+
+  if (simple) {
+    return {
+      municipalityCode: "",
+      gnr: simple[1] ?? "",
+      bnr: simple[2] ?? "",
+      festenr: simple[3] ?? "",
+      snr: simple[4] ?? "",
+    };
+  }
+
+  return {
+    municipalityCode: "",
+    gnr: "",
+    bnr: "",
+    festenr: "",
+    snr: "",
+  };
+}
+
 export default async function PropertyBoundaryPage({
   params,
 }: {
@@ -60,7 +97,10 @@ export default async function PropertyBoundaryPage({
         </div>
 
         <div className="space-y-4">
-          <BoundaryEditor propertyId={property.id} />
+          <BoundaryEditor
+            propertyId={property.id}
+            initialParcelSearch={parseCadastralRef(property.cadastralRef)}
+          />
 
           <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">

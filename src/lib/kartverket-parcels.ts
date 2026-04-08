@@ -35,17 +35,12 @@ type GeoJsonFeatureCollection = {
   features?: GeoJsonFeature[];
 };
 
-const DEFAULT_WFS_URL =
-  process.env.KARTVERKET_WFS_URL ??
-  "https://wfs.geonorge.no/skwms1/wfs.matrikkelen-eiendomskart-teig";
 const DEFAULT_REST_URL =
   process.env.KARTVERKET_REST_URL ?? "https://ws.geonorge.no/eiendom/v1";
 
 const DEFAULT_WMS_URL =
   process.env.KARTVERKET_WMS_URL ??
   "https://wms.geonorge.no/skwms1/wms.matrikkelkart";
-
-let cachedTypeNamePromise: Promise<string> | null = null;
 
 function readString(
   properties: Record<string, unknown> | undefined,
@@ -85,10 +80,6 @@ function computeCenter(polygons: MapPoint[][]) {
   const lng = points.reduce((sum, point) => sum + point.lng, 0) / points.length;
 
   return { lat, lng };
-}
-
-function escapeCqlValue(value: string) {
-  return value.replace(/'/g, "''");
 }
 
 function normalizeRestPoint(value: unknown) {
@@ -172,86 +163,6 @@ function computeMatchScore(candidate: ParcelCandidate, params: ParcelSearchParam
   };
 }
 
-function buildCqlFilter(params: ParcelSearchParams) {
-  const clauses: string[] = [];
-
-  if (params.municipalityCode) {
-    clauses.push(`kommunenummer='${escapeCqlValue(params.municipalityCode)}'`);
-  }
-
-  if (params.gnr) {
-    clauses.push(`gaardsnummer=${Number(params.gnr)}`);
-  }
-
-  if (params.bnr) {
-    clauses.push(`bruksnummer=${Number(params.bnr)}`);
-  }
-
-  if (params.festenr) {
-    clauses.push(`festenummer=${Number(params.festenr)}`);
-  }
-
-  if (params.snr) {
-    clauses.push(`seksjonsnummer=${Number(params.snr)}`);
-  }
-
-  return clauses.join(" AND ");
-}
-
-async function discoverTypeName() {
-  if (!cachedTypeNamePromise) {
-    cachedTypeNamePromise = (async () => {
-      const url = `${DEFAULT_WFS_URL}?service=WFS&request=GetCapabilities`;
-      const response = await fetch(url, { cache: "no-store" });
-
-      if (!response.ok) {
-        throw new Error("Unable to discover Kartverket WFS capabilities.");
-      }
-
-      const xml = await response.text();
-      const typeNames = [...xml.matchAll(/<Name>([^<]*teig[^<]*)<\/Name>/gi)].map((match) =>
-        match[1]?.trim(),
-      );
-      const typeName = typeNames.find(Boolean);
-
-      if (!typeName) {
-        throw new Error("Unable to discover a Teig feature type from Kartverket WFS.");
-      }
-
-      return typeName;
-    })();
-  }
-
-  return cachedTypeNamePromise;
-}
-
-async function fetchFeatures(params: URLSearchParams) {
-  const typeName = await discoverTypeName();
-  const query = new URLSearchParams({
-    service: "WFS",
-    request: "GetFeature",
-    version: "2.0.0",
-    typeNames: typeName,
-    outputFormat: "application/json",
-    srsName: "EPSG:4326",
-    count: "25",
-  });
-
-  params.forEach((value, key) => {
-    query.set(key, value);
-  });
-
-  const response = await fetch(`${DEFAULT_WFS_URL}?${query.toString()}`, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error("Kartverket parcel service did not respond successfully.");
-  }
-
-  return (await response.json()) as GeoJsonFeatureCollection;
-}
-
 async function tryRestRequest(url: string) {
   try {
     const response = await fetch(url, { cache: "no-store" });
@@ -264,41 +175,6 @@ async function tryRestRequest(url: string) {
   } catch {
     return null;
   }
-}
-
-function normalizeFeature(feature: GeoJsonFeature): ParcelCandidate | null {
-  const properties = feature.properties ?? {};
-  const municipalityCode = readString(properties, ["kommunenummer", "kommunenr"]);
-  const municipalityName = readString(properties, ["kommunenavn", "navn"]);
-  const gnr = readString(properties, ["gaardsnummer", "gnr"]);
-  const bnr = readString(properties, ["bruksnummer", "bnr"]);
-  const festenr = readString(properties, ["festenummer", "fnr"]);
-  const snr = readString(properties, ["seksjonsnummer", "snr"]);
-  const matrikkelnummer =
-    readString(properties, ["matrikkelnummertekst", "matrikkelnummer"]) ??
-    [municipalityCode, [gnr, bnr, festenr, snr].filter(Boolean).join("/")].filter(Boolean).join("-");
-
-  if (!feature.geometry || !matrikkelnummer) {
-    return null;
-  }
-
-  const polygons = geoJsonToPolygonPoints(feature.geometry);
-  const center = computeCenter(polygons);
-
-  return {
-    sourceRef: String(feature.id ?? matrikkelnummer),
-    title:
-      municipalityName && gnr && bnr
-        ? `${municipalityName} ${gnr}/${bnr}${festenr ? `/${festenr}` : ""}${snr ? `/${snr}` : ""}`
-        : matrikkelnummer,
-    municipalityCode,
-    municipalityName,
-    gnr,
-    bnr,
-    festenr,
-    snr,
-    center,
-  };
 }
 
 function normalizeRestCandidate(raw: unknown): ParcelCandidate | null {
@@ -349,16 +225,11 @@ function normalizeRestCandidate(raw: unknown): ParcelCandidate | null {
 }
 
 function normalizeRestCandidates(payload: unknown) {
-  const values = Array.isArray(payload)
-    ? payload
-    : payload && typeof payload === "object"
-      ? (
-          (payload as Record<string, unknown>).items ??
-          (payload as Record<string, unknown>).results ??
-          (payload as Record<string, unknown>).eiendommer ??
-          (payload as Record<string, unknown>).features ??
-          []
-        )
+  const values =
+    payload && typeof payload === "object"
+      ? ((payload as Record<string, unknown>).features ??
+          (payload as Record<string, unknown>).eiendom ??
+          [])
       : [];
 
   if (!Array.isArray(values)) {
@@ -366,12 +237,29 @@ function normalizeRestCandidates(payload: unknown) {
   }
 
   return values
-    .map(normalizeRestCandidate)
+    .map((value) => {
+      if (value && typeof value === "object" && "properties" in value) {
+        const feature = value as Record<string, unknown>;
+        const candidate = normalizeRestCandidate(feature.properties);
+        const polygons =
+          feature.geometry && typeof feature.geometry === "object"
+            ? geoJsonToPolygonPoints(feature.geometry as GeoJsonShape)
+            : [];
+
+        return candidate
+          ? {
+              ...candidate,
+              center: candidate.center ?? computeCenter(polygons),
+            }
+          : null;
+      }
+
+      return normalizeRestCandidate(value);
+    })
     .filter((candidate): candidate is ParcelCandidate => Boolean(candidate));
 }
 
 async function searchParcelCandidatesViaRest(params: ParcelSearchParams) {
-  const queryAttempts: string[] = [];
   const byPoint =
     Number.isFinite(params.lat) &&
     Number.isFinite(params.lng) &&
@@ -380,49 +268,44 @@ async function searchParcelCandidatesViaRest(params: ParcelSearchParams) {
 
   if (byPoint) {
     const query = new URLSearchParams({
-      lat: String(params.lat),
-      lon: String(params.lng),
+      nord: String(params.lat),
+      ost: String(params.lng),
+      koordsys: "4258",
+      utkoordsys: "4258",
+      radius: "250",
+      maksTreff: "25",
     });
-    queryAttempts.push(`${DEFAULT_REST_URL}/punkt?${query.toString()}`);
-    queryAttempts.push(`${DEFAULT_REST_URL}/lokalisering?${query.toString()}`);
-    queryAttempts.push(`${DEFAULT_REST_URL}/eiendommer?${query.toString()}`);
-  } else {
-    const matrikkel = new URLSearchParams();
-
-    if (params.municipalityCode) {
-      matrikkel.set("kommunenummer", params.municipalityCode);
-    }
-    if (params.gnr) {
-      matrikkel.set("gaardsnummer", params.gnr);
-    }
-    if (params.bnr) {
-      matrikkel.set("bruksnummer", params.bnr);
-    }
-    if (params.festenr) {
-      matrikkel.set("festenummer", params.festenr);
-    }
-    if (params.snr) {
-      matrikkel.set("seksjonsnummer", params.snr);
-    }
-
-    if ([...matrikkel.keys()].length > 0) {
-      const query = matrikkel.toString();
-      queryAttempts.push(`${DEFAULT_REST_URL}/matrikkelnummer?${query}`);
-      queryAttempts.push(`${DEFAULT_REST_URL}/eiendommer?${query}`);
-      queryAttempts.push(`${DEFAULT_REST_URL}/lokalisering?${query}`);
-    }
+    const payload = await tryRestRequest(`${DEFAULT_REST_URL}/punkt/omrader?${query.toString()}`);
+    return normalizeRestCandidates(payload);
   }
 
-  for (const url of queryAttempts) {
-    const payload = await tryRestRequest(url);
-    const candidates = normalizeRestCandidates(payload);
+  const matrikkel = new URLSearchParams({
+    omrade: "true",
+    utkoordsys: "4258",
+  });
 
-    if (candidates.length > 0) {
-      return candidates;
-    }
+  if (params.municipalityCode) {
+    matrikkel.set("kommunenummer", params.municipalityCode);
+  }
+  if (params.gnr) {
+    matrikkel.set("gardsnummer", params.gnr);
+  }
+  if (params.bnr) {
+    matrikkel.set("bruksnummer", params.bnr);
+  }
+  if (params.festenr) {
+    matrikkel.set("festenummer", params.festenr);
+  }
+  if (params.snr) {
+    matrikkel.set("seksjonsnummer", params.snr);
   }
 
-  return [];
+  if (![...matrikkel.keys()].some((key) => key !== "omrade" && key !== "utkoordsys")) {
+    return [];
+  }
+
+  const payload = await tryRestRequest(`${DEFAULT_REST_URL}/geokoding?${matrikkel.toString()}`);
+  return normalizeRestCandidates(payload);
 }
 
 export function getKartverketOverlayConfig() {
@@ -460,67 +343,53 @@ export async function searchParcelCandidates(params: ParcelSearchParams) {
   if (restCandidates.length > 0) {
     return applyMatchMetadata(restCandidates);
   }
-
-  const byPoint =
-    Number.isFinite(params.lat) &&
-    Number.isFinite(params.lng) &&
-    params.lat !== null &&
-    params.lng !== null;
-
-  const query = new URLSearchParams();
-
-  if (byPoint) {
-    const epsilon = 0.0008;
-    query.set(
-      "bbox",
-      `${params.lng! - epsilon},${params.lat! - epsilon},${params.lng! + epsilon},${params.lat! + epsilon},EPSG:4326`,
-    );
-  } else {
-    const cqlFilter = buildCqlFilter(params);
-
-    if (!cqlFilter) {
-      throw new Error(
-        "Provide either a map position or a matrikkel reference to search for parcels.",
-      );
-    }
-
-    query.set("CQL_FILTER", cqlFilter);
-  }
-
-  const collection = await fetchFeatures(query);
-
-  return applyMatchMetadata(
-    (collection.features ?? [])
-      .map(normalizeFeature)
-      .filter((feature): feature is ParcelCandidate => Boolean(feature)),
-  );
+  return [];
 }
 
 export async function importParcelGeometry(sourceRef: string, fallback?: ParcelSearchParams) {
-  let collection = await fetchFeatures(new URLSearchParams({ featureID: sourceRef }));
-  let feature = (collection.features ?? [])[0] ?? null;
+  const query = new URLSearchParams({
+    omrade: "true",
+    utkoordsys: "4258",
+  });
 
-  if (!feature && fallback) {
-    const rankedCandidates = await searchParcelCandidates(fallback);
-    const bestCandidate = rankedCandidates[0];
-
-    if (bestCandidate?.sourceRef) {
-      collection = await fetchFeatures(new URLSearchParams({ featureID: bestCandidate.sourceRef }));
-      feature = (collection.features ?? [])[0] ?? null;
+  if (sourceRef) {
+    query.set("matrikkelnummer", sourceRef);
+  } else if (fallback) {
+    if (fallback.municipalityCode) {
+      query.set("kommunenummer", fallback.municipalityCode);
+    }
+    if (fallback.gnr) {
+      query.set("gardsnummer", fallback.gnr);
+    }
+    if (fallback.bnr) {
+      query.set("bruksnummer", fallback.bnr);
+    }
+    if (fallback.festenr) {
+      query.set("festenummer", fallback.festenr);
+    }
+    if (fallback.snr) {
+      query.set("seksjonsnummer", fallback.snr);
     }
   }
 
-  if (!feature?.geometry) {
+  const payload = await tryRestRequest(`${DEFAULT_REST_URL}/geokoding?${query.toString()}`);
+  const values =
+    payload && typeof payload === "object" && Array.isArray((payload as Record<string, unknown>).features)
+      ? ((payload as Record<string, unknown>).features as Array<Record<string, unknown>>)
+      : [];
+  const feature = values[0] ?? null;
+
+  if (!feature?.geometry || !feature.properties) {
     throw new Error("Unable to load parcel geometry from Kartverket.");
   }
 
-  const parcel = normalizeFeature(feature);
+  const parcel = normalizeRestCandidate(feature.properties);
 
   if (!parcel) {
     throw new Error("Unable to normalize the Kartverket parcel response.");
   }
 
-  const polygons = geoJsonToPolygonPoints(feature.geometry);
+  const polygons = geoJsonToPolygonPoints(feature.geometry as GeoJsonShape);
 
   return {
     parcel,

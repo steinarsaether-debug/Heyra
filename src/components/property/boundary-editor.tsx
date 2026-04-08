@@ -8,6 +8,13 @@ import { getKartverketOverlayConfig } from "@/lib/kartverket-parcels";
 
 type BoundaryEditorProps = {
   propertyId: string;
+  initialParcelSearch?: {
+    municipalityCode?: string;
+    gnr?: string;
+    bnr?: string;
+    festenr?: string;
+    snr?: string;
+  };
 };
 
 type BoundaryPoint = {
@@ -81,7 +88,17 @@ function describeParcelMatch(candidate: ParcelCandidate) {
   };
 }
 
-export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
+function normalizeInitialParcelSearch(initialParcelSearch?: BoundaryEditorProps["initialParcelSearch"]) {
+  return {
+    municipalityCode: initialParcelSearch?.municipalityCode ?? "",
+    gnr: initialParcelSearch?.gnr ?? "",
+    bnr: initialParcelSearch?.bnr ?? "",
+    festenr: initialParcelSearch?.festenr ?? "",
+    snr: initialParcelSearch?.snr ?? "",
+  };
+}
+
+export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEditorProps) {
   const router = useRouter();
   const [points, setPoints] = useState<BoundaryPoint[]>(initialPoints);
   const [error, setError] = useState<string | null>(null);
@@ -93,17 +110,12 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
   const [boundarySource, setBoundarySource] = useState("MANUAL");
   const [boundaryImportedAt, setBoundaryImportedAt] = useState<string | null>(null);
   const [boundarySourceLabel, setBoundarySourceLabel] = useState<string | null>(null);
-  const [parcelSearch, setParcelSearch] = useState({
-    municipalityCode: "",
-    gnr: "",
-    bnr: "",
-    festenr: "",
-    snr: "",
-  });
+  const [parcelSearch, setParcelSearch] = useState(() => normalizeInitialParcelSearch(initialParcelSearch));
   const [parcelResults, setParcelResults] = useState<ParcelCandidate[]>([]);
   const [isSearchingParcel, setIsSearchingParcel] = useState(false);
   const [isImportingParcel, setIsImportingParcel] = useState<string | null>(null);
   const [rightsOverlays, setRightsOverlays] = useState<RightsOverlay[]>([]);
+  const [focusPoint, setFocusPoint] = useState<{ lat: number; lng: number } | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   const filledCount = useMemo(
@@ -223,6 +235,7 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
             })),
           );
           setMapCenter(boundaryData.points[0] ?? null);
+          setFocusPoint(boundaryData.points[0] ?? null);
         }
 
         setBoundarySource(boundaryData.boundarySource ?? "MANUAL");
@@ -269,6 +282,7 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
       { lat: point.lat.toFixed(6), lng: point.lng.toFixed(6) },
     ]);
     setMapCenter(point);
+    setFocusPoint(point);
   }
 
   function removePoint(index: number) {
@@ -390,6 +404,10 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
       }
 
       setParcelResults(data.results ?? []);
+      if (data.results?.[0]?.center) {
+        setMapCenter(data.results[0].center);
+        setFocusPoint(data.results[0].center);
+      }
       if ((data.results ?? []).length === 0) {
         setSuccess("Ingen teiger ble funnet. Du kan fortsatt tegne grensen manuelt.");
       }
@@ -434,6 +452,8 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
             lng: String(point.lng),
           })),
         );
+        setMapCenter(data.points[0] ?? null);
+        setFocusPoint(data.points[0] ?? null);
       }
 
       setBoundarySource("KARTVERKET_IMPORT");
@@ -468,6 +488,7 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
             onAddPoint={addPointFromMap}
             onMovePoint={movePointFromMap}
             onCenterChange={setMapCenter}
+            focusPoint={focusPoint}
             rightsOverlays={rightsOverlays}
             kartverketWmsUrl={overlayConfig.wmsUrl}
             kartverketWmsLayers={overlayConfig.wmsLayers}

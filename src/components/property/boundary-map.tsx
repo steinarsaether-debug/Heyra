@@ -7,6 +7,7 @@ type BoundaryMapProps = {
   onAddPoint: (point: { lat: number; lng: number }) => void;
   onMovePoint: (index: number, point: { lat: number; lng: number }) => void;
   onCenterChange?: (point: { lat: number; lng: number }) => void;
+  focusPoint?: { lat: number; lng: number } | null;
   rightsOverlays?: Array<{
     id: string;
     title: string;
