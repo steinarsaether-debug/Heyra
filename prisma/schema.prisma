@@ -350,6 +350,7 @@ model Property {
   municipality   String
   county         String
   areaHectares   Float
+  kartverketAreaHectares Float?
   boundary       Unsupported("geometry(Polygon, 4326)")?
   centerPoint    Unsupported("geometry(Point, 4326)")?
   geometryConfidence ConfidenceLevel                     @default(LOW)

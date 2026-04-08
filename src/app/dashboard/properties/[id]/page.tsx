@@ -13,6 +13,25 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+function formatHectares(value: number | null | undefined) {
+  if (value === null || value === undefined || !Number.isFinite(value)) {
+    return "Ikke beregnet ennå";
+  }
+
+  return `${new Intl.NumberFormat("nb-NO", {
+    minimumFractionDigits: value >= 100 ? 0 : 1,
+    maximumFractionDigits: value >= 100 ? 1 : 2,
+  }).format(value)} ha`;
+}
+
+function getAreaDifferencePercent(statedAreaHectares: number, importedAreaHectares: number | null) {
+  if (!importedAreaHectares || statedAreaHectares <= 0) {
+    return null;
+  }
+
+  return Math.round((Math.abs(importedAreaHectares - statedAreaHectares) / statedAreaHectares) * 100);
+}
+
 export default async function PropertyDetailPage({
   params,
 }: {
@@ -66,6 +85,10 @@ export default async function PropertyDetailPage({
   });
   const infrastructure = property.infrastructure as Record<string, boolean> | null;
   const listing = property.listings[0] ?? null;
+  const areaDifferencePercent = getAreaDifferencePercent(
+    property.areaHectares,
+    property.kartverketAreaHectares,
+  );
 
   return (
     <main className="px-6 py-10 sm:px-8 md:px-10">
@@ -142,18 +165,40 @@ export default async function PropertyDetailPage({
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Area
+              Oppgitt areal
             </p>
-            <p className="mt-3 text-2xl text-[var(--forest)]">{property.areaHectares} ha</p>
+            <p className="mt-3 text-2xl text-[var(--forest)]">{formatHectares(property.areaHectares)}</p>
+          </article>
+          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+              Kartverket-areal
+            </p>
+            <p className="mt-3 text-2xl text-[var(--forest)]">
+              {formatHectares(property.kartverketAreaHectares)}
+            </p>
           </article>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-[1fr_0.95fr]">
           <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Property summary
+              Eiendomsoversikt
             </p>
             <dl className="mt-4 grid gap-4 text-sm leading-7 text-[var(--muted)]">
+              <div>
+                <dt className="font-semibold text-[var(--foreground)]">Arealgrunnlag</dt>
+                <dd>
+                  Oppgitt areal: {formatHectares(property.areaHectares)}
+                  {property.kartverketAreaHectares ? (
+                    <>
+                      {" · "}Kartverket-beregnet areal: {formatHectares(property.kartverketAreaHectares)}
+                      {areaDifferencePercent !== null ? ` · avvik ${areaDifferencePercent}%` : ""}
+                    </>
+                  ) : (
+                    " · Ingen Kartverket-beregning lagret ennå"
+                  )}
+                </dd>
+              </div>
               <div>
                 <dt className="font-semibold text-[var(--foreground)]">Terrain</dt>
                 <dd>{formatTerrainTypes(property.terrainTypes)}</dd>
@@ -241,6 +286,11 @@ export default async function PropertyDetailPage({
                 </dd>
               </div>
             </dl>
+            {areaDifferencePercent !== null && areaDifferencePercent >= 10 ? (
+              <div className="mt-5 rounded-2xl border border-[var(--amber)]/25 bg-[var(--amber-soft)] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
+                Kartverket-arealet avviker merkbart fra det oppgitte arealet. Det kan være helt greit dersom jakt- eller fiskerettene dekker mindre eller mer enn matrikkelteigen, men det er verdt å dobbeltsjekke før publisering.
+              </div>
+            ) : null}
           </section>
 
           <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">

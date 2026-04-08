@@ -449,6 +449,9 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
         error?: string;
         points?: Array<{ lat: number; lng: number }>;
         parcel?: ParcelCandidate;
+        importedPolygonCount?: number;
+        importedAreaHectares?: number | null;
+        areaDifferencePercent?: number | null;
       };
 
       if (!response.ok) {
@@ -473,7 +476,22 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
       setBoundarySource("KARTVERKET_IMPORT");
       setBoundaryImportedAt(new Date().toISOString());
       setBoundarySourceLabel(data.parcel?.title ?? candidate.title);
-      setSuccess("Teigen er hentet inn som utgangspunkt. Juster gjerne videre hvis jakt- eller fiskerettene avviker fra eiendomsgrensen.");
+      const importedAreaText =
+        typeof data.importedAreaHectares === "number"
+          ? ` Kartverket beregnet omtrent ${new Intl.NumberFormat("nb-NO", {
+              minimumFractionDigits: data.importedAreaHectares >= 100 ? 0 : 1,
+              maximumFractionDigits: data.importedAreaHectares >= 100 ? 1 : 2,
+            }).format(data.importedAreaHectares)} ha.`
+          : "";
+      const differenceText =
+        typeof data.areaDifferencePercent === "number" && data.areaDifferencePercent >= 10
+          ? ` Avviket mot oppgitt areal er omtrent ${data.areaDifferencePercent}%.`
+          : "";
+      setSuccess(
+        data.importedPolygonCount && data.importedPolygonCount > 1
+          ? `Den storste teigen er hentet inn som arbeidsutgangspunkt. Juster gjerne videre hvis jakt- eller fiskerettene avviker fra eiendomsgrensen eller om matrikkelen bestar av flere teiger.${importedAreaText}${differenceText}`
+          : `Teigen er hentet inn som utgangspunkt. Juster gjerne videre hvis jakt- eller fiskerettene avviker fra eiendomsgrensen.${importedAreaText}${differenceText}`,
+      );
       router.refresh();
     } catch (importError) {
       setError(

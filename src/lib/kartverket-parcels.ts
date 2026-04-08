@@ -354,7 +354,25 @@ export async function importParcelGeometry(sourceRef: string, fallback?: ParcelS
     utkoordsys: "4258",
   });
 
-  if (sourceRef) {
+  const hasStructuredFallback = Boolean(fallback?.gnr && fallback?.bnr);
+
+  if (hasStructuredFallback) {
+    if (fallback?.municipalityCode) {
+      query.set("kommunenummer", fallback.municipalityCode);
+    }
+    if (fallback?.gnr) {
+      query.set("gardsnummer", fallback.gnr);
+    }
+    if (fallback?.bnr) {
+      query.set("bruksnummer", fallback.bnr);
+    }
+    if (fallback?.festenr) {
+      query.set("festenummer", fallback.festenr);
+    }
+    if (fallback?.snr) {
+      query.set("seksjonsnummer", fallback.snr);
+    }
+  } else if (sourceRef) {
     query.set("matrikkelnummer", sourceRef);
   } else if (fallback) {
     if (fallback.municipalityCode) {
@@ -382,13 +400,13 @@ export async function importParcelGeometry(sourceRef: string, fallback?: ParcelS
   const feature = values[0] ?? null;
 
   if (!feature?.geometry || !feature.properties) {
-    throw new Error("Unable to load parcel geometry from Kartverket.");
+    throw new Error("Vi klarte ikke å hente teiggeometri fra Kartverket.");
   }
 
   const parcel = normalizeRestCandidate(feature.properties);
 
   if (!parcel) {
-    throw new Error("Unable to normalize the Kartverket parcel response.");
+    throw new Error("Vi klarte ikke å tolke Kartverket-responsen for teigen.");
   }
 
   const polygons = geoJsonToPolygonPoints(feature.geometry as GeoJsonShape);
