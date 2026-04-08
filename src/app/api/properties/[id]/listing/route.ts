@@ -78,6 +78,18 @@ export async function GET(
     },
     include: {
       vald: true,
+      rightsOverlays: {
+        orderBy: [
+          { visibility: "asc" },
+          { title: "asc" },
+        ],
+        select: {
+          id: true,
+          title: true,
+          overlayType: true,
+          visibility: true,
+        },
+      },
       listings: {
         orderBy: {
           createdAt: "desc",
@@ -102,6 +114,7 @@ export async function GET(
       status: property.status,
       hasBoundary,
       vald: property.vald,
+      rightsOverlays: property.rightsOverlays,
     },
     listing: property.listings[0]
       ? {
@@ -133,6 +146,11 @@ export async function POST(
     },
     include: {
       vald: true,
+      rightsOverlays: {
+        select: {
+          id: true,
+        },
+      },
       listings: {
         take: 1,
       },
@@ -208,6 +226,7 @@ export async function POST(
         bagLimitNotes: "",
         areaNotes: "",
         requiresNationalFishingLicense: property.terrainTypes.includes(TerrainType.COASTAL),
+        publicRightsOverlayId: null,
       },
       photos: [],
       status: ListingStatus.DRAFT,
@@ -246,8 +265,13 @@ export async function PUT(
         id,
         ownerId: session.user.id,
       },
-    include: {
+      include: {
         vald: true,
+        rightsOverlays: {
+          select: {
+            id: true,
+          },
+        },
         listings: {
           take: 1,
         },
@@ -259,6 +283,18 @@ export async function PUT(
     }
 
     const data = parsed.data;
+    const publicRightsOverlayId = data.rules.publicRightsOverlayId;
+
+    if (
+      publicRightsOverlayId &&
+      !property.rightsOverlays.some((overlay) => overlay.id === publicRightsOverlayId)
+    ) {
+      return NextResponse.json(
+        { error: "Selected public rights layer was not found on this property." },
+        { status: 400 },
+      );
+    }
+
     const existing = property.listings[0] ?? null;
     const slug = await buildUniqueSlug(data.title, existing?.id ?? property.id);
 

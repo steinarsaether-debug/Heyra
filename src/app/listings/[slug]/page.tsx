@@ -515,7 +515,7 @@ export default async function ListingDetailPage({
               Kart og områdeavgrensning
             </p>
             <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-              Bruk kartet for å se forskjellen mellom eiendomsgrense og faktisk offentlig tilbudsområde når grunneier har publisert et eget jakt-, fiske- eller adkomstlag.
+              Bruk kartet for å se forskjellen mellom eiendomsgrense og faktisk offentlig tilbudsområde. Grønt felt viser det området annonsen gjelder for, mens stiplet grense viser eiendomsgrensen som bakgrunnskontekst når den finnes.
             </p>
             <div className="mt-4">
               <ListingAreaMap listingId={listing.id} />

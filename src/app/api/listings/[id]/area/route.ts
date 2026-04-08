@@ -19,6 +19,7 @@ export async function GET(
       select: {
         id: true,
         propertyId: true,
+        rules: true,
         rightsOverlays: {
           where: {
             visibility: "PUBLIC_SIMPLIFIED",
@@ -35,7 +36,15 @@ export async function GET(
       return NextResponse.json({ error: "Listing area not found." }, { status: 404 });
     }
 
-    const overlayId = listing.rightsOverlays[0]?.id ?? null;
+    const configuredOverlayId =
+      (
+        listing.rules as {
+          publicRightsOverlayId?: string | null;
+        } | null
+      )?.publicRightsOverlayId ?? null;
+    const configuredOverlay = listing.rightsOverlays.find((overlay) => overlay.id === configuredOverlayId);
+    const selectedOverlay = configuredOverlay ?? listing.rightsOverlays[0] ?? null;
+    const overlayId = selectedOverlay?.id ?? null;
 
     const parcelRows = await prisma.$queryRaw<Array<{ geometry_json: string | null }>>`
       SELECT ST_AsGeoJSON("boundary") AS geometry_json
@@ -57,7 +66,7 @@ export async function GET(
       return NextResponse.json({
         points: geometryJsonToPoints(geometryJson),
         parcelPoints,
-        publicOverlayTitle: listing.rightsOverlays[0]?.title ?? null,
+        publicOverlayTitle: selectedOverlay?.title ?? null,
         source: "rights-overlay",
       });
     }

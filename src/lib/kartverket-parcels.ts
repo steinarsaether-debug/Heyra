@@ -38,6 +38,8 @@ type GeoJsonFeatureCollection = {
 const DEFAULT_WFS_URL =
   process.env.KARTVERKET_WFS_URL ??
   "https://wfs.geonorge.no/skwms1/wfs.matrikkelen-eiendomskart-teig";
+const DEFAULT_REST_URL =
+  process.env.KARTVERKET_REST_URL ?? "https://ws.geonorge.no/eiendom/v1";
 
 const DEFAULT_WMS_URL =
   process.env.KARTVERKET_WMS_URL ??
@@ -87,6 +89,22 @@ function computeCenter(polygons: MapPoint[][]) {
 
 function escapeCqlValue(value: string) {
   return value.replace(/'/g, "''");
+}
+
+function normalizeRestPoint(value: unknown) {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const candidate = value as Record<string, unknown>;
+  const lat = Number(candidate.lat ?? candidate.latitude ?? candidate.nord ?? candidate.y);
+  const lng = Number(candidate.lng ?? candidate.longitude ?? candidate.ost ?? candidate.x);
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return null;
+  }
+
+  return { lat, lng };
 }
 
 function normalizeNumericField(value?: string | null) {
@@ -234,6 +252,20 @@ async function fetchFeatures(params: URLSearchParams) {
   return (await response.json()) as GeoJsonFeatureCollection;
 }
 
+async function tryRestRequest(url: string) {
+  try {
+    const response = await fetch(url, { cache: "no-store" });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as unknown;
+  } catch {
+    return null;
+  }
+}
+
 function normalizeFeature(feature: GeoJsonFeature): ParcelCandidate | null {
   const properties = feature.properties ?? {};
   const municipalityCode = readString(properties, ["kommunenummer", "kommunenr"]);
@@ -269,6 +301,130 @@ function normalizeFeature(feature: GeoJsonFeature): ParcelCandidate | null {
   };
 }
 
+function normalizeRestCandidate(raw: unknown): ParcelCandidate | null {
+  if (!raw || typeof raw !== "object") {
+    return null;
+  }
+
+  const record = raw as Record<string, unknown>;
+  const municipalityCode = readString(record, [
+    "kommunenummer",
+    "kommunenr",
+    "municipalityCode",
+  ]);
+  const municipalityName = readString(record, [
+    "kommunenavn",
+    "municipalityName",
+    "navn",
+  ]);
+  const gnr = readString(record, ["gaardsnummer", "gnr", "gårdsnummer"]);
+  const bnr = readString(record, ["bruksnummer", "bnr"]);
+  const festenr = readString(record, ["festenummer", "fnr", "festenr"]);
+  const snr = readString(record, ["seksjonsnummer", "snr"]);
+  const title =
+    readString(record, ["matrikkelnummertekst", "matrikkelnummer", "label", "tekst"]) ??
+    [municipalityName, [gnr, bnr, festenr, snr].filter(Boolean).join("/")].filter(Boolean).join(" ");
+  const sourceRef =
+    readString(record, ["id", "objectid", "fid", "featureId", "matrikkelnummer"]) ?? title;
+
+  if (!title || !sourceRef) {
+    return null;
+  }
+
+  return {
+    sourceRef,
+    title,
+    municipalityCode,
+    municipalityName,
+    gnr,
+    bnr,
+    festenr,
+    snr,
+    center:
+      normalizeRestPoint(record.posisjon) ??
+      normalizeRestPoint(record.position) ??
+      normalizeRestPoint(record.center) ??
+      normalizeRestPoint(record.senter),
+  };
+}
+
+function normalizeRestCandidates(payload: unknown) {
+  const values = Array.isArray(payload)
+    ? payload
+    : payload && typeof payload === "object"
+      ? (
+          (payload as Record<string, unknown>).items ??
+          (payload as Record<string, unknown>).results ??
+          (payload as Record<string, unknown>).eiendommer ??
+          (payload as Record<string, unknown>).features ??
+          []
+        )
+      : [];
+
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  return values
+    .map(normalizeRestCandidate)
+    .filter((candidate): candidate is ParcelCandidate => Boolean(candidate));
+}
+
+async function searchParcelCandidatesViaRest(params: ParcelSearchParams) {
+  const queryAttempts: string[] = [];
+  const byPoint =
+    Number.isFinite(params.lat) &&
+    Number.isFinite(params.lng) &&
+    params.lat !== null &&
+    params.lng !== null;
+
+  if (byPoint) {
+    const query = new URLSearchParams({
+      lat: String(params.lat),
+      lon: String(params.lng),
+    });
+    queryAttempts.push(`${DEFAULT_REST_URL}/punkt?${query.toString()}`);
+    queryAttempts.push(`${DEFAULT_REST_URL}/lokalisering?${query.toString()}`);
+    queryAttempts.push(`${DEFAULT_REST_URL}/eiendommer?${query.toString()}`);
+  } else {
+    const matrikkel = new URLSearchParams();
+
+    if (params.municipalityCode) {
+      matrikkel.set("kommunenummer", params.municipalityCode);
+    }
+    if (params.gnr) {
+      matrikkel.set("gaardsnummer", params.gnr);
+    }
+    if (params.bnr) {
+      matrikkel.set("bruksnummer", params.bnr);
+    }
+    if (params.festenr) {
+      matrikkel.set("festenummer", params.festenr);
+    }
+    if (params.snr) {
+      matrikkel.set("seksjonsnummer", params.snr);
+    }
+
+    if ([...matrikkel.keys()].length > 0) {
+      const query = matrikkel.toString();
+      queryAttempts.push(`${DEFAULT_REST_URL}/matrikkelnummer?${query}`);
+      queryAttempts.push(`${DEFAULT_REST_URL}/eiendommer?${query}`);
+      queryAttempts.push(`${DEFAULT_REST_URL}/lokalisering?${query}`);
+    }
+  }
+
+  for (const url of queryAttempts) {
+    const payload = await tryRestRequest(url);
+    const candidates = normalizeRestCandidates(payload);
+
+    if (candidates.length > 0) {
+      return candidates;
+    }
+  }
+
+  return [];
+}
+
 export function getKartverketOverlayConfig() {
   return {
     wmsUrl: DEFAULT_WMS_URL,
@@ -278,6 +434,33 @@ export function getKartverketOverlayConfig() {
 }
 
 export async function searchParcelCandidates(params: ParcelSearchParams) {
+  const restCandidates = await searchParcelCandidatesViaRest(params);
+  const applyMatchMetadata = (candidates: ParcelCandidate[]) =>
+    candidates
+      .map((candidate) => {
+        const match = computeMatchScore(candidate, params);
+
+        return {
+          ...candidate,
+          matchScore: match.score,
+          exactMatch: match.exactMatch,
+          matchReason: match.reasons.length > 0 ? `Treff på ${match.reasons.join(", ")}` : null,
+        };
+      })
+      .sort((left, right) => {
+        const scoreDiff = (right.matchScore ?? 0) - (left.matchScore ?? 0);
+
+        if (scoreDiff !== 0) {
+          return scoreDiff;
+        }
+
+        return left.title.localeCompare(right.title, "nb");
+      });
+
+  if (restCandidates.length > 0) {
+    return applyMatchMetadata(restCandidates);
+  }
+
   const byPoint =
     Number.isFinite(params.lat) &&
     Number.isFinite(params.lng) &&
@@ -306,30 +489,11 @@ export async function searchParcelCandidates(params: ParcelSearchParams) {
 
   const collection = await fetchFeatures(query);
 
-  const candidates = (collection.features ?? [])
-    .map(normalizeFeature)
-    .filter((feature): feature is ParcelCandidate => Boolean(feature))
-    .map((candidate) => {
-      const match = computeMatchScore(candidate, params);
-
-      return {
-        ...candidate,
-        matchScore: match.score,
-        exactMatch: match.exactMatch,
-        matchReason: match.reasons.length > 0 ? `Treff på ${match.reasons.join(", ")}` : null,
-      };
-    })
-    .sort((left, right) => {
-      const scoreDiff = (right.matchScore ?? 0) - (left.matchScore ?? 0);
-
-      if (scoreDiff !== 0) {
-        return scoreDiff;
-      }
-
-      return left.title.localeCompare(right.title, "nb");
-    });
-
-  return candidates;
+  return applyMatchMetadata(
+    (collection.features ?? [])
+      .map(normalizeFeature)
+      .filter((feature): feature is ParcelCandidate => Boolean(feature)),
+  );
 }
 
 export async function importParcelGeometry(sourceRef: string, fallback?: ParcelSearchParams) {

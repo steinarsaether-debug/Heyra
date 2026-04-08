@@ -84,11 +84,15 @@ Turn discovery into a stronger public search experience.
 5. Improve nearby fishing discovery ranking and presentation.
 6. Add search-state URL persistence and crawl-safe metadata behavior.
 7. Add tests around search params and search result shaping.
+8. Add Kartverket / Geonorge parcel lookup through the intended REST path, with WFS fallback.
+9. Let each listing choose which rights overlay is public.
+10. Improve public listing map communication so users can distinguish cadastral parcel from actual offer area.
 
 ### Exit criteria
 
 - users can search listings by map area or nearby location
 - public discovery is materially stronger than the current simple list
+- parcel import and public area presentation feel trustworthy rather than opaque
 
 ## Sprint N4: Big-game governance hardening
 

@@ -52,6 +52,35 @@ const previewHeight = 320;
 const previewPadding = 28;
 const overlayConfig = getKartverketOverlayConfig();
 
+function describeParcelMatch(candidate: ParcelCandidate) {
+  if (candidate.exactMatch) {
+    return {
+      badge: "Eksakt matrikkeltreff",
+      tone: "border-[#cfe5d7] bg-[#eef8f1] text-[#24553a]",
+      detail:
+        "Kartverket svarte med et treff som stemmer med kommunenummer, gårdsnummer og bruksnummer.",
+    };
+  }
+
+  if ((candidate.matchScore ?? 0) >= 50) {
+    return {
+      badge: "Sannsynlig treff",
+      tone: "border-[#e7d6ae] bg-[#fff8eb] text-[#6e5630]",
+      detail:
+        candidate.matchReason ??
+        "Kartverket svarte med et nært matrikkeltreff. Kontroller gjerne at teigen faktisk er riktig før import.",
+    };
+  }
+
+  return {
+    badge: "Treff i området",
+    tone: "border-[#d8dde8] bg-[#f6f8fb] text-[#48566a]",
+    detail:
+      candidate.matchReason ??
+      "Dette treffet kommer fra området eller kartpunktet, men bør gjennomgås manuelt før bruk.",
+  };
+}
+
 export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
   const router = useRouter();
   const [points, setPoints] = useState<BoundaryPoint[]>(initialPoints);
@@ -551,21 +580,28 @@ export function BoundaryEditor({ propertyId }: BoundaryEditorProps) {
             {parcelResults.map((candidate) => (
               <div
                 key={candidate.sourceRef}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--border)] px-4 py-3"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--border)] px-4 py-4"
               >
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <p className="font-semibold text-[var(--foreground)]">{candidate.title}</p>
+                  {(() => {
+                    const match = describeParcelMatch(candidate);
+
+                    return (
+                      <p
+                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${match.tone}`}
+                      >
+                        {match.badge}
+                      </p>
+                    );
+                  })()}
                   <p className="text-sm text-[var(--muted)]">
                     {candidate.municipalityCode ? `Kommune ${candidate.municipalityCode}` : "Kartverket"} ·{" "}
                     {candidate.gnr && candidate.bnr
                       ? `gnr ${candidate.gnr} / bnr ${candidate.bnr}`
                       : "teig funnet i området"}
                   </p>
-                  {candidate.matchReason ? (
-                    <p className="text-sm text-[var(--muted)]">
-                      {candidate.exactMatch ? "Eksakt matrikkeltreff" : candidate.matchReason}
-                    </p>
-                  ) : null}
+                  <p className="text-sm text-[var(--muted)]">{describeParcelMatch(candidate).detail}</p>
                 </div>
                 <button
                   type="button"

@@ -30,6 +30,11 @@ export const listingRulesSchema = z.object({
   bagLimitNotes: z.string().trim().max(1000, "Bag limit notes are too long.").default(""),
   areaNotes: z.string().trim().max(1000, "Area notes are too long.").default(""),
   requiresNationalFishingLicense: z.boolean().default(false),
+  publicRightsOverlayId: z
+    .string()
+    .cuid("Select a valid rights layer.")
+    .nullable()
+    .default(null),
 });
 
 export const listingDraftSchema = z.object({

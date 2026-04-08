@@ -36,6 +36,9 @@ export async function AdminReviewsPageContent() {
           cadastralRef: true,
           municipality: true,
           county: true,
+          boundarySource: true,
+          boundarySourceLabel: true,
+          boundaryImportedAt: true,
           vald: {
             select: {
               name: true,
@@ -192,6 +195,7 @@ export async function AdminReviewsPageContent() {
                     reportingResponsibility?: string;
                   }
                 | null) ?? {};
+              const rules = (listing.rules as { publicRightsOverlayId?: string | null } | null) ?? {};
               const readiness = getBigGameGovernanceReadiness({
                 governanceNotes: listing.governanceNotes,
                 quota,
@@ -235,6 +239,17 @@ export async function AdminReviewsPageContent() {
                     listing.representativeConfirmationStatus === "CONFIRMED" ||
                     Boolean(listing.governanceEvidenceNotes?.trim() || listing.municipalityProcessNotes?.trim()),
                 },
+                {
+                  label: "Offentlig kartlag er valgt når rettighetene avviker fra eiendomsgrensen",
+                  complete:
+                    !listing.rightsDifferFromBoundary || Boolean(rules.publicRightsOverlayId),
+                },
+                {
+                  label: "Eiendomsgrunnlag er tydelig nok til manuell oppfølging",
+                  complete:
+                    listing.property.boundarySource === "KARTVERKET_IMPORT" ||
+                    Boolean(listing.governanceEvidenceNotes?.trim() || listing.municipalityProcessNotes?.trim()),
+                },
                 { label: "Minst ett bilde er lastet opp", complete: listing.photos.length > 0 },
               ];
 
@@ -263,6 +278,15 @@ export async function AdminReviewsPageContent() {
                       <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
                         Tillit: geometri {listing.geometryConfidence.toLowerCase()} · rettigheter {listing.rightsConfidence.toLowerCase()} · styring {listing.governanceConfidence.toLowerCase()}
                       </p>
+                      <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
+                        Eiendomsgrunnlag:{" "}
+                        {listing.property.boundarySource === "KARTVERKET_IMPORT"
+                          ? `Kartverket-import${listing.property.boundarySourceLabel ? ` · ${listing.property.boundarySourceLabel}` : ""}`
+                          : "manuelt tegnet"}
+                        {listing.property.boundaryImportedAt
+                          ? ` · importert ${new Date(listing.property.boundaryImportedAt).toLocaleDateString("nb-NO")}`
+                          : ""}
+                      </p>
                       {listing.boundaryIsApproximate || listing.rightsDifferFromBoundary ? (
                         <p className="mt-2 text-sm leading-7 text-[#6e5630]">
                           {[
@@ -276,6 +300,13 @@ export async function AdminReviewsPageContent() {
                       {listing.property.vald ? (
                         <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
                           Representantstatus: {listing.representativeConfirmationStatus.replaceAll("_", " ").toLowerCase()}
+                        </p>
+                      ) : null}
+                      {listing.rightsDifferFromBoundary ? (
+                        <p className="mt-2 text-sm leading-7 text-[#6e5630]">
+                          {rules.publicRightsOverlayId
+                            ? "Annonsen har et valgt offentlig rettighetslag."
+                            : "Annonsen mangler valgt offentlig rettighetslag selv om rettighetene avviker fra eiendomsgrensen."}
                         </p>
                       ) : null}
                       <p className="mt-4 text-base leading-7 text-[var(--foreground)]">{listing.description}</p>

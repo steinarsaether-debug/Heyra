@@ -36,6 +36,12 @@ type PropertySummary = {
   governanceConfidence: ConfidenceLevel;
   boundaryIsApproximate: boolean;
   rightsDifferFromBoundary: boolean;
+  rightsOverlays: Array<{
+    id: string;
+    title: string;
+    overlayType: string;
+    visibility: string;
+  }>;
   vald: {
     id: string;
     name: string;
@@ -83,6 +89,7 @@ type ListingSummary = {
     bagLimitNotes: string;
     areaNotes: string;
     requiresNationalFishingLicense: boolean;
+    publicRightsOverlayId: string | null;
   };
   availabilityCalendar: {
     seasonNotes: string;
@@ -170,6 +177,9 @@ export function ListingEditor({
   const [requiresNationalFishingLicense, setRequiresNationalFishingLicense] = useState(
     listing?.rules.requiresNationalFishingLicense ?? false,
   );
+  const [publicRightsOverlayId, setPublicRightsOverlayId] = useState(
+    listing?.rules.publicRightsOverlayId ?? "",
+  );
   const [seasonNotes, setSeasonNotes] = useState(listing?.availabilityCalendar.seasonNotes ?? "");
   const [blockedRanges, setBlockedRanges] = useState(
     listing?.availabilityCalendar.blockedRanges.length
@@ -254,6 +264,13 @@ export function ListingEditor({
           bagLimitNotes.trim().length >= 8 ||
           areaNotes.trim().length >= 8,
       },
+      {
+        label: "Public rights layer chosen when the offer area differs from the parcel",
+        complete:
+          !property.rightsDifferFromBoundary ||
+          property.rightsOverlays.length === 0 ||
+          Boolean(publicRightsOverlayId),
+      },
     ],
     [
       containsBigGame,
@@ -269,7 +286,10 @@ export function ListingEditor({
       reportingResponsibility,
       photos.length,
       property.hasBoundary,
+      property.rightsDifferFromBoundary,
+      property.rightsOverlays.length,
       property.vald,
+      publicRightsOverlayId,
       hasTrustWarnings,
       quotaSummary,
       species.length,
@@ -338,6 +358,7 @@ export function ListingEditor({
             bagLimitNotes,
             areaNotes,
             requiresNationalFishingLicense,
+            publicRightsOverlayId: publicRightsOverlayId || null,
           },
           availability: {
             seasonNotes,
@@ -389,6 +410,7 @@ export function ListingEditor({
           bagLimitNotes,
           areaNotes,
           requiresNationalFishingLicense,
+          publicRightsOverlayId: publicRightsOverlayId || null,
         },
         availabilityCalendar: {
           seasonNotes,
@@ -754,6 +776,34 @@ export function ListingEditor({
               />
               This offer requires co-approval before dates or quotas are final
             </label>
+            {property.rightsOverlays.length > 0 ? (
+              <div className="space-y-2 rounded-2xl border border-[var(--border)] bg-white px-4 py-4">
+                <label
+                  className="text-sm font-semibold text-[var(--foreground)]"
+                  htmlFor="publicRightsOverlayId"
+                >
+                  Public map area
+                </label>
+                <select
+                  id="publicRightsOverlayId"
+                  value={publicRightsOverlayId}
+                  onChange={(event) => setPublicRightsOverlayId(event.target.value)}
+                  className="w-full rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-base outline-none transition focus:border-[var(--amber)]"
+                >
+                  <option value="">Use parcel boundary publicly</option>
+                  {property.rightsOverlays.map((overlay) => (
+                    <option key={overlay.id} value={overlay.id}>
+                      {overlay.title} · {formatEnumLabel(overlay.overlayType)}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-sm leading-6 text-[var(--muted)]">
+                  Choose a public rights layer when the area you rent out is narrower than the
+                  cadastral parcel. Leave this on parcel boundary if the public map can safely show
+                  the whole property outline.
+                </p>
+              </div>
+            ) : null}
             <textarea
               value={governanceNotes}
               onChange={(event) => setGovernanceNotes(event.target.value)}

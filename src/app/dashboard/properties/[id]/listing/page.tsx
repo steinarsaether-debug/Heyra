@@ -35,6 +35,18 @@ export default async function PropertyListingPage({
     },
     include: {
       vald: true,
+      rightsOverlays: {
+        orderBy: [
+          { visibility: "asc" },
+          { title: "asc" },
+        ],
+        select: {
+          id: true,
+          title: true,
+          overlayType: true,
+          visibility: true,
+        },
+      },
       listings: {
         orderBy: {
           createdAt: "desc",
@@ -236,6 +248,7 @@ export default async function PropertyListingPage({
             governanceConfidence: property.governanceConfidence,
             boundaryIsApproximate: property.boundaryIsApproximate,
             rightsDifferFromBoundary: property.rightsDifferFromBoundary,
+            rightsOverlays: property.rightsOverlays,
             vald: property.vald
               ? {
                   id: property.vald.id,
@@ -296,6 +309,8 @@ export default async function PropertyListingPage({
                       (listing.rules as { areaNotes?: string } | null)?.areaNotes ?? "",
                     requiresNationalFishingLicense:
                       (listing.rules as { requiresNationalFishingLicense?: boolean } | null)?.requiresNationalFishingLicense ?? false,
+                    publicRightsOverlayId:
+                      (listing.rules as { publicRightsOverlayId?: string | null } | null)?.publicRightsOverlayId ?? null,
                   },
                   availabilityCalendar: {
                     seasonNotes:

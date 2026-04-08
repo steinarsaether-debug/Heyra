@@ -34,6 +34,11 @@ This backlog reflects what the product has taught us so far:
 3. Expand filters for municipality, price, listing type, species, and availability.
 4. Improve the nearby fishing journey so it works as the clear fast-entry discovery surface.
 5. Add stronger route-level SEO for key Norwegian discovery pages.
+6. Add official Kartverket / Geonorge parcel lookup using the REST API, with WFS fallback.
+7. Let listings explicitly choose which rights overlay is public.
+8. Improve public map legend and parcel-versus-rights explanation on listing pages.
+9. Add admin review signals for parcel provenance and rights mismatch.
+10. Add clearer import UX for exact matrikkel match versus likely candidate.
 
 ### 3. Big-game governance hardening
 

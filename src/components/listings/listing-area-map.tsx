@@ -89,6 +89,22 @@ export function ListingAreaMap({
         kartverketWmsUrl={overlayConfig.wmsUrl}
         kartverketWmsLayers={overlayConfig.wmsLayers}
       />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
+          <p className="font-semibold">Grønt område</p>
+          <p className="text-[var(--muted)]">
+            {data.source === "rights-overlay"
+              ? `${data.publicOverlayTitle ?? "Offentlig tilbudsområde"} vises som det området annonsen faktisk dekker.`
+              : "Annonsen bruker foreløpig lagret eiendomsgrense som offentlig område."}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
+          <p className="font-semibold">Stiplet grense</p>
+          <p className="text-[var(--muted)]">
+            Lagret eiendomsgrense fra eiendomsgrunnlaget. Den gir kontekst, men er ikke alltid det samme som jakt- eller fiskeretten som leies ut.
+          </p>
+        </div>
+      </div>
       <div className="rounded-2xl border border-[var(--border)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--muted)]">
         {data.source === "rights-overlay"
           ? "Det grønne området viser det offentlige tilbudsområdet. Den stiplede grensen viser lagret eiendomsgrense som bakgrunnskontekst."
