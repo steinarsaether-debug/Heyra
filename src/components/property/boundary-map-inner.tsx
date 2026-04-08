@@ -33,6 +33,7 @@ type BoundaryMapProps = {
   onMovePoint: (index: number, point: Point) => void;
   onCenterChange?: (point: Point) => void;
   focusPoint?: Point | null;
+  searchPreviewPolygons?: Point[][];
   rightsOverlays?: OverlayShape[];
   kartverketWmsUrl?: string;
   kartverketWmsLayers?: string;
@@ -100,9 +101,11 @@ function MapInteractionHandler({
 function MapViewportSync({
   points,
   focusPoint,
+  searchPreviewPolygons,
 }: {
   points: Point[];
   focusPoint?: Point | null;
+  searchPreviewPolygons?: Point[][];
 }) {
   const map = useMap();
 
@@ -119,10 +122,20 @@ function MapViewportSync({
       return;
     }
 
+    if ((searchPreviewPolygons?.[0]?.length ?? 0) >= 3) {
+      map.fitBounds(
+        searchPreviewPolygons!.flat().map((point) => [point.lat, point.lng] as [number, number]),
+        {
+          padding: [24, 24],
+        },
+      );
+      return;
+    }
+
     if (focusPoint) {
       map.setView([focusPoint.lat, focusPoint.lng], 14);
     }
-  }, [focusPoint, map, points]);
+  }, [focusPoint, map, points, searchPreviewPolygons]);
 
   return null;
 }
@@ -133,6 +146,7 @@ export default function BoundaryMapInner({
   onMovePoint,
   onCenterChange,
   focusPoint,
+  searchPreviewPolygons = [],
   rightsOverlays = [],
   kartverketWmsUrl,
   kartverketWmsLayers,
@@ -201,8 +215,26 @@ export default function BoundaryMapInner({
             })}
           </LayersControl>
           <ScaleControl imperial={false} />
-          <MapViewportSync points={points} focusPoint={focusPoint} />
+          <MapViewportSync
+            points={points}
+            focusPoint={focusPoint}
+            searchPreviewPolygons={searchPreviewPolygons}
+          />
           <MapInteractionHandler onAddPoint={onAddPoint} onCenterChange={onCenterChange} />
+          {searchPreviewPolygons.length > 0 ? (
+            <Polygon
+              positions={searchPreviewPolygons.map((polygon) =>
+                polygon.map((point) => [point.lat, point.lng] as [number, number]),
+              )}
+              pathOptions={{
+                color: "#f56a14",
+                fillColor: "#f56a14",
+                fillOpacity: 0.16,
+                weight: 3,
+                dashArray: "8 6",
+              }}
+            />
+          ) : null}
           {polygonPositions.length >= 3 ? (
             <Polygon
               positions={polygonPositions}

@@ -1,14 +1,32 @@
 import { z } from "zod";
 
+const coordinateSchema = (label: "Latitude" | "Longitude") =>
+  z
+    .union([
+      z.number(),
+      z
+        .string()
+        .trim()
+        .min(1, "Coordinate is required."),
+    ])
+    .transform((value) => Number(value))
+    .pipe(
+      z
+        .number()
+        .refine((value) => Number.isFinite(value), "Coordinate must be a number.")
+        .min(
+          label === "Latitude" ? -90 : -180,
+          `${label} must be at least ${label === "Latitude" ? -90 : -180}.`,
+        )
+        .max(
+          label === "Latitude" ? 90 : 180,
+          `${label} must be at most ${label === "Latitude" ? 90 : 180}.`,
+        ),
+    );
+
 export const boundaryPointSchema = z.object({
-  lat: z.coerce
-    .number({ error: "Latitude must be a number." })
-    .min(-90, "Latitude must be at least -90.")
-    .max(90, "Latitude must be at most 90."),
-  lng: z.coerce
-    .number({ error: "Longitude must be a number." })
-    .min(-180, "Longitude must be at least -180.")
-    .max(180, "Longitude must be at most 180."),
+  lat: coordinateSchema("Latitude"),
+  lng: coordinateSchema("Longitude"),
 });
 
 export const boundarySchema = z.object({

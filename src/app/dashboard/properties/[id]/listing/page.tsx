@@ -3,6 +3,7 @@ import { CancellationPolicy } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { ShareToolkit } from "@/components/share/share-toolkit";
+import { DeleteListingButton } from "@/components/property/delete-listing-button";
 import { canManageProperties } from "@/lib/access";
 import { getPropertyBoundaryStatus } from "@/lib/property-boundary-status";
 import { ListingEditor } from "@/components/property/listing-editor";
@@ -121,13 +122,13 @@ export default async function PropertyListingPage({
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--amber)]">
-              Listing workspace
+              Annonsearbeid
             </p>
             <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
-              Prepare a public listing for {property.cadastralRef}.
+              Klargjor en offentlig annonse for {property.cadastralRef}.
             </h1>
             <p className="mt-4 text-lg leading-8 text-[var(--muted)]">
-              This is the step after property setup. Shape the public offer here, then send it into review when the description, species, photos, and price are ready.
+              Dette er steget etter eiendomsoppsettet. Form tilbudet her, og send det til gjennomgang nar beskrivelse, arter, bilder og pris er klare.
             </p>
           </div>
 
@@ -136,27 +137,28 @@ export default async function PropertyListingPage({
               href={`/dashboard/properties/${property.id}`}
               className="rounded-full border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)]"
             >
-              Back to property
+              Tilbake til eiendommen
             </Link>
             <Link
               href={`/dashboard/properties/${property.id}/boundary`}
               className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-white"
             >
-              Review boundary
+              Se over grensen
             </Link>
+            {listing ? <DeleteListingButton propertyId={property.id} /> : null}
           </div>
         </div>
 
         {!hasBoundary ? (
           <div className="rounded-[1.6rem] border border-[#e7d6ae] bg-[#fff8eb] p-5 text-sm leading-7 text-[#6e5630]">
-            This property does not have a saved boundary yet. You can still draft the listing now, but the boundary step should be completed before the listing is treated as ready for review.
+            Denne eiendommen har ingen lagret grense ennå. Du kan fortsatt lage annonseutkast nå, men grensesteget bør fullføres før annonsen regnes som klar for gjennomgang.
           </div>
         ) : null}
 
         {listing?.status === "PUBLISHED" && publicShareUrl && landownerCaption && shareLinks ? (
           <ShareToolkit
-            heading="Landowner marketing kit"
-            description="Use this public listing link and ready-made text when you want to promote the property from your own social accounts. The link includes simple share tags so later reporting can distinguish owner-driven traffic."
+            heading="Markedsforingspakke for grunneier"
+            description="Bruk denne offentlige annonselenken og ferdige tekstforslag nar du vil promotere eiendommen i egne kanaler. Lenken har enkle delingskoder slik at senere rapportering kan skille egen trafikk fra annet."
             shareUrl={publicShareUrl}
             nativeTitle={listing.title}
             nativeText={landownerCaption}
@@ -165,12 +167,12 @@ export default async function PropertyListingPage({
             socialPreviewUrl={socialPreviewUrl}
             captionOptions={[
               {
-                label: "Facebook / general post",
+                label: "Facebook / generell post",
                 text: landownerCaption,
               },
               {
-                label: "Short caption",
-                text: `${listing.title} in ${property.municipality}. Public listing on Heyra: ${publicShareUrl}`,
+                label: "Kort bildetekst",
+                text: `${listing.title} i ${property.municipality}. Offentlig annonse på Heyra: ${publicShareUrl}`,
               },
             ]}
           />
@@ -179,10 +181,10 @@ export default async function PropertyListingPage({
         {listing?.status === "PUBLISHED" ? (
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Promotion signals
+              Signaler fra deling
             </p>
             <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-              This first version tracks bookings that came through tagged share links. It is not full traffic analytics yet, but it shows whether your own promotion is starting to convert into booking requests.
+              Denne første versjonen sporer bestillinger som kom inn via merkede delingslenker. Det er ikke full trafikkanalyse ennå, men det viser om egen promotering begynner å bli til bestillingsforesporsler.
             </p>
             <div className="mt-4 grid gap-3 text-sm leading-7 text-[var(--foreground)] sm:grid-cols-2">
               {(() => {
@@ -195,13 +197,13 @@ export default async function PropertyListingPage({
                 return (
                   <>
               <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                <p className="font-semibold">Attributed bookings</p>
+                <p className="font-semibold">Tilknyttede bestillinger</p>
                 <p className="mt-1 text-[var(--muted)]">
                   {attributedCount}
                 </p>
               </div>
               <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                <p className="font-semibold">Attributed share rate</p>
+                <p className="font-semibold">Delingsandel</p>
                 <p className="mt-1 text-[var(--muted)]">{attributedRate}%</p>
               </div>
                   </>
@@ -213,7 +215,7 @@ export default async function PropertyListingPage({
                 href={`/dashboard/properties/${property.id}/insights`}
                 className="inline-flex rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
               >
-                Open promotion insights
+                Apne markedsinnsikt
               </Link>
             </div>
             <div className="mt-4 space-y-3">
@@ -223,12 +225,12 @@ export default async function PropertyListingPage({
                     key={item.key}
                     className="rounded-2xl border border-[var(--border)] px-4 py-3 text-sm leading-7 text-[var(--foreground)]"
                   >
-                    <span className="font-semibold">{item.label}</span>: {item.count} booking request{item.count === 1 ? "" : "s"}
+                    <span className="font-semibold">{item.label}</span>: {item.count} bestillingsforesporsel{item.count === 1 ? "" : "er"}
                   </div>
                 ))
               ) : (
                 <div className="rounded-2xl border border-[var(--border)] px-4 py-3 text-sm leading-7 text-[var(--muted)]">
-                  No bookings have been attributed to tagged share links yet.
+                  Ingen bestillinger er knyttet til merkede delingslenker ennå.
                 </div>
               )}
             </div>

@@ -4,6 +4,8 @@ import {
   formatTerrainTypes,
   getPropertyCompletionState,
 } from "@/lib/property-view";
+import { DeletePropertyButton } from "@/components/property/delete-property-button";
+import { PropertyIdentityEditor } from "@/components/property/property-identity-editor";
 import { getPropertyCwdSummary } from "@/lib/cwd-zones";
 import { formatListingStatus } from "@/lib/listing-view";
 import { getPropertyBoundaryStatus } from "@/lib/property-boundary-status";
@@ -96,6 +98,9 @@ export default async function PropertyDetailPage({
               >
                 Back to my properties
               </Link>
+            </div>
+            <div className="mt-4">
+              <DeletePropertyButton propertyId={property.id} />
             </div>
           </div>
 
@@ -269,6 +274,16 @@ export default async function PropertyDetailPage({
             </div>
           </section>
         </div>
+
+        <PropertyIdentityEditor
+          propertyId={property.id}
+          initialValues={{
+            cadastralRef: property.cadastralRef,
+            municipality: property.municipality,
+            county: property.county,
+            areaHectares: property.areaHectares,
+          }}
+        />
       </section>
     </main>
   );

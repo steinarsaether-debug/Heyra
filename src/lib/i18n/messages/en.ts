@@ -154,6 +154,22 @@ const enMessages = {
       availability: "Availability",
       trust: "Trust",
     },
+    deleteListing: {
+      action: "Remove listing",
+      deleting: "Removing listing...",
+      confirm:
+        "Do you want to remove this listing? This is intended for drafts or listings without booking history.",
+      error: "Unable to remove the listing.",
+    },
+  },
+  properties: {
+    deleteProperty: {
+      action: "Remove property",
+      deleting: "Removing property...",
+      confirm:
+        "Do you want to remove this property? This is intended for drafts without booking history.",
+      error: "Unable to remove the property.",
+    },
   },
   site: {
     name: "Heyra",

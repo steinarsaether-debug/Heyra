@@ -154,6 +154,22 @@ const nbMessages = {
       availability: "Tilgjengelighet",
       trust: "Tillit",
     },
+    deleteListing: {
+      action: "Fjern annonse",
+      deleting: "Fjerner annonse...",
+      confirm:
+        "Vil du fjerne denne annonsen? Dette er ment for utkast eller annonser uten bestillingshistorikk.",
+      error: "Kunne ikke fjerne annonsen.",
+    },
+  },
+  properties: {
+    deleteProperty: {
+      action: "Fjern eiendom",
+      deleting: "Fjerner eiendom...",
+      confirm:
+        "Vil du fjerne denne eiendommen? Dette er ment for utkast uten bestillingshistorikk.",
+      error: "Kunne ikke fjerne eiendommen.",
+    },
   },
   site: {
     name: "Heyra",

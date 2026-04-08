@@ -382,9 +382,12 @@ export function AppShell({
             <div className="hidden items-center gap-3 md:flex lg:justify-end">
               <LanguageSwitcher currentLocale={locale} />
               {session?.user ? (
-                <div className="rounded-full border border-[var(--border)] bg-[#f7f4ed] px-4 py-2 text-sm text-[var(--foreground)]">
-                  {session.user.fullName}
-                </div>
+                <>
+                  <div className="rounded-full border border-[var(--border)] bg-[#f7f4ed] px-4 py-2 text-sm text-[var(--foreground)]">
+                    {session.user.fullName}
+                  </div>
+                  <SignOutButton className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm text-[var(--foreground)] transition hover:bg-[var(--background-soft)]" />
+                </>
               ) : (
                 <Link
                   href={localizePathname(locale, "/auth/login")}

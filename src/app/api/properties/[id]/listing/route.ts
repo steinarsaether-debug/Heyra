@@ -426,3 +426,68 @@ export async function PUT(
     );
   }
 }
+
+export async function DELETE(
+  _request: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
+  const session = await auth();
+
+  if (!canManageProperties(session)) {
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  }
+
+  const { id } = await context.params;
+
+  const property = await prisma.property.findFirst({
+    where: {
+      id,
+      ownerId: session.user.id,
+    },
+    include: {
+      listings: {
+        take: 1,
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          bookings: {
+            select: {
+              id: true,
+            },
+            take: 1,
+          },
+        },
+      },
+    },
+  });
+
+  if (!property) {
+    return NextResponse.json({ error: "Property not found." }, { status: 404 });
+  }
+
+  const listing = property.listings[0];
+
+  if (!listing) {
+    return NextResponse.json({ error: "Listing not found." }, { status: 404 });
+  }
+
+  if (listing.bookings.length > 0) {
+    return NextResponse.json(
+      {
+        error:
+          "This listing already has booking history. Archive it instead of deleting it.",
+      },
+      { status: 400 },
+    );
+  }
+
+  await prisma.listing.delete({
+    where: {
+      id: listing.id,
+    },
+  });
+
+  return NextResponse.json({ ok: true });
+}

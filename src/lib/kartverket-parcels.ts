@@ -20,6 +20,7 @@ export type ParcelCandidate = {
   festenr?: string | null;
   snr?: string | null;
   center?: MapPoint | null;
+  polygons?: MapPoint[][];
   matchScore?: number;
   exactMatch?: boolean;
   matchReason?: string;
@@ -250,6 +251,7 @@ function normalizeRestCandidates(payload: unknown) {
           ? {
               ...candidate,
               center: candidate.center ?? computeCenter(polygons),
+              polygons,
             }
           : null;
       }

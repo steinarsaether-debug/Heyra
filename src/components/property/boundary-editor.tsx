@@ -32,6 +32,7 @@ type ParcelCandidate = {
   festenr?: string | null;
   snr?: string | null;
   center?: { lat: number; lng: number } | null;
+  polygons?: Array<Array<{ lat: number; lng: number }>>;
   matchScore?: number;
   exactMatch?: boolean;
   matchReason?: string | null;
@@ -116,6 +117,9 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
   const [isImportingParcel, setIsImportingParcel] = useState<string | null>(null);
   const [rightsOverlays, setRightsOverlays] = useState<RightsOverlay[]>([]);
   const [focusPoint, setFocusPoint] = useState<{ lat: number; lng: number } | null>(null);
+  const [searchPreviewPolygons, setSearchPreviewPolygons] = useState<
+    Array<Array<{ lat: number; lng: number }>>
+  >([]);
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   const filledCount = useMemo(
@@ -343,7 +347,9 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ points }),
+        body: JSON.stringify({
+          points: points.filter((point) => point.lat.trim() && point.lng.trim()),
+        }),
       });
 
       const data = (await response.json()) as { error?: string };
@@ -403,12 +409,16 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
         throw new Error(data.error || "Kartverket-søket svarte ikke som forventet.");
       }
 
-      setParcelResults(data.results ?? []);
-      if (data.results?.[0]?.center) {
-        setMapCenter(data.results[0].center);
-        setFocusPoint(data.results[0].center);
+      const results = data.results ?? [];
+      setParcelResults(results);
+      if (results[0]?.center) {
+        setMapCenter(results[0].center);
+        setFocusPoint(results[0].center);
       }
-      if ((data.results ?? []).length === 0) {
+      if (results[0]?.polygons?.length) {
+        setSearchPreviewPolygons(results[0].polygons);
+      }
+      if (results.length === 0) {
         setSuccess("Ingen teiger ble funnet. Du kan fortsatt tegne grensen manuelt.");
       }
     } catch (searchError) {
@@ -446,15 +456,19 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
       }
 
       if (data.points && data.points.length >= 3) {
+        const filteredPoints = data.points.filter(
+          (point) => Number.isFinite(point.lat) && Number.isFinite(point.lng),
+        );
         setPoints(
-          data.points.map((point) => ({
+          filteredPoints.map((point) => ({
             lat: String(point.lat),
             lng: String(point.lng),
           })),
         );
-        setMapCenter(data.points[0] ?? null);
-        setFocusPoint(data.points[0] ?? null);
+        setMapCenter(filteredPoints[0] ?? null);
+        setFocusPoint(filteredPoints[0] ?? null);
       }
+      setSearchPreviewPolygons([]);
 
       setBoundarySource("KARTVERKET_IMPORT");
       setBoundaryImportedAt(new Date().toISOString());
@@ -489,6 +503,7 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
             onMovePoint={movePointFromMap}
             onCenterChange={setMapCenter}
             focusPoint={focusPoint}
+            searchPreviewPolygons={searchPreviewPolygons}
             rightsOverlays={rightsOverlays}
             kartverketWmsUrl={overlayConfig.wmsUrl}
             kartverketWmsLayers={overlayConfig.wmsLayers}

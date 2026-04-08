@@ -115,7 +115,11 @@ export async function PUT(
       return NextResponse.json({ error: "Property not found." }, { status: 404 });
     }
 
-    const polygonWkt = buildPolygonWkt(parsed.data.points);
+    const normalizedPoints = parsed.data.points.map((point) => ({
+      lat: Number(point.lat),
+      lng: Number(point.lng),
+    }));
+    const polygonWkt = buildPolygonWkt(normalizedPoints);
 
     await prisma.$executeRaw(
       Prisma.sql`

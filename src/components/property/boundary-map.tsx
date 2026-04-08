@@ -8,6 +8,7 @@ type BoundaryMapProps = {
   onMovePoint: (index: number, point: { lat: number; lng: number }) => void;
   onCenterChange?: (point: { lat: number; lng: number }) => void;
   focusPoint?: { lat: number; lng: number } | null;
+  searchPreviewPolygons?: Array<Array<{ lat: number; lng: number }>>;
   rightsOverlays?: Array<{
     id: string;
     title: string;
