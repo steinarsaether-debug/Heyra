@@ -2,6 +2,8 @@ import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { absoluteUrl } from "@/lib/site";
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const listings = await (async () => {
     try {
@@ -18,7 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
       });
     } catch (error) {
-      console.error("Sitemap generation fell back to static routes because listings could not be loaded.", error);
+      console.warn("Sitemap generation fell back to static routes because listings could not be loaded.");
       return [];
     }
   })();
@@ -37,7 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
       });
     } catch (error) {
-      console.error("Sitemap generation fell back to static routes because services could not be loaded.", error);
+      console.warn("Sitemap generation fell back to static routes because services could not be loaded.");
       return [];
     }
   })();

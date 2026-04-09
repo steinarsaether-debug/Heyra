@@ -9,7 +9,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { absoluteUrl } from "@/lib/site";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Nearby Fishing",
@@ -31,10 +31,7 @@ export default async function NearbyFishingPage() {
       }),
     );
   } catch (error) {
-    console.error(
-      "Nearby fishing page fell back to an empty list because listings could not be loaded.",
-      error,
-    );
+    console.warn("Nearby fishing page fell back to an empty list because listings could not be loaded.");
   }
 
   const mappedListings = listings
