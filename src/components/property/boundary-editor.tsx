@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { BoundaryMap } from "@/components/property/boundary-map";
 import { RightsOverlayEditor } from "@/components/property/rights-overlay-editor";
 import { getKartverketOverlayConfig } from "@/lib/kartverket-parcels";
+import { MAX_EDITOR_BOUNDARY_POINTS, simplifyPointsForEditor } from "@/lib/geometry";
 
 type BoundaryEditorProps = {
   propertyId: string;
@@ -120,6 +121,7 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
   const [searchPreviewPolygons, setSearchPreviewPolygons] = useState<
     Array<Array<{ lat: number; lng: number }>>
   >([]);
+  const [showPointEditor, setShowPointEditor] = useState(false);
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   const filledCount = useMemo(
@@ -138,6 +140,8 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
         .filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lng)),
     [points],
   );
+
+  const isLargeBoundary = filledCount > 40;
 
   const previewModel = useMemo(() => {
     if (parsedPoints.length === 0) {
@@ -352,13 +356,33 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
         }),
       });
 
-      const data = (await response.json()) as { error?: string };
+      const data = (await response.json()) as {
+        error?: string;
+        savedPointCount?: number;
+        simplifiedFromPointCount?: number | null;
+      };
 
       if (!response.ok) {
         throw new Error(data.error || "Vi klarte ikke å lagre grensen.");
       }
 
-      setSuccess("Grensen er lagret.");
+      setPoints((current) => {
+        const simplified = simplifyPointsForEditor(
+          current
+            .filter((point) => point.lat.trim() && point.lng.trim())
+            .map((point) => ({ lat: Number(point.lat), lng: Number(point.lng) })),
+        );
+
+        return simplified.map((point) => ({
+          lat: String(point.lat),
+          lng: String(point.lng),
+        }));
+      });
+      setSuccess(
+        data.simplifiedFromPointCount && data.savedPointCount
+          ? `Grensen er lagret. Vi forenklet arbeidsgrensen fra ${data.simplifiedFromPointCount} til ${data.savedPointCount} punkter for videre redigering.`
+          : "Grensen er lagret.",
+      );
       router.push(`/dashboard/properties/${propertyId}`);
       router.refresh();
     } catch (saveError) {
@@ -519,7 +543,7 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
           Kart og eiendomsgrense
         </p>
         <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-          Klikk i kartet for å legge til punkter manuelt, eller bruk Kartverket-søk for å hente inn en teig som utgangspunkt. Parcelgrensen er bare matrikkel-kontekst. Jakt- og fiskerett kan fortsatt avvike.
+          Klikk i kartet for å legge til punkter manuelt, eller bruk Kartverket-søk for å hente inn en teig som utgangspunkt. Eiendomsgrensen er bare matrikkelkontekst. Jakt- og fiskerett kan fortsatt avvike.
         </p>
 
         <div className="mt-5">
@@ -688,7 +712,7 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
 
       <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-          Visual boundary board
+          Visuelt grensebrett
         </p>
         <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
           Bruk dette brettet til å forstå formen mens du skriver. Når du allerede har punkter lagt inn, kan du dra markørene for å finjustere dem.
@@ -780,13 +804,56 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
 
       <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-          Boundary points
+          Grensepunkter
         </p>
         <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-          Enter the corner points in order around the property edge. You do not need to repeat the first point; the system closes the shape for you.
+          Legg inn punktene i rekkefølge rundt eiendommen. Du trenger ikke gjenta første punkt; systemet lukker polygonet for deg.
         </p>
 
-        <div className="mt-5 space-y-4">
+        {isLargeBoundary ? (
+          <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[#f8f5ee] px-4 py-4 text-sm text-[var(--muted)]">
+            Denne grensen har mange punkter. For vanlig bruk holder det ofte å redigere i kartet og la Heyra holde punktlisten komprimert.
+          </div>
+        ) : null}
+
+        <div className="mt-5 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => setShowPointEditor((current) => !current)}
+            className="rounded-full border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)]"
+          >
+            {showPointEditor ? "Skjul punktlisten" : "Vis punktlisten"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const simplified = simplifyPointsForEditor(
+                points
+                  .filter((point) => point.lat.trim() && point.lng.trim())
+                  .map((point) => ({ lat: Number(point.lat), lng: Number(point.lng) })),
+                Math.min(40, MAX_EDITOR_BOUNDARY_POINTS),
+              );
+              setPoints(
+                simplified.map((point) => ({
+                  lat: String(point.lat),
+                  lng: String(point.lng),
+                })),
+              );
+              setSuccess(`Punktlisten ble forenklet til ${simplified.length} punkter.`);
+              setError(null);
+            }}
+            disabled={filledCount <= 40}
+            className="rounded-full border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Forenkle punktlisten
+          </button>
+          <div className="rounded-full border border-[var(--border)] bg-white px-4 py-3 text-sm text-[var(--muted)]">
+            {filledCount} punkter fylt inn
+          </div>
+        </div>
+
+        {showPointEditor ? (
+          <div className="mt-5 space-y-4">
           {points.map((point, index) => (
             <div
               key={`${index}-${point.lat}-${point.lng}`}
@@ -794,7 +861,7 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
             >
               <div className="space-y-2">
                 <label htmlFor={`lat-${index}`} className="text-sm font-semibold text-[var(--foreground)]">
-                  Point {index + 1} latitude
+                  Punkt {index + 1} breddegrad
                 </label>
                 <input
                   id={`lat-${index}`}
@@ -808,7 +875,7 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
 
               <div className="space-y-2">
                 <label htmlFor={`lng-${index}`} className="text-sm font-semibold text-[var(--foreground)]">
-                  Point {index + 1} longitude
+                  Punkt {index + 1} lengdegrad
                 </label>
                 <input
                   id={`lng-${index}`}
@@ -827,12 +894,13 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
                   disabled={points.length <= 3}
                   className="rounded-full border border-[var(--border)] px-4 py-3 text-sm text-[var(--muted)] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Remove
+                  Fjern
                 </button>
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        ) : null}
 
         <div className="mt-5 flex flex-wrap gap-3">
           <button
@@ -840,11 +908,8 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
             onClick={addPoint}
             className="rounded-full border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)]"
           >
-            Add another point
+            Legg til punkt
           </button>
-          <div className="rounded-full border border-[var(--border)] bg-white px-4 py-3 text-sm text-[var(--muted)]">
-            {filledCount} point{filledCount === 1 ? "" : "s"} filled in
-          </div>
         </div>
       </section>
 

@@ -80,7 +80,7 @@ export default async function FishingLicenceProofPage({
           </p>
           <h1 className="mt-3 text-3xl leading-tight sm:text-4xl">{booking.listing.title}</h1>
           <p className="mt-3 text-base leading-7 text-white/75">
-            Vis denne siden ute i felt som praktisk bevisvisning. Den samler tidspunkt, bestillingsreferanse og lokale regler på ett sted.
+            Vis denne siden ute i felt som praktisk dokumentasjon. Den samler tidspunkt, bestillingsreferanse og lokale regler på ett sted.
           </p>
         </div>
 
@@ -117,7 +117,7 @@ export default async function FishingLicenceProofPage({
             </div>
             <div className="rounded-[1.2rem] border border-[var(--border)] bg-[#fbf8f1] p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-                Gjest
+                Innehaver
               </p>
               <p className="mt-2 text-lg font-semibold text-[var(--forest)]">
                 {booking.hunter.pii?.fullName ?? booking.hunter.email}
@@ -145,6 +145,9 @@ export default async function FishingLicenceProofPage({
           </div>
 
           <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
+            <p className="rounded-2xl border border-[#d8e6dc] bg-[#f4faf6] px-4 py-3 text-[#29543a]">
+              Ha denne siden tilgjengelig sammen med annen lokal dokumentasjon dersom oppsyn eller grunneier ber om bekreftelse.
+            </p>
             {rules.areaNotes ? (
               <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
                 Områdemerknader: {rules.areaNotes}
@@ -186,7 +189,7 @@ export default async function FishingLicenceProofPage({
       <MobileActionTray
         title="Bevishandlinger"
         items={[
-          { href: `/dashboard/bookings/${booking.id}`, label: "Arbeidsflate" },
+          { href: `/dashboard/bookings/${booking.id}`, label: "Bestilling" },
           { href: `/listings/${booking.listing.slug}/field`, label: "Feltmodus" },
           { href: `/listings/${booking.listing.slug}`, label: "Annonse" },
           { href: "/dashboard/bookings", label: "Turer" },

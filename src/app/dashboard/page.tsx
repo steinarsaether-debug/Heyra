@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { getAverageRating } from "@/lib/review-view";
 import { summarizeAttributedBookings } from "@/lib/share-attribution";
 import { getHostQualityBadge, getTrustSummary } from "@/lib/trust-summary";
+import { formatUserRole, formatUserStatus, getUserStatusGuidance } from "@/lib/user-status";
 import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
@@ -141,6 +142,12 @@ export default async function DashboardPage() {
               >
                 Fullfør profil
               </Link>
+              <Link
+                href="/dashboard/settings/account"
+                className="rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white"
+              >
+                Konto
+              </Link>
               {user.role === UserRole.LANDOWNER ? (
                 <Link
                   href="/dashboard/properties/new"
@@ -207,12 +214,48 @@ export default async function DashboardPage() {
           </div>
         </div>
 
+        {user.status !== "ACTIVE" ? (
+          <article className="rounded-[1.6rem] border border-[#d8c4a0] bg-[#fff9ef] p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
+              Kontostatus
+            </p>
+            <p className="mt-3 text-2xl text-[var(--forest)]">{formatUserStatus(user.status)}</p>
+            <p className="mt-3 text-sm leading-7 text-[#6b5432]">
+              {getUserStatusGuidance({
+                status: user.status,
+                role: user.role,
+                statusReason: user.statusReason,
+              })}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link
+                href="/dashboard/settings/account"
+                className="rounded-full border border-[#d8c4a0] bg-white px-4 py-2 text-sm font-semibold text-[#6b5432]"
+              >
+                Åpne kontostatus
+              </Link>
+              <Link
+                href="/dashboard/profile"
+                className="rounded-full border border-[#d8c4a0] bg-white px-4 py-2 text-sm font-semibold text-[#6b5432]"
+              >
+                Gå til profil
+              </Link>
+            </div>
+          </article>
+        ) : null}
+
         <div className="grid gap-4 lg:grid-cols-6">
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
               Rolle
             </p>
-            <p className="mt-3 text-2xl text-[var(--forest)]">{user.role.toLowerCase()}</p>
+            <p className="mt-3 text-2xl text-[var(--forest)]">{formatUserRole(user.role)}</p>
+          </article>
+          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+              Status
+            </p>
+            <p className="mt-3 text-2xl text-[var(--forest)]">{formatUserStatus(user.status)}</p>
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">

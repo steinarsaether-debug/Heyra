@@ -24,12 +24,7 @@ const nbMessages = {
   },
   locales: {
     nb: "Bokmål",
-    nn: "Nynorsk",
     en: "Engelsk",
-    sv: "Svenska",
-    da: "Dansk",
-    fi: "Suomi",
-    de: "Deutsch",
   },
   shell: {
     eyebrow: "Norge ute",
@@ -57,6 +52,7 @@ const nbMessages = {
       account: "Konto",
       nearbyFishing: "Fiske i nærheten",
       adminPanel: "Adminpanel",
+      users: "Brukere",
       backToApp: "Til hovedappen",
     },
     sections: {

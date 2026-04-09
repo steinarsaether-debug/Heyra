@@ -1,6 +1,7 @@
 import { PropertyStatus } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { canManageProperties, getOperationalAccessError, isSignedIn } from "@/lib/access";
 import { propertyDraftSchema } from "@/lib/property-schema";
 import { prisma } from "@/lib/prisma";
 
@@ -9,8 +10,11 @@ export const runtime = "nodejs";
 export async function POST(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  if (!canManageProperties(session)) {
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "eiendom") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   try {
@@ -18,7 +22,7 @@ export async function POST(request: NextRequest) {
     const parsed = propertyDraftSchema.safeParse(json);
 
     if (!parsed.success) {
-      const message = parsed.error.issues[0]?.message ?? "Invalid property payload.";
+      const message = parsed.error.issues[0]?.message ?? "Ugyldig eiendomsdata.";
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
@@ -86,7 +90,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Property draft creation failed", error);
     return NextResponse.json(
-      { error: "Something went wrong while creating the property draft." },
+      { error: "Noe gikk galt da eiendomsutkastet skulle opprettes." },
       { status: 500 },
     );
   }

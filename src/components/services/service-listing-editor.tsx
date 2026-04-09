@@ -83,7 +83,7 @@ export function ServiceListingEditor({
     const data = (await response.json()) as { error?: string; serviceId?: string };
 
     if (!response.ok) {
-      throw new Error(data.error ?? "Unable to save the service.");
+      throw new Error(data.error ?? "Kunne ikke lagre tjenesten.");
     }
 
     return mode === "create" ? data.serviceId ?? null : initialService?.id ?? null;
@@ -97,7 +97,7 @@ export function ServiceListingEditor({
       const serviceId = await saveService();
 
       if (!serviceId) {
-        throw new Error("Unable to identify the saved service.");
+        throw new Error("Kunne ikke finne den lagrede tjenesten.");
       }
 
       const response = await fetch(`/api/services/${serviceId}/status`, {
@@ -111,7 +111,7 @@ export function ServiceListingEditor({
       const data = (await response.json()) as { error?: string; service?: { status: ServiceListingStatus } };
 
       if (!response.ok) {
-        throw new Error(data.error ?? "Unable to update service status.");
+        throw new Error(data.error ?? "Kunne ikke oppdatere tjenestestatus.");
       }
 
       setStatus(data.service?.status ?? (action === "submit_for_review" ? ServiceListingStatus.PENDING_REVIEW : ServiceListingStatus.DRAFT));
@@ -123,7 +123,7 @@ export function ServiceListingEditor({
 
       router.refresh();
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "Unable to save the service.");
+      setError(caughtError instanceof Error ? caughtError.message : "Kunne ikke lagre tjenesten.");
     } finally {
       setIsWorking(false);
     }
@@ -135,13 +135,13 @@ export function ServiceListingEditor({
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-              Service editor
+              Tjenesteredigering
             </p>
             <h1 className="mt-3 text-3xl text-[var(--forest)]">
-              {mode === "create" ? "Add a service" : form.title || "Edit service"}
+              {mode === "create" ? "Legg til tjeneste" : form.title || "Rediger tjeneste"}
             </h1>
             <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-              Make the service practical, trustworthy, and easy to contact from a listing context.
+              Gjør tjenesten praktisk, troverdig og lett å kontakte fra en annonsekontekst.
             </p>
           </div>
           <div className="rounded-[1.2rem] border border-[var(--border)] bg-[var(--sand)] px-4 py-3 text-sm text-[var(--foreground)]">
@@ -154,7 +154,7 @@ export function ServiceListingEditor({
         <form className="space-y-4 rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
           <div className="grid gap-4 md:grid-cols-2">
             <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-              Category
+              Kategori
               <select
                 value={form.category}
                 onChange={(event) =>
@@ -170,7 +170,7 @@ export function ServiceListingEditor({
               </select>
             </label>
             <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-              Public title
+              Offentlig tittel
               <input
                 value={form.title}
                 onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
@@ -178,7 +178,7 @@ export function ServiceListingEditor({
               />
             </label>
             <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-              Municipality
+              Kommune
               <input
                 value={form.municipality}
                 onChange={(event) => setForm((current) => ({ ...current, municipality: event.target.value }))}
@@ -186,7 +186,7 @@ export function ServiceListingEditor({
               />
             </label>
             <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-              County
+              Fylke
               <input
                 value={form.county}
                 onChange={(event) => setForm((current) => ({ ...current, county: event.target.value }))}
@@ -194,7 +194,7 @@ export function ServiceListingEditor({
               />
             </label>
             <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-              Latitude
+              Breddegrad
               <input
                 type="number"
                 step="0.000001"
@@ -209,7 +209,7 @@ export function ServiceListingEditor({
               />
             </label>
             <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
-              Longitude
+              Lengdegrad
               <input
                 type="number"
                 step="0.000001"
@@ -224,7 +224,7 @@ export function ServiceListingEditor({
               />
             </label>
             <label className="space-y-2 text-sm font-semibold text-[var(--foreground)] md:col-span-2">
-              Price from (NOK)
+              Pris fra (NOK)
               <input
                 type="number"
                 min="0"
@@ -246,6 +246,7 @@ export function ServiceListingEditor({
               rows={6}
               value={form.description}
               onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
+              placeholder="Beskriv hva tjenesten omfatter, hvordan kontakten foregår, og hva gjesten faktisk får."
               className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
             />
           </label>
@@ -262,6 +263,7 @@ export function ServiceListingEditor({
                     qualifications: { ...current.qualifications, licenseSummary: event.target.value },
                   }))
                 }
+                placeholder="Før opp nødvendige godkjenninger, sertifikater eller faglige krav."
                 className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
               />
             </label>
@@ -276,6 +278,7 @@ export function ServiceListingEditor({
                     qualifications: { ...current.qualifications, equipmentSummary: event.target.value },
                   }))
                 }
+                placeholder="Beskriv utstyr, kapasitet og hvordan tjenesten gjennomføres i praksis."
                 className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
               />
             </label>
@@ -290,6 +293,7 @@ export function ServiceListingEditor({
                     qualifications: { ...current.qualifications, transportCoverage: event.target.value },
                   }))
                 }
+                placeholder="Forklar hvor du henter, bringer eller møter gjesten."
                 className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
               />
             </label>
@@ -304,6 +308,7 @@ export function ServiceListingEditor({
                     qualifications: { ...current.qualifications, accommodationDetails: event.target.value },
                   }))
                 }
+                placeholder="Beskriv eventuell overnatting, standard og praktiske rammer."
                 className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
               />
             </label>

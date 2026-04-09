@@ -11,7 +11,7 @@ export async function POST(
   const session = await auth();
 
   if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    return NextResponse.json({ error: "Du må logge inn for å rapportere dette innholdet." }, { status: 401 });
   }
 
   const { id } = await context.params;
@@ -23,7 +23,7 @@ export async function POST(
       },
       data: {
         moderationStatus: "FLAGGED",
-        moderatorNotes: "Reported by a signed-in user for moderator follow-up.",
+        moderatorNotes: "Rapportert av innlogget bruker for oppfølging i moderering.",
         publishedAt: null,
       },
       select: {
@@ -35,7 +35,7 @@ export async function POST(
   } catch (error) {
     console.error("Hunter experience report failed", error);
     return NextResponse.json(
-      { error: "Something went wrong while reporting this post." },
+      { error: "Noe gikk galt da innlegget skulle rapporteres." },
       { status: 500 },
     );
   }

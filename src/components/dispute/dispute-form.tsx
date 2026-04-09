@@ -29,11 +29,11 @@ export function DisputeForm({ bookingId }: { bookingId: string }) {
     setIsSubmitting(false);
 
     if (!response.ok) {
-      setError(data.error ?? "Unable to open dispute ticket.");
+      setError(data.error ?? "Kunne ikke opprette tvistesaken.");
       return;
     }
 
-    setSuccess("Dispute ticket opened for moderator follow-up.");
+    setSuccess("Tvistesaken er opprettet for videre oppfølging.");
     setTitle("");
     setDescription("");
     router.refresh();
@@ -43,24 +43,24 @@ export function DisputeForm({ bookingId }: { bookingId: string }) {
     <form onSubmit={handleSubmit} className="space-y-4 rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-          Booking dispute
+          Tvist om bestilling
         </p>
         <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-          Use this when a completed or cancelled trip needs moderator follow-up beyond a normal review.
+          Bruk dette når en fullført eller avlyst tur trenger oppfølging utover en vanlig anmeldelse.
         </p>
       </div>
       <input
         value={title}
         onChange={(event) => setTitle(event.target.value)}
         className="w-full rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-sm outline-none"
-        placeholder="Short dispute title"
+        placeholder="Kort tittel på tvisten"
       />
       <textarea
         value={description}
         onChange={(event) => setDescription(event.target.value)}
         rows={5}
         className="w-full rounded-[1.2rem] border border-[var(--border)] bg-white px-4 py-3 text-sm outline-none"
-        placeholder="Describe what happened, what is disputed, and what follow-up you need."
+        placeholder="Beskriv hva som skjedde, hva tvisten gjelder, og hvilken oppfølging du trenger."
       />
       {error ? <p className="text-sm text-[#7f3127]">{error}</p> : null}
       {success ? <p className="text-sm text-[#1f5c3d]">{success}</p> : null}
@@ -69,7 +69,7 @@ export function DisputeForm({ bookingId }: { bookingId: string }) {
         disabled={isSubmitting}
         className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-white disabled:opacity-70"
       >
-        {isSubmitting ? "Opening..." : "Open dispute ticket"}
+        {isSubmitting ? "Oppretter..." : "Opprett tvistesak"}
       </button>
     </form>
   );

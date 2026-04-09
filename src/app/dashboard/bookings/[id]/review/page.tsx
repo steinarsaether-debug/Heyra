@@ -73,8 +73,8 @@ export default async function BookingReviewPage({
 
   const isHunterReviewer = booking.hunterId === session.user.id;
   const subjectLabel = isHunterReviewer
-    ? `${booking.listing.title} / landowner experience`
-    : `${booking.hunter.pii?.fullName ?? booking.hunter.email} as hunter`;
+    ? `${booking.listing.title} / opplevelsen hos grunneier`
+    : `${booking.hunter.pii?.fullName ?? booking.hunter.email} som jeger`;
   const existingReview = booking.reviews[0] ?? null;
 
   return (
@@ -83,13 +83,13 @@ export default async function BookingReviewPage({
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--amber)]">
-              Review
+              Vurdering
             </p>
             <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
-              Leave a review for this completed booking.
+              Legg igjen en vurdering for denne fullførte bestillingen.
             </h1>
             <p className="mt-4 text-lg leading-8 text-[var(--muted)]">
-              This review is about {subjectLabel} after the completed trip in {booking.listing.property.municipality}, {booking.listing.property.county}.
+              Denne vurderingen gjelder {subjectLabel} etter den fullførte turen i {booking.listing.property.municipality}, {booking.listing.property.county}.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -97,20 +97,20 @@ export default async function BookingReviewPage({
               href="/dashboard/bookings"
               className="rounded-full border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)]"
             >
-              Back to bookings
+              Tilbake til bestillinger
             </Link>
             <Link
               href={`/listings/${booking.listing.slug}`}
               className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-white"
             >
-              View listing
+              Se annonse
             </Link>
           </div>
         </div>
 
         <ReviewForm
           bookingId={booking.id}
-          heading={isHunterReviewer ? "Review the listing and landowner" : "Review the hunter"}
+          heading={isHunterReviewer ? "Vurder annonsen og grunneieren" : "Vurder jegeren"}
           existingReview={
             existingReview
               ? {

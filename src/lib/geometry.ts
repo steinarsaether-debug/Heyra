@@ -17,6 +17,10 @@ type GeoJsonMultiPolygon = {
 
 export type GeoJsonShape = GeoJsonPolygon | GeoJsonMultiPolygon;
 
+function arePointsClose(left: MapPoint, right: MapPoint, epsilon = 0.000001) {
+  return Math.abs(left.lat - right.lat) <= epsilon && Math.abs(left.lng - right.lng) <= epsilon;
+}
+
 export function normalizeRing(points: MapPoint[]) {
   if (points.length === 0) {
     return [];
@@ -91,26 +95,40 @@ export function geometryJsonToPolygons(geometryJson: string | null) {
 }
 
 export function simplifyPointsForEditor(points: MapPoint[], maxPoints = MAX_EDITOR_BOUNDARY_POINTS) {
-  if (points.length <= maxPoints) {
-    return points;
+  const cleaned = points.filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lng));
+
+  if (cleaned.length === 0) {
+    return [];
+  }
+
+  const deduped = cleaned.filter((point, index) => {
+    if (index === 0) {
+      return true;
+    }
+
+    return !arePointsClose(point, cleaned[index - 1]);
+  });
+
+  if (deduped.length <= maxPoints) {
+    return deduped;
   }
 
   const result: MapPoint[] = [];
   const usedIndexes = new Set<number>();
 
   for (let slot = 0; slot < maxPoints; slot += 1) {
-    const index = Math.round((slot * (points.length - 1)) / Math.max(maxPoints - 1, 1));
+    const index = Math.round((slot * (deduped.length - 1)) / Math.max(maxPoints - 1, 1));
 
     if (usedIndexes.has(index)) {
       continue;
     }
 
     usedIndexes.add(index);
-    result.push(points[index]);
+    result.push(deduped[index]);
   }
 
   if (result.length < 3) {
-    return points.slice(0, 3);
+    return deduped.slice(0, 3);
   }
 
   return result;

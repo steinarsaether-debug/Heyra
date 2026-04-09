@@ -5,15 +5,8 @@ import { auth } from "@/auth";
 import { OfflineFreshnessNote } from "@/components/pwa/offline-freshness-note";
 import { OfflinePageNote } from "@/components/pwa/offline-page-note";
 import { OfflineSaveLinks } from "@/components/pwa/offline-save-links";
+import { formatNotificationChannel, formatNotificationStatus } from "@/lib/notification-preferences";
 import { prisma } from "@/lib/prisma";
-
-function formatNotificationChannel(channel: NotificationChannel) {
-  return channel.toLowerCase().replace("_", " ");
-}
-
-function formatNotificationStatus(status: NotificationStatus) {
-  return status.toLowerCase().replace("_", " ");
-}
 
 export default async function DashboardNotificationsPage() {
   const session = await auth();

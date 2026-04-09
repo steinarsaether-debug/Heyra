@@ -24,12 +24,7 @@ const enMessages = {
   },
   locales: {
     nb: "Bokmål",
-    nn: "Nynorsk",
     en: "English",
-    sv: "Swedish",
-    da: "Danish",
-    fi: "Finnish",
-    de: "German",
   },
   shell: {
     eyebrow: "Norway outdoors",
@@ -57,6 +52,7 @@ const enMessages = {
       account: "Account",
       nearbyFishing: "Nearby fishing",
       adminPanel: "Admin panel",
+      users: "Users",
       backToApp: "Back to app",
     },
     sections: {

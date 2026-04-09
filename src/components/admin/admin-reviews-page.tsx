@@ -8,6 +8,7 @@ import { ServiceProviderReviewActions } from "@/components/admin/service-provide
 import { ServiceReviewActions } from "@/components/admin/service-review-actions";
 import { canReviewListings } from "@/lib/access";
 import {
+  formatListingConfidence,
   formatListingGovernanceModel,
   formatListingStatus,
   formatListingType,
@@ -20,6 +21,9 @@ import { prisma } from "@/lib/prisma";
 import { formatReviewModerationStatus } from "@/lib/review-view";
 import { getServiceTrustSummary } from "@/lib/service-trust";
 import { formatServiceCategory, formatServiceStatus } from "@/lib/service-view";
+import { formatDisputeStatus } from "@/lib/dispute-view";
+import { formatServiceProviderReviewStatus } from "@/lib/user-status";
+import { formatSharedApprovalStatus } from "@/lib/property-view";
 
 export async function AdminReviewsPageContent() {
   const session = await auth();
@@ -179,6 +183,33 @@ export async function AdminReviewsPageContent() {
           </p>
         </div>
 
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Annonser</p>
+            <p className="mt-3 text-3xl text-[var(--forest)]">{listings.length}</p>
+          </article>
+          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Leverandører</p>
+            <p className="mt-3 text-3xl text-[var(--forest)]">{providerProfiles.length}</p>
+          </article>
+          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Tjenester</p>
+            <p className="mt-3 text-3xl text-[var(--forest)]">{services.length}</p>
+          </article>
+          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Erfaringer</p>
+            <p className="mt-3 text-3xl text-[var(--forest)]">{experiences.length}</p>
+          </article>
+          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Anmeldelser</p>
+            <p className="mt-3 text-3xl text-[var(--forest)]">{reviews.length}</p>
+          </article>
+          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Tvister</p>
+            <p className="mt-3 text-3xl text-[var(--forest)]">{disputes.length}</p>
+          </article>
+        </div>
+
         {listings.length === 0 ? (
           <div className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6 text-sm leading-7 text-[var(--muted)]">
             Det er ingen annonser som venter på gjennomgang akkurat nå.
@@ -276,7 +307,7 @@ export async function AdminReviewsPageContent() {
                         {listing.property.vald ? ` · ${listing.property.vald.name}` : ""}
                       </p>
                       <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                        Tillit: geometri {listing.geometryConfidence.toLowerCase()} · rettigheter {listing.rightsConfidence.toLowerCase()} · styring {listing.governanceConfidence.toLowerCase()}
+                        Tillit: geometri {formatListingConfidence(listing.geometryConfidence)} · rettigheter {formatListingConfidence(listing.rightsConfidence)} · styring {formatListingConfidence(listing.governanceConfidence)}
                       </p>
                       <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
                         Eiendomsgrunnlag:{" "}
@@ -290,7 +321,7 @@ export async function AdminReviewsPageContent() {
                       {listing.boundaryIsApproximate || listing.rightsDifferFromBoundary ? (
                         <p className="mt-2 text-sm leading-7 text-[#6e5630]">
                           {[
-                            listing.boundaryIsApproximate ? "Grensen er markert som omtrentelig" : null,
+                            listing.boundaryIsApproximate ? "Grensen er markert som omtrentlig" : null,
                             listing.rightsDifferFromBoundary ? "Rettighetene kan avvike fra kartet" : null,
                           ]
                             .filter(Boolean)
@@ -299,7 +330,7 @@ export async function AdminReviewsPageContent() {
                       ) : null}
                       {listing.property.vald ? (
                         <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                          Representantstatus: {listing.representativeConfirmationStatus.replaceAll("_", " ").toLowerCase()}
+                          Representantstatus: {formatSharedApprovalStatus(listing.representativeConfirmationStatus)}
                         </p>
                       ) : null}
                       {listing.rightsDifferFromBoundary ? (
@@ -352,7 +383,7 @@ export async function AdminReviewsPageContent() {
                       ) : null}
                       <div className="mt-4 flex flex-wrap gap-3">
                         <span className="rounded-full border border-[var(--border)] px-4 py-2 text-sm text-[var(--muted)]">
-                          Slug: {listing.slug}
+                          Offentlig URL-nøkkel: {listing.slug}
                         </span>
                       </div>
                       <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -361,7 +392,7 @@ export async function AdminReviewsPageContent() {
                             key={item.label}
                             className="rounded-2xl border border-[var(--border)] px-4 py-3 text-sm leading-7 text-[var(--foreground)]"
                           >
-                            {item.complete ? "Klar" : "Sjekk"}: {item.label}
+                            {item.complete ? "Klar for gjennomgang" : "Må følges opp"}: {item.label}
                           </div>
                         ))}
                       </div>
@@ -401,7 +432,7 @@ export async function AdminReviewsPageContent() {
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="max-w-3xl">
                       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-                        {profile.reviewStatus.toLowerCase()}
+                        {formatServiceProviderReviewStatus(profile.reviewStatus)}
                       </p>
                       <h3 className="mt-3 text-2xl text-[var(--forest)]">{profile.businessName}</h3>
                       <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
@@ -481,7 +512,7 @@ export async function AdminReviewsPageContent() {
                           Leverandørprofilens base: {service.providerProfile.municipality}, {service.providerProfile.county}
                         </p>
                         <p>
-                          Lengde på leverandørbeskrivelse: {service.providerProfile.description.trim().length} tegn
+                          Leverandørbeskrivelse: {service.providerProfile.description.trim().length} tegn
                         </p>
                         <p>
                           Pris: {service.priceFromNok ? `Fra kr ${service.priceFromNok.toLocaleString("nb-NO")}` : "Pris på forespørsel"}
@@ -528,7 +559,7 @@ export async function AdminReviewsPageContent() {
                         {experience.listing.title} · {experience.listing.property.municipality}, {experience.listing.property.county}
                       </p>
                       <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                        Delt av {experience.hunter.pii?.fullName ?? experience.hunter.email}
+                        Sendt inn av {experience.hunter.pii?.fullName ?? experience.hunter.email}
                       </p>
                       <p className="mt-4 text-base leading-7 text-[var(--foreground)]">{experience.summary}</p>
                       <div className="mt-4 grid gap-2 text-sm leading-7 text-[var(--muted)] sm:grid-cols-2">
@@ -617,7 +648,7 @@ export async function AdminReviewsPageContent() {
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="max-w-3xl">
                       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-                        {dispute.status.toLowerCase().replace("_", " ")}
+                        {formatDisputeStatus(dispute.status)}
                       </p>
                       <h2 className="mt-3 text-2xl text-[var(--forest)]">{dispute.title}</h2>
                       <p className="mt-2 text-sm leading-7 text-[var(--muted)]">

@@ -14,6 +14,7 @@ import type { AppLocale } from "@/lib/i18n/config";
 import { localizePathname, stripLocalePrefix } from "@/lib/i18n/config";
 import type { Messages } from "@/lib/i18n/messages";
 import { createTranslator } from "@/lib/i18n/translate";
+import { formatUserStatus } from "@/lib/user-status";
 import logoMark from "../../images/logo2.png";
 
 type MenuLink = {
@@ -229,6 +230,7 @@ export function AppShell({
         items: isSignedIn
           ? [
               { href: localizePathname(locale, "/dashboard"), label: t("shell.nav.dashboard") },
+              { href: localizePathname(locale, "/dashboard/settings/account"), label: t("shell.nav.account") },
               { href: localizePathname(locale, "/dashboard/profile"), label: t("shell.nav.profile") },
               {
                 href: localizePathname(locale, "/dashboard/notifications"),
@@ -383,6 +385,11 @@ export function AppShell({
               <LanguageSwitcher currentLocale={locale} />
               {session?.user ? (
                 <>
+                  {session.user.status && session.user.status !== "ACTIVE" ? (
+                    <div className="rounded-full border border-[#d8c4a0] bg-[#fff9ef] px-4 py-2 text-sm font-semibold text-[#6b5432]">
+                      {formatUserStatus(session.user.status)}
+                    </div>
+                  ) : null}
                   <div className="rounded-full border border-[var(--border)] bg-[#f7f4ed] px-4 py-2 text-sm text-[var(--foreground)]">
                     {session.user.fullName}
                   </div>

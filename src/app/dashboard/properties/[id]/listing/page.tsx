@@ -1,10 +1,15 @@
 import Link from "next/link";
-import { CancellationPolicy } from "@prisma/client";
+import { CancellationPolicy, ComplianceTaskStatus } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { ShareToolkit } from "@/components/share/share-toolkit";
 import { DeleteListingButton } from "@/components/property/delete-listing-button";
 import { canManageProperties } from "@/lib/access";
+import {
+  formatComplianceDueLabel,
+  formatComplianceTaskStatus,
+  formatComplianceTaskType,
+} from "@/lib/compliance-view";
 import { getPropertyBoundaryStatus } from "@/lib/property-boundary-status";
 import { ListingEditor } from "@/components/property/listing-editor";
 import { prisma } from "@/lib/prisma";
@@ -115,6 +120,19 @@ export default async function PropertyListingPage({
       })
     : [];
   const attributionSummary = summarizeAttributedBookings(attributedBookings);
+  const complianceTasks = listing
+    ? await prisma.complianceTask.findMany({
+        where: {
+          userId: session.user.id,
+          listingId: listing.id,
+          status: {
+            in: [ComplianceTaskStatus.OPEN, ComplianceTaskStatus.IN_PROGRESS],
+          },
+        },
+        orderBy: [{ dueAt: "asc" }, { createdAt: "desc" }],
+        take: 3,
+      })
+    : [];
 
   return (
     <main className="px-6 py-10 sm:px-8 md:px-10">
@@ -125,10 +143,10 @@ export default async function PropertyListingPage({
               Annonsearbeid
             </p>
             <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
-              Klargjor en offentlig annonse for {property.cadastralRef}.
+              Klargjør en offentlig annonse for {property.cadastralRef}.
             </h1>
             <p className="mt-4 text-lg leading-8 text-[var(--muted)]">
-              Dette er steget etter eiendomsoppsettet. Form tilbudet her, og send det til gjennomgang nar beskrivelse, arter, bilder og pris er klare.
+              Dette er steget etter eiendomsoppsettet. Form tilbudet her, og send det til gjennomgang når beskrivelse, arter, bilder og pris er klare.
             </p>
           </div>
 
@@ -157,8 +175,8 @@ export default async function PropertyListingPage({
 
         {listing?.status === "PUBLISHED" && publicShareUrl && landownerCaption && shareLinks ? (
           <ShareToolkit
-            heading="Markedsforingspakke for grunneier"
-            description="Bruk denne offentlige annonselenken og ferdige tekstforslag nar du vil promotere eiendommen i egne kanaler. Lenken har enkle delingskoder slik at senere rapportering kan skille egen trafikk fra annet."
+            heading="Markedsføringspakke for grunneier"
+            description="Bruk denne offentlige annonselenken og ferdige tekstforslag når du vil promotere eiendommen i egne kanaler. Lenken har enkle delingskoder slik at senere rapportering kan skille egen trafikk fra annet."
             shareUrl={publicShareUrl}
             nativeTitle={listing.title}
             nativeText={landownerCaption}
@@ -215,7 +233,7 @@ export default async function PropertyListingPage({
                 href={`/dashboard/properties/${property.id}/insights`}
                 className="inline-flex rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
               >
-                Apne markedsinnsikt
+                Åpne markedsinnsikt
               </Link>
             </div>
             <div className="mt-4 space-y-3">
@@ -225,7 +243,7 @@ export default async function PropertyListingPage({
                     key={item.key}
                     className="rounded-2xl border border-[var(--border)] px-4 py-3 text-sm leading-7 text-[var(--foreground)]"
                   >
-                    <span className="font-semibold">{item.label}</span>: {item.count} bestillingsforesporsel{item.count === 1 ? "" : "er"}
+                    <span className="font-semibold">{item.label}</span>: {item.count} bestillingsforespørsel{item.count === 1 ? "" : "er"}
                   </div>
                 ))
               ) : (
@@ -236,6 +254,48 @@ export default async function PropertyListingPage({
             </div>
           </article>
         ) : null}
+
+        <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
+            Etterlevelse og påminnelser
+          </p>
+          {complianceTasks.length > 0 ? (
+            <div className="mt-4 grid gap-3">
+              {complianceTasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="rounded-2xl border border-[var(--border)] px-4 py-3 text-sm leading-7 text-[var(--foreground)]"
+                >
+                  <p className="font-semibold">
+                    {formatComplianceTaskType(task.taskType)} · {formatComplianceTaskStatus(task.status)}
+                  </p>
+                  <p className="mt-1">{task.title}</p>
+                  <p className="mt-1 text-[var(--muted)]">{formatComplianceDueLabel(task.dueAt)}</p>
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    {task.actionUrl ? (
+                      <Link
+                        href={task.actionUrl}
+                        className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
+                      >
+                        {task.actionLabel ?? "Åpne oppgave"}
+                      </Link>
+                    ) : null}
+                    <Link
+                      href="/dashboard/compliance"
+                      className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
+                    >
+                      Se hele etterlevelsen
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
+              Ingen åpne etterlevelsesoppgaver er knyttet til denne annonsen akkurat nå.
+            </p>
+          )}
+        </article>
 
         <ListingEditor
           property={{
@@ -266,6 +326,15 @@ export default async function PropertyListingPage({
                 }
               : null,
           }}
+          complianceTasks={complianceTasks.map((task) => ({
+            id: task.id,
+            title: task.title,
+            taskTypeLabel: formatComplianceTaskType(task.taskType),
+            statusLabel: formatComplianceTaskStatus(task.status),
+            dueLabel: formatComplianceDueLabel(task.dueAt),
+            actionLabel: task.actionLabel,
+            actionUrl: task.actionUrl,
+          }))}
           listing={
             listing
               ? {

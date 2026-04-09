@@ -29,13 +29,13 @@ export function ComplianceTaskActions({
 
       const data = (await response.json()) as { error?: string };
       if (!response.ok) {
-        setError(data.error ?? "We could not update the compliance task.");
+        setError(data.error ?? "Vi kunne ikke oppdatere etterlevelsesoppgaven.");
         return;
       }
 
       router.refresh();
     } catch {
-      setError("We could not update the compliance task.");
+      setError("Vi kunne ikke oppdatere etterlevelsesoppgaven.");
     } finally {
       setIsSubmitting(false);
     }
@@ -50,7 +50,7 @@ export function ComplianceTaskActions({
           onClick={() => void submit(status === "DISMISSED" ? "reopen" : "start")}
           className="rounded-full border border-[var(--border)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--foreground)] disabled:opacity-60"
         >
-          {status === "DISMISSED" ? "Reopen" : "Start"}
+          {status === "DISMISSED" ? "Åpne igjen" : "Start"}
         </button>
       )}
       {(status === "OPEN" || status === "IN_PROGRESS") && (
@@ -61,7 +61,7 @@ export function ComplianceTaskActions({
             onClick={() => void submit("complete")}
             className="rounded-full bg-[var(--forest)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-white disabled:opacity-60"
           >
-            Complete
+            Fullfør
           </button>
           <button
             type="button"
@@ -69,7 +69,7 @@ export function ComplianceTaskActions({
             onClick={() => void submit("dismiss")}
             className="rounded-full border border-[var(--border)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)] disabled:opacity-60"
           >
-            Dismiss
+            Avslutt
           </button>
         </>
       )}

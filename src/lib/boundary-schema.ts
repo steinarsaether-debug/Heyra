@@ -34,8 +34,5 @@ export const boundarySchema = z.object({
   points: z
     .array(boundaryPointSchema)
     .min(3, "Legg inn minst tre grensepunkter.")
-    .max(
-      MAX_EDITOR_BOUNDARY_POINTS + 20,
-      "Grensen har fortsatt for mange punkter. Forenkle den litt før du lagrer.",
-    ),
+    .max(MAX_EDITOR_BOUNDARY_POINTS * 25, "Grensen er for stor til å behandles i dette verktøyet."),
 });

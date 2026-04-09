@@ -11,7 +11,7 @@ describe("booking governance labels", () => {
         coApprovalRequired: true,
         valdName: "Trysil storvald",
       }),
-    ).toBe("Waiting for shared confirmation");
+    ).toBe("Avventer felles bekreftelse");
   });
 
   it("explains what shared confirmation means", () => {

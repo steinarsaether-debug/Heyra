@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { canManageProperties } from "@/lib/access";
+import { canManageProperties, getOperationalAccessError, isSignedIn } from "@/lib/access";
 import { propertyDraftSchema } from "@/lib/property-schema";
 import { prisma } from "@/lib/prisma";
 
@@ -20,7 +20,10 @@ export async function PATCH(
   const session = await auth();
 
   if (!canManageProperties(session)) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "eiendom") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   const { id } = await context.params;
@@ -31,7 +34,7 @@ export async function PATCH(
 
     if (!parsed.success) {
       const message =
-        parsed.error.issues[0]?.message ?? "Invalid property update payload.";
+        parsed.error.issues[0]?.message ?? "Ugyldige opplysninger for eiendommen.";
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
@@ -46,7 +49,7 @@ export async function PATCH(
     });
 
     if (!property) {
-      return NextResponse.json({ error: "Property not found." }, { status: 404 });
+      return NextResponse.json({ error: "Fant ikke eiendommen." }, { status: 404 });
     }
 
     const updated = await prisma.property.update({
@@ -72,7 +75,7 @@ export async function PATCH(
   } catch (error) {
     console.error("Property update failed", error);
     return NextResponse.json(
-      { error: "Something went wrong while updating the property." },
+      { error: "Noe gikk galt da eiendommen skulle oppdateres." },
       { status: 500 },
     );
   }
@@ -85,7 +88,10 @@ export async function DELETE(
   const session = await auth();
 
   if (!canManageProperties(session)) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "eiendom") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   const { id } = await context.params;
@@ -111,7 +117,7 @@ export async function DELETE(
   });
 
   if (!property) {
-    return NextResponse.json({ error: "Property not found." }, { status: 404 });
+    return NextResponse.json({ error: "Fant ikke eiendommen." }, { status: 404 });
   }
 
   const hasListingHistory = property.listings.some(
@@ -122,7 +128,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         error:
-          "This property has booking history. Keep it for records and archive the related listing instead of deleting the property.",
+          "Denne eiendommen har bestillingshistorikk. Behold den for historikk og arkiver den tilknyttede annonsen i stedet for å slette eiendommen.",
       },
       { status: 400 },
     );

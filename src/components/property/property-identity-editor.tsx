@@ -46,18 +46,18 @@ export function PropertyIdentityEditor({
       const data = (await response.json()) as { error?: string };
 
       if (!response.ok) {
-        throw new Error(data.error ?? "Unable to update the property.");
+        throw new Error(data.error ?? "Kunne ikke oppdatere eiendommen.");
       }
 
       setSuccess(
-        "Property identity updated. Boundary search and later listing steps will now use the corrected reference.",
+        "Eiendomsidentiteten er oppdatert. Grensesøk og videre annonsearbeid bruker nå den korrigerte referansen.",
       );
       router.refresh();
     } catch (saveError) {
       setError(
         saveError instanceof Error
           ? saveError.message
-          : "Unable to update the property.",
+          : "Kunne ikke oppdatere eiendommen.",
       );
     } finally {
       setIsSaving(false);
@@ -67,12 +67,12 @@ export function PropertyIdentityEditor({
   return (
     <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-        Correct property identity
+        Korriger eiendomsidentitet
       </p>
       <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)]">
-        If the matrikkel reference or the basic location details were entered
-        incorrectly during registration, you can correct them here without
-        creating a new property draft.
+        Hvis matrikkelreferansen eller de grunnleggende stedsopplysningene ble
+        registrert feil, kan du rette dem her uten å lage et nytt
+        eiendomsutkast.
       </p>
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -84,7 +84,7 @@ export function PropertyIdentityEditor({
             value={cadastralRef}
             onChange={(event) => setCadastralRef(event.target.value)}
             className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 text-sm outline-none transition focus:border-[var(--amber)]"
-            placeholder="For example 4207-97/2"
+            placeholder="For eksempel 4207-97/2"
           />
         </label>
         <label className="space-y-2">
@@ -141,7 +141,7 @@ export function PropertyIdentityEditor({
           disabled={isSaving}
           className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isSaving ? "Saving..." : "Save corrections"}
+          {isSaving ? "Lagrer..." : "Lagre korrigeringer"}
         </button>
       </div>
     </section>

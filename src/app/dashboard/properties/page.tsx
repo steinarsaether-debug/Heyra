@@ -52,13 +52,13 @@ export default async function PropertiesPage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--amber)]">
-              My properties
+              Eiendommer
             </p>
             <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
-              Keep each property moving one calm step at a time.
+              Hold hver eiendom i bevegelse, ett rolig steg av gangen.
             </h1>
             <p className="mt-4 text-lg leading-8 text-[var(--muted)]">
-              Drafts, boundary work, and future listing setup now have a dedicated workspace instead of living only on the dashboard.
+              Utkast, grensearbeid og annonseoppsett har nå egne arbeidsflater i stedet for å ligge spredt på oversikten.
             </p>
           </div>
 
@@ -66,44 +66,44 @@ export default async function PropertiesPage() {
             href="/dashboard/properties/new"
             className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-[var(--background)]"
           >
-            Add another property
+            Legg til eiendom
           </Link>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Marketing summary
+              Markedsføringssammendrag
             </p>
             <p className="mt-4 text-3xl text-[var(--forest)]">
-              {attributedBookings} attributed booking request{attributedBookings === 1 ? "" : "s"}
+              {attributedBookings} attribuert bestillingsforespørsel{attributedBookings === 1 ? "" : "er"}
             </p>
             <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-              The first tagged marketing view now aggregates across your listings, so you can see whether your own sharing is starting to convert.
+              Den første taggede markedsføringsvisningen summerer nå på tvers av annonsene dine, så du ser om deling i eget nettverk faktisk begynner å gi effekt.
             </p>
             <div className="mt-4">
               <Link
                 href="/dashboard/marketing"
                 className="inline-flex rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
               >
-                Open marketing insights
+                Åpne markedsinnsikt
               </Link>
             </div>
           </article>
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Top latest sources
+              Viktigste siste kilder
             </p>
             <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
               {marketingSummary.lastTouch.length > 0 ? (
                 marketingSummary.lastTouch.slice(0, 3).map((item) => (
                   <div key={item.key} className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                    <span className="font-semibold">{item.label}</span>: {item.count} booking request{item.count === 1 ? "" : "s"}
+                    <span className="font-semibold">{item.label}</span>: {item.count} bestillingsforespørsel{item.count === 1 ? "" : "er"}
                   </div>
                 ))
               ) : (
                 <div className="rounded-2xl border border-[var(--border)] px-4 py-3 text-[var(--muted)]">
-                  No tagged share source has been recorded yet.
+                  Ingen tagget delingskilde er registrert ennå.
                 </div>
               )}
             </div>
@@ -113,7 +113,7 @@ export default async function PropertiesPage() {
         {properties.length === 0 ? (
           <div className="rounded-[1.8rem] border border-[var(--border)] bg-white/75 p-8">
             <p className="text-lg leading-8 text-[var(--muted)]">
-              You do not have any property drafts yet. Start with the guided draft flow, then return here to continue each property.
+              Du har ingen eiendomsutkast ennå. Start med den guidede opprettelsen, og kom tilbake hit for å jobbe videre med hver eiendom.
             </p>
           </div>
         ) : (
@@ -146,13 +146,13 @@ export default async function PropertiesPage() {
                   </p>
                   <h2 className="mt-3 text-2xl text-[var(--forest)]">{property.cadastralRef}</h2>
                   <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                    {property.municipality}, {property.county} · {property.areaHectares} hectares
+                    {property.municipality}, {property.county} · {property.areaHectares} hektar
                   </p>
                   <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
                     {formatTerrainTypes(property.terrainTypes)}
                   </p>
                   <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                    Listing: {property.listings[0] ? formatListingStatus(property.listings[0].status) : "Not created yet"}
+                    Annonse: {property.listings[0] ? formatListingStatus(property.listings[0].status) : "Ikke opprettet ennå"}
                   </p>
                   <div className="mt-5 h-3 rounded-full bg-[#e7e1d5]">
                     <div
@@ -161,7 +161,7 @@ export default async function PropertiesPage() {
                     />
                   </div>
                   <p className="mt-3 text-sm text-[var(--foreground)]">
-                    {completion.completed} of {completion.total} setup steps complete
+                    {completion.completed} av {completion.total} oppsettsteg fullført
                   </p>
                 </Link>
               );

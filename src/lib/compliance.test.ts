@@ -73,9 +73,9 @@ describe("compliance helpers", () => {
   });
 
   it("exposes explainers for compliance tasks", () => {
-    expect(getComplianceTaskWhy(ComplianceTaskType.CWD_GUIDANCE)).toContain("CWD zone");
+    expect(getComplianceTaskWhy(ComplianceTaskType.CWD_GUIDANCE)).toContain("CWD-sone");
     expect(getComplianceTaskNextStep(ComplianceTaskType.SALMON_REPORTING)).toContain(
-      "who reports catches",
+      "hvem som rapporterer fangst",
     );
   });
 });

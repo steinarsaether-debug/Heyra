@@ -34,7 +34,7 @@ export async function generateMetadata({
 
   if (!listing) {
     return {
-      title: "Field mode not found",
+      title: "Feltmodus ikke funnet",
       robots: {
         index: false,
         follow: false,
@@ -43,11 +43,11 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${listing.title} field mode`,
+    title: `${listing.title} · feltmodus`,
     description:
       listing.type === "FISHING"
-        ? "Low-friction field view for fishing rules, area notes, and boundary checks."
-        : "Low-friction field view for trip reference details.",
+        ? "Forenklet feltvisning for fiskeregler, områdemerknader og grensesjekk."
+        : "Forenklet feltvisning for turdetaljer og praktiske referanser.",
     alternates: {
       canonical: absoluteUrl(`/listings/${slug}/field`),
     },
@@ -98,25 +98,25 @@ export default async function ListingFieldModePage({
       <section className="mx-auto max-w-4xl space-y-5">
         <div className="rounded-[1.8rem] bg-[var(--forest)] p-6 text-[var(--background)]">
           <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
-            Field mode
+            Feltmodus
           </p>
           <h1 className="mt-3 text-3xl leading-tight sm:text-4xl">{listing.title}</h1>
           <p className="mt-3 text-base leading-7 text-white/75">
-            A simplified view for when you are already out on the road or standing near the water and need the key rules fast.
+            En forenklet visning for når du allerede er ute på vei, i terrenget eller ved vannet og trenger de viktigste reglene raskt.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
               href={`/listings/${listing.slug}`}
               className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[var(--forest)]"
             >
-              Full listing
+              Full annonse
             </Link>
             {listing.type === "FISHING" ? (
               <Link
                 href="/listings/fishing/nearby"
                 className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white"
               >
-                Nearby fishing
+                Fiske i nærheten
               </Link>
             ) : null}
             {session?.user?.role === UserRole.HUNTER ? (
@@ -124,49 +124,49 @@ export default async function ListingFieldModePage({
                 href={`/listings/${listing.slug}`}
                 className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white"
               >
-                Start checkout
+                Start bestilling
               </Link>
             ) : null}
           </div>
         </div>
 
         <OfflinePageNote
-          onlineText="This field view is designed for low-friction use on the move. Save it before you leave signal behind."
-          offlineText="You are offline. This field view is cached locally, so always re-check rules and boundaries when coverage returns."
+          onlineText="Denne feltvisningen er laget for enkel bruk underveis. Lagre den før du mister dekning."
+          offlineText="Du er frakoblet. Denne feltvisningen er lagret lokalt, så sjekk regler og grenser på nytt når dekningen kommer tilbake."
         />
         <OfflineFreshnessNote
           updatedAt={listing.updatedAt.toISOString()}
-          label="This field view"
+          label="Denne feltvisningen"
         />
         <OfflineSaveLinks
           scope={`field-${listing.id}`}
           links={[
-            { href: `/listings/${listing.slug}/field`, label: "Field mode" },
-            { href: `/listings/${listing.slug}`, label: "Full listing detail" },
-            { href: `/api/listings/${listing.id}/area`, label: "Area boundary reference" },
+            { href: `/listings/${listing.slug}/field`, label: "Feltmodus" },
+            { href: `/listings/${listing.slug}`, label: "Full annonse" },
+            { href: `/api/listings/${listing.id}/area`, label: "Referanse for områdegrense" },
           ]}
         />
 
         <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-              Quick practical summary
+              Kort praktisk sammendrag
             </p>
             <div className="mt-4 grid gap-3 text-sm leading-7 text-[var(--foreground)]">
               <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
                 {formatSpecies(listing.species, "nb")} · {formatPricingModel(listing.pricingModel, "nb")} · NOK {listing.priceNok.toLocaleString("nb-NO")}
               </p>
               <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                Area: {listing.property.municipality}, {listing.property.county}
+                Område: {listing.property.municipality}, {listing.property.county}
               </p>
               {listing.property.cwdZone ? (
                 <p className="rounded-2xl border border-[#e7d6ae] bg-[#fff8eb] px-4 py-3 text-[#6e5630]">
-                  CWD zone overlap recorded: {listing.property.cwdZone.name}
+                  Registrert CWD-overlapp: {listing.property.cwdZone.name}
                 </p>
               ) : null}
               {rules.requiresNationalFishingLicense ? (
                 <p className="rounded-2xl border border-[#d0dfd6] bg-[#eef5f0] px-4 py-3 text-[#29543a]">
-                  National fishing licence may also be required before you start.
+                  Nasjonal fiskeravgift kan også være påkrevd før du begynner.
                 </p>
               ) : null}
             </div>
@@ -174,31 +174,31 @@ export default async function ListingFieldModePage({
 
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-              Rules and limitations
+              Regler og begrensninger
             </p>
             <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
               {rules.speciesRestrictions ? (
                 <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                  Species: {rules.speciesRestrictions}
+                  Arter: {rules.speciesRestrictions}
                 </p>
               ) : null}
               {rules.gearRules ? (
                 <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                  Gear: {rules.gearRules}
+                  Utstyr: {rules.gearRules}
                 </p>
               ) : null}
               {rules.bagLimitNotes ? (
                 <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                  Limits: {rules.bagLimitNotes}
+                  Begrensninger: {rules.bagLimitNotes}
                 </p>
               ) : null}
               {rules.areaNotes ? (
                 <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                  Area notes: {rules.areaNotes}
+                  Områdemerknader: {rules.areaNotes}
                 </p>
               ) : (
                 <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                  Stay inside the designated fishing area shown below and on the full listing page.
+                  Hold deg innenfor det angitte fiskeområdet som vises nedenfor og på den fulle annonsesiden.
                 </p>
               )}
             </div>
@@ -214,7 +214,7 @@ export default async function ListingFieldModePage({
           </div>
         ) : (
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6 text-sm leading-7 text-[var(--muted)]">
-            Geofencing support is currently focused on fishing listings, where mobile boundary awareness matters most in the field.
+            Geofencing-støtte er foreløpig mest rettet mot fisketilbud, der mobil grensebevissthet er viktigst ute i felt.
           </article>
         )}
 
@@ -222,21 +222,21 @@ export default async function ListingFieldModePage({
           <FieldTripLogger
             storageKey={`heyra-field-log:${listing.id}`}
             mode={listing.type === "FISHING" ? "fishing" : "hunting"}
-            title={listing.type === "FISHING" ? "Fishing field log" : "Hunt day log"}
+            title={listing.type === "FISHING" ? "Feltlogg for fiske" : "Dagslogg for jakt"}
           />
         </div>
       </section>
       <MobileActionTray
-        title="Field actions"
+        title="Felthandlinger"
         items={[
-          { href: `/listings/${listing.slug}`, label: "Listing" },
+          { href: `/listings/${listing.slug}`, label: "Annonse" },
           session?.user?.role === UserRole.HUNTER
-            ? { href: `/listings/${listing.slug}`, label: "Checkout" }
-            : { onClickAnchorId: "area-check", label: "Boundary" },
-          { onClickAnchorId: "area-check", label: "Boundary" },
-          { onClickAnchorId: "field-log", label: "Log" },
+            ? { href: `/listings/${listing.slug}`, label: "Bestilling" }
+            : { onClickAnchorId: "area-check", label: "Grense" },
+          { onClickAnchorId: "area-check", label: "Grense" },
+          { onClickAnchorId: "field-log", label: "Logg" },
           ...(listing.type === "FISHING"
-            ? [{ href: "/listings/fishing/nearby", label: "Nearby" }]
+            ? [{ href: "/listings/fishing/nearby", label: "I nærheten" }]
             : []),
         ]}
       />

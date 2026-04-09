@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ServiceListingStatus } from "@prisma/client";
 import { auth } from "@/auth";
-import { canManageServices, canReviewListings } from "@/lib/access";
+import { canManageServices, canReviewListings, getOperationalAccessError, isSignedIn } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { serviceStatusActionSchema } from "@/lib/service-schema";
 
@@ -20,23 +20,23 @@ function getReadinessIssues(service: {
   const issues: string[] = [];
 
   if (service.providerProfile.businessName.trim().length < 3) {
-    issues.push("Provider profile is incomplete.");
+    issues.push("Leverandørprofilen er ikke komplett.");
   }
 
   if (service.providerProfile.description.trim().length < 40) {
-    issues.push("Provider description needs more practical detail.");
+    issues.push("Leverandørbeskrivelsen trenger mer praktisk innhold.");
   }
 
   if (service.title.trim().length < 6) {
-    issues.push("Service title is too short.");
+    issues.push("Tjenestetittelen er for kort.");
   }
 
   if (service.description.trim().length < 40) {
-    issues.push("Service description needs more practical detail.");
+    issues.push("Tjenestebeskrivelsen trenger mer praktisk innhold.");
   }
 
   if (!service.municipality.trim() || !service.county.trim()) {
-    issues.push("Service location is incomplete.");
+    issues.push("Tjenestestedet er ikke komplett.");
   }
 
   return issues;
@@ -51,7 +51,10 @@ export async function PATCH(
   const actorUserId = session?.user?.id ?? null;
 
   if (!canManageServices(session) && !canReviewListings(session)) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "tjeneste") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   try {
@@ -59,7 +62,7 @@ export async function PATCH(
     const parsed = serviceStatusActionSchema.safeParse(json);
 
     if (!parsed.success) {
-      const message = parsed.error.issues[0]?.message ?? "Invalid service action.";
+      const message = parsed.error.issues[0]?.message ?? "Ugyldig handling for tjenesten.";
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
@@ -86,14 +89,17 @@ export async function PATCH(
     });
 
     if (!service) {
-      return NextResponse.json({ error: "Service not found." }, { status: 404 });
+      return NextResponse.json({ error: "Fant ikke tjenesten." }, { status: 404 });
     }
 
     const { action, reviewerNotes } = parsed.data;
 
     if (action === "save_draft" || action === "submit_for_review") {
       if (!canManageServices(session)) {
-        return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+        return NextResponse.json(
+          { error: getOperationalAccessError(session, "tjeneste") },
+          { status: isSignedIn(session) ? 403 : 401 },
+        );
       }
 
       if (action === "submit_for_review") {
@@ -101,7 +107,7 @@ export async function PATCH(
 
         if (issues.length > 0) {
           return NextResponse.json(
-            { error: `This service is not ready for review yet. ${issues[0]}` },
+            { error: `Tjenesten er ikke klar for gjennomgang ennå. ${issues[0]}` },
             { status: 400 },
           );
         }
@@ -125,7 +131,10 @@ export async function PATCH(
     }
 
     if (!isAdminReviewer) {
-      return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+      return NextResponse.json(
+        { error: getOperationalAccessError(session, "gjennomgang") },
+        { status: isSignedIn(session) ? 403 : 401 },
+      );
     }
 
     const nextStatus =
@@ -154,6 +163,6 @@ export async function PATCH(
     return NextResponse.json({ ok: true, service: updated });
   } catch (error) {
     console.error("Unable to update service status", error);
-    return NextResponse.json({ error: "Unable to update the service." }, { status: 500 });
+    return NextResponse.json({ error: "Kunne ikke oppdatere tjenesten." }, { status: 500 });
   }
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ServiceListingStatus } from "@prisma/client";
 import { auth } from "@/auth";
-import { canManageServices } from "@/lib/access";
+import { canManageServices, getOperationalAccessError, isSignedIn } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { serviceListingSchema, serviceQualificationsSchema } from "@/lib/service-schema";
 import { buildServiceSlug } from "@/lib/service-view";
@@ -47,7 +47,10 @@ export async function POST(request: NextRequest) {
   const session = await auth();
 
   if (!canManageServices(session)) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "tjeneste") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   const providerProfile = await prisma.serviceProviderProfile.findUnique({
@@ -64,7 +67,7 @@ export async function POST(request: NextRequest) {
 
   if (!providerProfile) {
     return NextResponse.json(
-      { error: "Complete the provider profile before adding services." },
+      { error: "Lagre leverandørprofilen før du legger til tjenester." },
       { status: 400 },
     );
   }
@@ -74,7 +77,7 @@ export async function POST(request: NextRequest) {
     const parsed = serviceListingSchema.safeParse(json);
 
     if (!parsed.success) {
-      const message = parsed.error.issues[0]?.message ?? "Invalid service payload.";
+      const message = parsed.error.issues[0]?.message ?? "Ugyldige opplysninger for tjenesten.";
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
@@ -100,6 +103,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, serviceId: service.id }, { status: 201 });
   } catch (error) {
     console.error("Unable to create service", error);
-    return NextResponse.json({ error: "Unable to create service." }, { status: 500 });
+    return NextResponse.json({ error: "Kunne ikke opprette tjenesten." }, { status: 500 });
   }
 }

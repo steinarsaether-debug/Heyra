@@ -30,7 +30,7 @@ export function ServiceProviderReviewActions({
     const data = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      setError(data.error ?? "Unable to update provider status.");
+      setError(data.error ?? "Kunne ikke oppdatere leverandørstatus.");
       setIsWorking(false);
       return;
     }
@@ -42,13 +42,13 @@ export function ServiceProviderReviewActions({
   return (
     <div className="space-y-3">
       <label className="block space-y-2 text-sm font-semibold text-[var(--foreground)]">
-        Provider moderation notes
+        Notater om leverandørgjennomgang
         <textarea
           value={moderationNotes}
           onChange={(event) => setModerationNotes(event.target.value)}
           rows={4}
           className="w-full min-w-[18rem] rounded-[1.2rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
-          placeholder="Record what has been checked or what still needs clarification."
+          placeholder="Skriv hva som er kontrollert, eller hva som fortsatt må avklares."
         />
       </label>
       <div className="flex flex-wrap gap-3">
@@ -58,7 +58,7 @@ export function ServiceProviderReviewActions({
           disabled={isWorking}
           className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-70"
         >
-          Approve profile
+          Godkjenn profil
         </button>
         <button
           type="button"
@@ -66,7 +66,7 @@ export function ServiceProviderReviewActions({
           disabled={isWorking}
           className="rounded-full bg-[var(--amber)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] disabled:opacity-70"
         >
-          Flag for follow-up
+          Flagg for oppfølging
         </button>
       </div>
       {error ? <p className="text-sm text-[#7f3127]">{error}</p> : null}

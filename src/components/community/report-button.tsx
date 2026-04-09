@@ -26,11 +26,11 @@ export function ReportButton({
     setIsWorking(false);
 
     if (!response.ok) {
-      setError(data.error ?? "Unable to report this content.");
+      setError(data.error ?? "Kunne ikke rapportere innholdet.");
       return;
     }
 
-    setMessage("Reported for moderator review.");
+    setMessage("Rapportert for moderering.");
   }
 
   return (
@@ -41,7 +41,7 @@ export function ReportButton({
         disabled={isWorking}
         className="rounded-full border border-[var(--border)] px-3 py-1.5 text-xs font-semibold text-[var(--muted)] disabled:opacity-70"
       >
-        {isWorking ? "Reporting..." : "Report"}
+        {isWorking ? "Rapporterer..." : "Rapporter"}
       </button>
       {message ? <p className="text-xs text-[#1f5c3d]">{message}</p> : null}
       {error ? <p className="text-xs text-[#7f3127]">{error}</p> : null}

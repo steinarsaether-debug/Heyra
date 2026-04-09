@@ -267,7 +267,7 @@ export default function BoundaryMapInner({
       </div>
       <div className="flex flex-wrap items-center gap-3 rounded-[1.2rem] border border-[var(--border)] bg-white/75 px-4 py-3 text-sm text-[var(--muted)]">
         <span>
-          Kartverket topo is the default base map, and the parcel overlay can be toggled on for cadastral context while Heyra layers show the actual offer area.
+          Kartverket topo er standard bakgrunnskart. Eiendomsgrensene kan slås på som matrikkelkontekst, mens Heyra-lagene viser det faktiske tilbudsområdet.
         </span>
         {points.length > 0 ? (
           <Link
@@ -276,7 +276,7 @@ export default function BoundaryMapInner({
             rel="noreferrer"
             className="font-semibold text-[var(--forest)]"
           >
-            Open the same area in Norgeskart
+            Åpne samme område i Norgeskart
           </Link>
         ) : null}
       </div>

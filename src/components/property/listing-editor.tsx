@@ -9,12 +9,15 @@ import {
   PricingModel,
   SharedApprovalStatus,
   Species,
+  ValdVerificationMethod,
 } from "@prisma/client";
 import Image from "next/image";
+import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   formatCancellationPolicy,
+  formatListingConfidence,
   formatListingGovernanceModel,
   formatListingStatus,
   formatListingType,
@@ -23,6 +26,7 @@ import {
   getBigGameGovernanceReadiness,
   isBigGameListing,
 } from "@/lib/listing-view";
+import { formatSharedApprovalStatus, formatValdVerificationMethod } from "@/lib/property-view";
 
 type PropertySummary = {
   id: string;
@@ -102,6 +106,16 @@ type ListingSummary = {
   status: ListingStatus;
 };
 
+type ComplianceTaskSummary = {
+  id: string;
+  title: string;
+  taskTypeLabel: string;
+  statusLabel: string;
+  dueLabel: string;
+  actionLabel?: string | null;
+  actionUrl?: string | null;
+};
+
 const speciesOptions = Object.values(Species);
 const typeOptions = Object.values(ListingType);
 const pricingOptions = Object.values(PricingModel);
@@ -119,9 +133,11 @@ function formatEnumLabel(value: string) {
 export function ListingEditor({
   property,
   listing,
+  complianceTasks,
 }: {
   property: PropertySummary;
   listing: ListingSummary | null;
+  complianceTasks: ComplianceTaskSummary[];
 }) {
   const router = useRouter();
   const [title, setTitle] = useState(listing?.title ?? `${property.municipality} ${property.cadastralRef}`);
@@ -236,7 +252,7 @@ export function ListingEditor({
           governanceNotes.toLowerCase().includes("rett"),
       },
       {
-        label: "Dokumentasjon eller kommunenotater er lagt til nar styringen er mindre formell",
+        label: "Dokumentasjon eller kommunenotater er lagt til når styringen er mindre formell",
         complete:
           !property.vald ||
           property.vald.representativeConfirmationStatus === SharedApprovalStatus.CONFIRMED ||
@@ -265,7 +281,7 @@ export function ListingEditor({
           areaNotes.trim().length >= 8,
       },
       {
-        label: "Offentlig rettighetslag er valgt nar tilbudsomradet avviker fra eiendommen",
+        label: "Offentlig rettighetslag er valgt når tilbudsområdet avviker fra eiendommen",
         complete:
           !property.rightsDifferFromBoundary ||
           property.rightsOverlays.length === 0 ||
@@ -564,13 +580,13 @@ export function ListingEditor({
             Gjør eiendommen om til et offentlig tilbud.
           </h2>
           <p className="mt-3 max-w-3xl text-base leading-8 text-[var(--muted)]">
-            Hold dette rolig og praktisk. Skriv annonsen tydelig, legg til noen troverdige bilder, og send den til gjennomgang nar grunnlaget er pa plass.
+            Hold dette rolig og praktisk. Skriv annonsen tydelig, legg til noen troverdige bilder, og send den til gjennomgang når grunnlaget er på plass.
           </p>
         </div>
 
         {shouldWarnAboutVald ? (
           <div className="rounded-[1.4rem] border border-[#e7d6ae] bg-[#fff8eb] px-5 py-4 text-sm leading-7 text-[#6e5630]">
-            Storvilttilbud ligger ofte innenfor et delt <span className="font-semibold">vald</span> eller jaktomrade. Pass pa at annonsen forklarer hvem som godkjenner tilgang, kvote og datoer, slik at jegeren ikke loves mer enn en enkelt grunneier faktisk kan bestemme alene.
+            Storvilttilbud ligger ofte innenfor et delt <span className="font-semibold">vald</span> eller jaktområde. Pass på at annonsen forklarer hvem som godkjenner tilgang, kvote og datoer, slik at jegeren ikke loves mer enn en enkelt grunneier faktisk kan bestemme alene.
           </div>
         ) : null}
         {containsBigGame && !governanceReadiness.ready ? (
@@ -580,7 +596,53 @@ export function ListingEditor({
         ) : null}
         {hasTrustWarnings ? (
           <div className="rounded-[1.4rem] border border-[#e7d6ae] bg-[#fff8eb] px-5 py-4 text-sm leading-7 text-[#6e5630]">
-            Denne eiendommen har usikkerhet knyttet til kartfestet grense, faktisk rettighetsomrade eller delt styring. Gjør dette tydelig i annonsen slik at jegeren forstar hva som er omtrentlig, og hva som fortsatt avhenger av vald eller kommunal bekreftelse.
+            Denne eiendommen har usikkerhet knyttet til kartfestet grense, faktisk rettighetsområde eller delt styring. Gjør dette tydelig i annonsen slik at jegeren forstår hva som er omtrentlig, og hva som fortsatt avhenger av vald eller kommunal bekreftelse.
+          </div>
+        ) : null}
+        {complianceTasks.length > 0 ? (
+          <div className="rounded-[1.4rem] border border-[#d8c4a0] bg-[#fff9ef] px-5 py-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-[#6b5432]">Etterlevelse å følge opp før publisering</p>
+                <p className="text-sm leading-7 text-[#6b5432]">
+                  Denne annonsen har åpne oppgaver. Ta den første fristen nå, så blir gjennomgang og publisering enklere.
+                </p>
+                <div className="grid gap-2 pt-1">
+                  {complianceTasks.slice(0, 2).map((task) => (
+                    <div
+                      key={task.id}
+                      className="rounded-2xl border border-[#eadcc0] bg-white/70 px-4 py-3 text-sm leading-7 text-[#6b5432]"
+                    >
+                      <span className="font-semibold">{task.taskTypeLabel}</span>
+                      {" · "}
+                      {task.statusLabel}
+                      <br />
+                      {task.title}
+                      <br />
+                      <span className="text-[#8a6a3f]">{task.dueLabel}</span>
+                      {task.actionUrl ? (
+                        <div className="mt-3">
+                          <Link
+                            href={task.actionUrl}
+                            className="inline-flex rounded-full border border-[#d8c4a0] bg-white px-4 py-2 text-sm font-semibold text-[#6b5432]"
+                          >
+                            {task.actionLabel ?? "Åpne oppgave"}
+                          </Link>
+                        </div>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex shrink-0 flex-wrap gap-3">
+                <Link
+                  href="/dashboard/compliance"
+                  className="rounded-full border border-[#d8c4a0] bg-white px-4 py-2 text-sm font-semibold text-[#6b5432]"
+                >
+                  Åpne etterlevelse
+                </Link>
+              </div>
+            </div>
           </div>
         ) : null}
 
@@ -615,7 +677,7 @@ export function ListingEditor({
             >
               {typeOptions.map((option) => (
                 <option key={option} value={option}>
-                  {formatEnumLabel(option)}
+                  {formatListingType(option)}
                 </option>
               ))}
             </select>
@@ -633,7 +695,7 @@ export function ListingEditor({
             >
               {pricingOptions.map((option) => (
                 <option key={option} value={option}>
-                  {formatEnumLabel(option)}
+                  {formatPricingModel(option)}
                 </option>
               ))}
             </select>
@@ -656,7 +718,7 @@ export function ListingEditor({
               ))}
             </select>
             <p className="text-sm leading-6 text-[var(--muted)]">
-              Bruk <span className="font-semibold">Valdstyrt</span> nar kvoter, godkjenninger eller tilgang samordnes pa tvers av et storre jaktomrade.
+              Bruk <span className="font-semibold">Valdstyrt</span> når kvoter, godkjenninger eller tilgang samordnes på tvers av et større jaktområde.
             </p>
           </div>
 
@@ -717,9 +779,9 @@ export function ListingEditor({
 
           <div className="space-y-3 sm:col-span-2 rounded-[1.5rem] border border-[var(--border)] bg-[#fbf8f1] p-5">
             <div>
-              <p className="text-sm font-semibold text-[var(--foreground)]">Kjop og avbestilling</p>
+              <p className="text-sm font-semibold text-[var(--foreground)]">Kjøp og avbestilling</p>
               <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
-                Velg om tilbudet kan kjopes direkte, og hvordan avbestillinger skal handteres etter at betaling er godkjent.
+                Velg om tilbudet kan kjøpes direkte, og hvordan avbestillinger skal håndteres etter at betaling er godkjent.
               </p>
             </div>
             <label className="flex items-center gap-3 text-sm text-[var(--foreground)]">
@@ -730,12 +792,12 @@ export function ListingEditor({
                 className="h-4 w-4 rounded border-[var(--border)]"
               />
               {type === ListingType.FISHING
-                ? "Tillat direkte kjop av fiskekort"
+                ? "Tillat direkte kjøp av fiskekort"
                 : "Tillat direkte bekreftelse etter kontrakt og betaling"}
             </label>
             <div className="space-y-2">
               <label className="text-sm font-semibold text-[var(--foreground)]" htmlFor="cancellationPolicy">
-                Avbestillingsvilkar
+                Avbestillingsvilkår
               </label>
               <select
                 id="cancellationPolicy"
@@ -756,15 +818,15 @@ export function ListingEditor({
             <div>
               <p className="text-sm font-semibold text-[var(--foreground)]">Godkjenning og styringsnotater</p>
               <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
-                Forklar hvem som tar endelig beslutning om tilgang, om omradet ligger i et vald, og hva jegeren ma forvente om tillatelser eller medgodkjenning.
+                Forklar hvem som tar endelig beslutning om tilgang, om området ligger i et vald, og hva jegeren må forvente om tillatelser eller medgodkjenning.
               </p>
             </div>
             {property.vald ? (
               <div className="rounded-2xl border border-[var(--border)] bg-white px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
                 Knyttet til vald: <span className="font-semibold">{property.vald.name}</span> i {property.vald.municipality}, {property.vald.county}. Valdansvarlig: {property.vald.representativeName}.
                 {property.vald.localReference ? ` Referanse: ${property.vald.localReference}.` : ""}
-                {` Verifisering: ${property.vald.verificationMethod.replaceAll("_", " ").toLowerCase()}.`}
-                {` Status for valdansvarlig: ${property.vald.representativeConfirmationStatus.replaceAll("_", " ").toLowerCase()}.`}
+                {` Verifisering: ${formatValdVerificationMethod(property.vald.verificationMethod as ValdVerificationMethod)}.`}
+                {` Status for valdansvarlig: ${formatSharedApprovalStatus(property.vald.representativeConfirmationStatus)}.`}
               </div>
             ) : null}
             <label className="flex items-center gap-3 text-sm text-[var(--foreground)]">
@@ -782,7 +844,7 @@ export function ListingEditor({
                   className="text-sm font-semibold text-[var(--foreground)]"
                   htmlFor="publicRightsOverlayId"
                 >
-                  Offentlig kartomrade
+                  Offentlig kartområde
                 </label>
                 <select
                   id="publicRightsOverlayId"
@@ -798,7 +860,7 @@ export function ListingEditor({
                   ))}
                 </select>
                 <p className="text-sm leading-6 text-[var(--muted)]">
-                  Velg et offentlig rettighetslag nar omradet du leier ut er smalere enn selve eiendommen. La dette sta pa eiendomsgrensen hvis det er trygt at hele eiendomsomrisset vises offentlig.
+                  Velg et offentlig rettighetslag når området du leier ut er smalere enn selve eiendommen. La dette stå på eiendomsgrensen hvis det er trygt at hele eiendomsomrisset vises offentlig.
                 </p>
               </div>
             ) : null}
@@ -814,14 +876,14 @@ export function ListingEditor({
               onChange={(event) => setGovernanceEvidenceNotes(event.target.value)}
               rows={3}
               className="w-full rounded-[1.25rem] border border-[var(--border)] bg-white px-4 py-3 text-base outline-none transition focus:border-[var(--amber)]"
-              placeholder="Valgfritt: noter dokumenter, telefonsamtaler, motenotater eller annen lokal dokumentasjon som stotter oppsettet."
+              placeholder="Valgfritt: noter dokumenter, telefonsamtaler, møtenotater eller annen lokal dokumentasjon som støtter oppsettet."
             />
             <textarea
               value={municipalityProcessNotes}
               onChange={(event) => setMunicipalityProcessNotes(event.target.value)}
               rows={3}
               className="w-full rounded-[1.25rem] border border-[var(--border)] bg-white px-4 py-3 text-base outline-none transition focus:border-[var(--amber)]"
-              placeholder="Valgfritt: forklar hvis omradet fortsatt handteres gjennom kommunale papir-, PDF- eller manuelle rutiner fremfor en ryddig digital prosess."
+              placeholder="Valgfritt: forklar hvis området fortsatt håndteres gjennom kommunale papir-, PDF- eller manuelle rutiner fremfor en ryddig digital prosess."
             />
           </div>
 
@@ -829,7 +891,7 @@ export function ListingEditor({
             <div>
               <p className="text-sm font-semibold text-[var(--foreground)]">Kvote og tillatelser</p>
               <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
-                Sarlig for storvilttilbud bor du forklare hva som faktisk inngar, hva som fortsatt er tilgjengelig innenfor felleskvoten, og hvem som har rapporteringsansvaret etter turen.
+                Særlig for storvilttilbud bør du forklare hva som faktisk inngår, hva som fortsatt er tilgjengelig innenfor felleskvoten, og hvem som har rapporteringsansvaret etter turen.
               </p>
             </div>
             <textarea
@@ -837,21 +899,21 @@ export function ListingEditor({
               onChange={(event) => setQuotaSummary(event.target.value)}
               rows={3}
               className="w-full rounded-[1.25rem] border border-[var(--border)] bg-white px-4 py-3 text-base outline-none transition focus:border-[var(--amber)]"
-              placeholder="Eksempel: En voksen elg kan vaere mulig innenfor felleskvoten, avhengig av endelig tildeling i valdet."
+              placeholder="Eksempel: En voksen elg kan være mulig innenfor felleskvoten, avhengig av endelig tildeling i valdet."
             />
             <textarea
               value={availabilitySummary}
               onChange={(event) => setAvailabilitySummary(event.target.value)}
               rows={3}
               className="w-full rounded-[1.25rem] border border-[var(--border)] bg-white px-4 py-3 text-base outline-none transition focus:border-[var(--amber)]"
-              placeholder="Eksempel: To kalveplasser virker realistiske akkurat na, men voksentildeling avklares fortsatt med valdet."
+              placeholder="Eksempel: To kalveplasser virker realistiske akkurat nå, men voksentildeling avklares fortsatt med valdet."
             />
             <textarea
               value={permitNotes}
               onChange={(event) => setPermitNotes(event.target.value)}
               rows={3}
               className="w-full rounded-[1.25rem] border border-[var(--border)] bg-white px-4 py-3 text-base outline-none transition focus:border-[var(--amber)]"
-              placeholder="Eksempel: Jegeravgiften ma vaere gyldig, og lokal tillatelse bekreftes med valdet for jakta starter."
+              placeholder="Eksempel: Jegeravgiften må være gyldig, og lokal tillatelse bekreftes med valdet før jakta starter."
             />
             <textarea
               value={reportingNotes}
@@ -865,7 +927,7 @@ export function ListingEditor({
               onChange={(event) => setReportingResponsibility(event.target.value)}
               rows={3}
               className="w-full rounded-[1.25rem] border border-[var(--border)] bg-white px-4 py-3 text-base outline-none transition focus:border-[var(--amber)]"
-              placeholder="Eksempel: Jegeren melder felling til grunneier samme dag, og valdansvarlig sender inn den formelle oppfolgingen."
+              placeholder="Eksempel: Jegeren melder felling til grunneier samme dag, og valdansvarlig sender inn den formelle oppfølgingen."
             />
           </div>
 
@@ -873,7 +935,7 @@ export function ListingEditor({
             <div>
               <p className="text-sm font-semibold text-[var(--foreground)]">Regler og begrensninger</p>
               <p className="mt-1 text-sm leading-6 text-[var(--muted)]">
-                Hold reglene praktiske. For fisketilbud bor du beskrive gyldig vann, redskap, fangstgrenser og om nasjonal avgift ma betales separat for turen starter.
+                Hold reglene praktiske. For fisketilbud bør du beskrive gyldig vann, redskap, fangstgrenser og om nasjonal avgift må betales separat før turen starter.
               </p>
             </div>
             <label className="flex items-center gap-3 text-sm text-[var(--foreground)]">
@@ -911,7 +973,7 @@ export function ListingEditor({
               onChange={(event) => setAreaNotes(event.target.value)}
               rows={3}
               className="w-full rounded-[1.25rem] border border-[var(--border)] bg-white px-4 py-3 text-base outline-none transition focus:border-[var(--amber)]"
-              placeholder="Hvordan man holder seg innenfor gyldig omrade, hvor strekningen starter og slutter, og eventuelle adkomstgrenser."
+              placeholder="Hvordan man holder seg innenfor gyldig område, hvor strekningen starter og slutter, og eventuelle adkomstgrenser."
             />
           </div>
 
@@ -931,8 +993,8 @@ export function ListingEditor({
                         ? "border-[var(--forest)] bg-[var(--forest)] text-white"
                         : "border-[var(--border)] bg-white text-[var(--foreground)]"
                     }`}
-                  >
-                    {formatEnumLabel(option)}
+                      >
+                    {formatSpecies([option])}
                   </button>
                 );
               })}
@@ -955,7 +1017,7 @@ export function ListingEditor({
                   className="block text-sm text-[var(--foreground)] file:mr-4 file:rounded-full file:border-0 file:bg-[var(--forest)] file:px-4 file:py-2 file:font-semibold file:text-white"
                 />
                 <p className="text-sm leading-6 text-[var(--muted)]">
-                  Last opp JPG-, PNG-, WebP- eller HEIC-bilder pa opptil 8 MB per fil.
+                  Last opp JPG-, PNG-, WebP- eller HEIC-bilder på opptil 8 MB per fil.
                 </p>
               </div>
               {isUploadingPhotos ? (
@@ -1170,7 +1232,7 @@ export function ListingEditor({
             Grense registrert: {property.hasBoundary ? "Ja" : "Ikke ennå"}
           </p>
           <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-            Tillit: geometri {property.geometryConfidence.toLowerCase()} · rettigheter {property.rightsConfidence.toLowerCase()} · styring {property.governanceConfidence.toLowerCase()}
+            Tillit: geometri {formatListingConfidence(property.geometryConfidence)} · rettigheter {formatListingConfidence(property.rightsConfidence)} · styring {formatListingConfidence(property.governanceConfidence)}
           </p>
           <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
             Grensenotater: {[

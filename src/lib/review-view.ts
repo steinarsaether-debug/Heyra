@@ -10,9 +10,14 @@ export function getAverageRating(values: number[]) {
 }
 
 export function formatReviewModerationStatus(status: ReviewModerationStatus) {
-  return status
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+  switch (status) {
+    case ReviewModerationStatus.PENDING:
+      return "Til moderering";
+    case ReviewModerationStatus.APPROVED:
+      return "Godkjent";
+    case ReviewModerationStatus.FLAGGED:
+      return "Flagget";
+    case ReviewModerationStatus.REJECTED:
+      return "Avvist";
+  }
 }

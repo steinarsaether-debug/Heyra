@@ -24,7 +24,7 @@ export function OfflineSaveLinks({
 
   async function saveLinks() {
     if (!("caches" in window)) {
-      setMessage("This browser does not support offline caching.");
+      setMessage("Denne nettleseren støtter ikke lokal offline-lagring.");
       return;
     }
 
@@ -36,21 +36,21 @@ export function OfflineSaveLinks({
       existing[scope] = dedupedLinks.map((link) => link.href);
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
 
-      setMessage("Saved for offline use on this device.");
+      setMessage("Lagret for offline-bruk på denne enheten.");
       window.setTimeout(() => setMessage(null), 2500);
     } catch (error) {
       console.error("Offline save failed", error);
-      setMessage("Could not save these links for offline use.");
+      setMessage("Kunne ikke lagre disse lenkene for offline-bruk.");
     }
   }
 
   return (
     <div className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-        Offline field pack
+        Offlinepakke
       </p>
       <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-        Save the key pages and documents you are likely to need if coverage drops during travel or while you are on the property.
+        Lagre de viktigste sidene og dokumentene du sannsynligvis trenger hvis dekningen forsvinner under reise eller ute på eiendommen.
       </p>
       <ul className="mt-4 space-y-2 text-sm leading-7 text-[var(--foreground)]">
         {dedupedLinks.map((link) => (
@@ -65,7 +65,7 @@ export function OfflineSaveLinks({
           onClick={() => void saveLinks()}
           className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white"
         >
-          Save these offline
+          Lagre for offline-bruk
         </button>
       </div>
       {message ? <p className="mt-3 text-sm text-[var(--muted)]">{message}</p> : null}

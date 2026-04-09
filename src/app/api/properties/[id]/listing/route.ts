@@ -11,7 +11,7 @@ import {
 } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { canManageProperties } from "@/lib/access";
+import { canManageProperties, getOperationalAccessError, isSignedIn } from "@/lib/access";
 import { normalizeListingAvailability } from "@/lib/listing-availability";
 import { getPropertyBoundaryStatus } from "@/lib/property-boundary-status";
 import { prisma } from "@/lib/prisma";
@@ -66,7 +66,10 @@ export async function GET(
   const session = await auth();
 
   if (!canManageProperties(session)) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "eiendom") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   const { id } = await context.params;
@@ -100,7 +103,7 @@ export async function GET(
   });
 
   if (!property) {
-    return NextResponse.json({ error: "Property not found." }, { status: 404 });
+    return NextResponse.json({ error: "Fant ikke eiendommen." }, { status: 404 });
   }
 
   const hasBoundary = await getPropertyBoundaryStatus(property.id, session.user.id);
@@ -134,7 +137,10 @@ export async function POST(
   const session = await auth();
 
   if (!canManageProperties(session)) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "eiendom") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   const { id } = await context.params;
@@ -158,7 +164,7 @@ export async function POST(
   });
 
   if (!property) {
-    return NextResponse.json({ error: "Property not found." }, { status: 404 });
+    return NextResponse.json({ error: "Fant ikke eiendommen." }, { status: 404 });
   }
 
   if (property.listings[0]) {
@@ -179,7 +185,7 @@ export async function POST(
         : ListingType.HUNTING,
       title: `${property.municipality} ${property.cadastralRef}`,
       description:
-        "Describe the terrain, access, species, practical arrangements, and the kind of hunting or fishing experience you want to offer here.",
+        "Beskriv terrenget, adkomsten, artene, de praktiske rammene og hvilken jakt- eller fiskeopplevelse du vil tilby her.",
       species: property.terrainTypes.includes(TerrainType.COASTAL)
         ? [Species.LAKS]
         : [Species.ELG],
@@ -196,7 +202,7 @@ export async function POST(
         property.vald?.representativeConfirmationStatus ?? SharedApprovalStatus.NOT_REQUESTED,
       coApprovalRequired: Boolean(property.vald?.coApprovalRequired),
       governanceNotes: property.vald
-        ? `This property sits inside ${property.vald.name}. Confirm how quota, approvals, and access are coordinated before publishing.`
+        ? `Denne eiendommen ligger i ${property.vald.name}. Bekreft hvordan kvote, godkjenninger og tilgang samordnes før publisering.`
         : null,
       governanceEvidenceNotes: null,
       municipalityProcessNotes: null,
@@ -210,14 +216,14 @@ export async function POST(
       quota: {
         summary: "",
         availabilitySummary: property.vald
-          ? "Availability should be confirmed against the shared vald quota before each trip."
+          ? "Tilgjengelighet bør bekreftes mot felles vald-kvote før hver tur."
           : "",
         permitNotes: property.vald
-          ? `Permits and local allocation should be confirmed with ${property.vald.name}.`
+          ? `Tillatelser og lokal fordeling bør bekreftes med ${property.vald.name}.`
           : "",
         reportingNotes: "",
         reportingResponsibility: property.vald
-          ? `Agree whether the hunter, landowner, or vald representative files the final reporting.`
+          ? "Avklar om det er jeger, grunneier eller valdansvarlig som sender inn endelig rapportering."
           : "",
       },
       rules: {
@@ -246,7 +252,10 @@ export async function PUT(
   const session = await auth();
 
   if (!canManageProperties(session)) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "eiendom") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   const { id } = await context.params;
@@ -256,7 +265,7 @@ export async function PUT(
     const parsed = listingDraftSchema.safeParse(json);
 
     if (!parsed.success) {
-      const message = parsed.error.issues[0]?.message ?? "Invalid listing payload.";
+      const message = parsed.error.issues[0]?.message ?? "Ugyldige opplysninger for annonsen.";
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
@@ -279,7 +288,7 @@ export async function PUT(
     });
 
     if (!property) {
-      return NextResponse.json({ error: "Property not found." }, { status: 404 });
+      return NextResponse.json({ error: "Fant ikke eiendommen." }, { status: 404 });
     }
 
     const data = parsed.data;
@@ -290,7 +299,7 @@ export async function PUT(
       !property.rightsOverlays.some((overlay) => overlay.id === publicRightsOverlayId)
     ) {
       return NextResponse.json(
-        { error: "Selected public rights layer was not found on this property." },
+        { error: "Fant ikke valgt offentlig rettighetslag på denne eiendommen." },
         { status: 400 },
       );
     }
@@ -421,7 +430,7 @@ export async function PUT(
   } catch (error) {
     console.error("Listing save failed", error);
     return NextResponse.json(
-      { error: "Something went wrong while saving the listing." },
+      { error: "Noe gikk galt da annonsen skulle lagres." },
       { status: 500 },
     );
   }
@@ -434,7 +443,10 @@ export async function DELETE(
   const session = await auth();
 
   if (!canManageProperties(session)) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "eiendom") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   const { id } = await context.params;
@@ -464,20 +476,20 @@ export async function DELETE(
   });
 
   if (!property) {
-    return NextResponse.json({ error: "Property not found." }, { status: 404 });
+    return NextResponse.json({ error: "Fant ikke eiendommen." }, { status: 404 });
   }
 
   const listing = property.listings[0];
 
   if (!listing) {
-    return NextResponse.json({ error: "Listing not found." }, { status: 404 });
+    return NextResponse.json({ error: "Fant ikke annonsen." }, { status: 404 });
   }
 
   if (listing.bookings.length > 0) {
     return NextResponse.json(
       {
         error:
-          "This listing already has booking history. Archive it instead of deleting it.",
+          "Denne annonsen har allerede bestillingshistorikk. Arkiver den i stedet for å slette den.",
       },
       { status: 400 },
     );

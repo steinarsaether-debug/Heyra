@@ -8,11 +8,13 @@ export async function queueNotification(
   input: {
     userId?: string | null;
     bookingId?: string | null;
+    complianceTaskId?: string | null;
     channel?: NotificationChannel;
     template: string;
     subject: string;
     body: string;
     markSent?: boolean;
+    scheduledFor?: Date | null;
   },
 ) {
   const preference =
@@ -29,12 +31,14 @@ export async function queueNotification(
       data: {
         userId: input.userId ?? null,
         bookingId: input.bookingId ?? null,
+        complianceTaskId: input.complianceTaskId ?? null,
         channel: input.channel ?? NotificationChannel.EMAIL,
         template: input.template,
         subject: input.subject,
         body: input.body,
         status: NotificationStatus.FAILED,
         errorMessage: "Skipped because the user has disabled this notification category.",
+        scheduledFor: input.scheduledFor ?? new Date(),
       },
     });
   }
@@ -43,12 +47,14 @@ export async function queueNotification(
     data: {
       userId: input.userId ?? null,
       bookingId: input.bookingId ?? null,
+      complianceTaskId: input.complianceTaskId ?? null,
       channel: input.channel ?? NotificationChannel.EMAIL,
       template: input.template,
       subject: input.subject,
       body: input.body,
       status: input.markSent ? NotificationStatus.SENT : NotificationStatus.PENDING,
       sentAt: input.markSent ? new Date() : null,
+      scheduledFor: input.scheduledFor ?? new Date(),
     },
   });
 }

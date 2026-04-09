@@ -1,4 +1,11 @@
-import { PropertyStatus, TerrainType, type Property } from "@prisma/client";
+import {
+  ConfidenceLevel,
+  PropertyStatus,
+  SharedApprovalStatus,
+  TerrainType,
+  ValdVerificationMethod,
+  type Property,
+} from "@prisma/client";
 
 type PropertyWithMinimalShape = Pick<
   Property,
@@ -18,22 +25,76 @@ type PropertyCompletionShape = PropertyWithMinimalShape & {
 };
 
 export function formatPropertyStatus(status: PropertyStatus) {
-  return status
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+  switch (status) {
+    case PropertyStatus.DRAFT:
+      return "Utkast";
+    case PropertyStatus.PENDING_REVIEW:
+      return "Klar til gjennomgang";
+    case PropertyStatus.ACTIVE:
+      return "Aktiv";
+    case PropertyStatus.SUSPENDED:
+      return "Suspendert";
+  }
 }
 
 export function formatTerrainTypes(terrainTypes: TerrainType[]) {
   if (terrainTypes.length === 0) {
-    return "Not set";
+    return "Ikke satt";
   }
 
   return terrainTypes
-    .map((type) => type.toLowerCase())
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((type) => {
+      switch (type) {
+        case TerrainType.FOREST:
+          return "Skog";
+        case TerrainType.MOUNTAIN:
+          return "Fjell";
+        case TerrainType.FJORD:
+          return "Fjord";
+        case TerrainType.WETLAND:
+          return "Våtmark";
+        case TerrainType.FARMLAND:
+          return "Jordbruksland";
+        case TerrainType.COASTAL:
+          return "Kystterreng";
+      }
+    })
     .join(", ");
+}
+
+export function formatConfidenceLevel(level: ConfidenceLevel) {
+  switch (level) {
+    case ConfidenceLevel.LOW:
+      return "Lav";
+    case ConfidenceLevel.MEDIUM:
+      return "Middels";
+    case ConfidenceLevel.HIGH:
+      return "Høy";
+  }
+}
+
+export function formatValdVerificationMethod(method: ValdVerificationMethod) {
+  switch (method) {
+    case ValdVerificationMethod.SELF_DECLARED:
+      return "Egenerklært";
+    case ValdVerificationMethod.MUNICIPAL_REFERENCE:
+      return "Kommunal referanse";
+    case ValdVerificationMethod.MANUAL_REVIEW:
+      return "Manuell gjennomgang";
+    case ValdVerificationMethod.EXTERNAL_REGISTRY:
+      return "Eksternt register";
+  }
+}
+
+export function formatSharedApprovalStatus(status: SharedApprovalStatus) {
+  switch (status) {
+    case SharedApprovalStatus.NOT_REQUESTED:
+      return "Ikke forespurt";
+    case SharedApprovalStatus.PENDING:
+      return "Avventer";
+    case SharedApprovalStatus.CONFIRMED:
+      return "Bekreftet";
+  }
 }
 
 export function getPropertyCompletionState(property: PropertyCompletionShape) {
@@ -48,17 +109,17 @@ export function getPropertyCompletionState(property: PropertyCompletionShape) {
   const steps = [
     {
       key: "identity",
-      label: "Basic property details",
+      label: "Grunnleggende eiendomsdata",
       complete: hasIdentity,
     },
     {
       key: "terrain",
-      label: "Terrain and facilities",
+      label: "Terreng og fasiliteter",
       complete: hasTerrain,
     },
     {
       key: "boundary",
-      label: "Boundary and map area",
+      label: "Grense og kartflate",
       complete: hasBoundary,
     },
   ];

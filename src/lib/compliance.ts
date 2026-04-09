@@ -129,34 +129,34 @@ export function getCwdContactSummary(zone: CwdContactSource) {
 export function getComplianceTaskWhy(taskType: ComplianceTaskType) {
   switch (taskType) {
     case ComplianceTaskType.CWD_GUIDANCE:
-      return "The property overlaps a recorded CWD zone, so the trip may need extra sampling or handling follow-up.";
+      return "Eiendommen overlapper en registrert CWD-sone, så turen kan kreve ekstra prøvetaking eller praktisk oppfølging.";
     case ComplianceTaskType.FISHING_FEE_CONFIRMATION:
-      return "Some salmon and sea-trout waters need a national fee in addition to the local licence.";
+      return "Noen lakse- og sjøørretvassdrag krever nasjonal fiskeravgift i tillegg til det lokale fiskekortet.";
     case ComplianceTaskType.HJORTEVILT_REPORTING:
-      return "Big-game activity in Norway usually requires post-trip reporting and clear harvest notes.";
+      return "Storviltjakt i Norge krever ofte rapportering etter turen og tydelige notater om observasjoner og uttak.";
     case ComplianceTaskType.SALMON_REPORTING:
-      return "Salmon and sea-trout access often needs clear catch-reporting responsibility before guests arrive.";
+      return "Lakse- og sjøørrettilgang krever ofte tydelig avklaring av fangstrapportering før gjestene kommer.";
     case ComplianceTaskType.VALD_QUOTA_REVIEW:
-      return "Shared big-game areas can only be sold safely when quota, permits, and who approves access are clear.";
+      return "Delte storviltområder kan bare tilbys trygt når kvote, tillatelser og hvem som godkjenner tilgang er avklart.";
     default:
-      return "This task was created from a booking or listing event that needs legal or practical follow-up.";
+      return "Denne oppgaven ble opprettet fra en bestilling eller annonsehendelse som trenger juridisk eller praktisk oppfølging.";
   }
 }
 
 export function getComplianceTaskNextStep(taskType: ComplianceTaskType) {
   switch (taskType) {
     case ComplianceTaskType.CWD_GUIDANCE:
-      return "Check the zone guidance before travel and keep the relevant contact details with you in the field.";
+      return "Se gjennom soneveiledningen før avreise og ha riktige kontaktpunkter tilgjengelig i felt.";
     case ComplianceTaskType.FISHING_FEE_CONFIRMATION:
-      return "Confirm the national fee requirement before arrival and keep proof available on the licence screen.";
+      return "Bekreft fiskeravgiften før ankomst og sørg for at dokumentasjon er lett tilgjengelig på lisenssiden.";
     case ComplianceTaskType.HJORTEVILT_REPORTING:
-      return "Keep harvest details ready and open Hjorteviltregisteret after the trip if reporting is required.";
+      return "Hold rapporteringsdetaljene klare og åpne Hjorteviltregisteret etter turen dersom rapportering kreves.";
     case ComplianceTaskType.SALMON_REPORTING:
-      return "Write down who reports catches, when they report, and where guests should find those instructions.";
+      return "Skriv ned hvem som rapporterer fangst, når det skal gjøres og hvor gjestene finner instruksjonene.";
     case ComplianceTaskType.VALD_QUOTA_REVIEW:
-      return "Review quota notes, governance wording, and who must confirm access before the listing stays live.";
+      return "Gå gjennom kvotenotater, styringsspråk og hvem som må bekrefte tilgangen før annonsen skal være aktiv.";
     default:
-      return "Open the linked workspace and complete the required follow-up.";
+      return "Åpne den koblede arbeidsflaten og fullfør oppfølgingen.";
   }
 }
 
@@ -341,11 +341,11 @@ export async function syncComplianceTasksForBooking(
         cwdZoneId: booking.listing.property.cwdZoneId,
         assigneeRole: UserRole.HUNTER,
         taskType: ComplianceTaskType.CWD_GUIDANCE,
-        title: `CWD guidance for ${booking.listing.title}`,
-        description: `This booking overlaps ${
-          booking.listing.property.cwdZone?.name ?? "a recorded CWD zone"
-        }. Check local sampling instructions before or during the trip.`,
-        actionLabel: "Open booking workspace",
+        title: `CWD-veiledning for ${booking.listing.title}`,
+        description: `Denne bestillingen overlapper ${
+          booking.listing.property.cwdZone?.name ?? "en registrert CWD-sone"
+        }. Gå gjennom lokale prøvetakingsinstruksjoner før eller under turen.`,
+        actionLabel: "Åpne bestillingsflate",
         actionUrl: `/dashboard/bookings/${booking.id}`,
         dueAt: booking.startDate,
         notes: booking.listing.property.cwdZone
@@ -363,10 +363,10 @@ export async function syncComplianceTasksForBooking(
         listingId: booking.listingId,
         assigneeRole: UserRole.HUNTER,
         taskType: ComplianceTaskType.FISHING_FEE_CONFIRMATION,
-        title: `Confirm fishing fee for ${booking.listing.title}`,
+        title: `Bekreft fiskeravgift for ${booking.listing.title}`,
         description:
-          "This fishing booking may require a national fee in addition to the local licence. Confirm it before arrival and keep proof ready on the riverbank.",
-        actionLabel: "Open proof screen",
+          "Denne fiskebestillingen kan kreve nasjonal fiskeravgift i tillegg til det lokale fiskekortet. Bekreft dette før ankomst og ha dokumentasjonen klar ved vannet.",
+        actionLabel: "Åpne lisensvisning",
         actionUrl: `/dashboard/bookings/${booking.id}/licence`,
         dueAt: booking.startDate,
       }),
@@ -382,9 +382,9 @@ export async function syncComplianceTasksForBooking(
         cwdZoneId: booking.listing.property.cwdZoneId,
         assigneeRole: UserRole.HUNTER,
         taskType: ComplianceTaskType.HJORTEVILT_REPORTING,
-        title: `Prepare harvest reporting for ${booking.listing.title}`,
+        title: `Forbered hjorteviltrapportering for ${booking.listing.title}`,
         description:
-          "Big-game trips need follow-up reporting. Keep notes ready and use the reporting link after the trip if harvest data must be submitted.",
+          "Storviltturer krever ofte rapportering i etterkant. Hold notater klare og bruk rapporteringslenken etter turen dersom data må sendes inn.",
         actionLabel: "Open Hjorteviltregisteret",
         actionUrl: buildHjorteviltregisteretDeepLink({
           bookingId: booking.id,
@@ -395,8 +395,8 @@ export async function syncComplianceTasksForBooking(
         }),
         dueAt: reportingDueAt,
         notes: booking.listing.property.vald?.name
-          ? `Shared area context: ${booking.listing.property.vald.name}. This trip should keep harvest notes ready for municipal or vald follow-up.`
-          : `Area: ${booking.listing.property.municipality}, ${booking.listing.property.county}.`,
+          ? `Vald-kontekst: ${booking.listing.property.vald.name}. Denne turen bør holde notater klare for kommunal eller vald-relatert oppfølging.`
+          : `Område: ${booking.listing.property.municipality}, ${booking.listing.property.county}.`,
       }),
     );
   }
@@ -441,13 +441,13 @@ export async function syncComplianceTasksForListing(
         listingId: listing.id,
         assigneeRole: UserRole.LANDOWNER,
         taskType: ComplianceTaskType.VALD_QUOTA_REVIEW,
-        title: `Review quota and reporting for ${listing.title}`,
+        title: `Gå gjennom kvote og rapportering for ${listing.title}`,
         description:
-          "This big-game listing should clearly reflect quota, permits, and who confirms access before guests arrive.",
-        actionLabel: "Open listing workspace",
+          "Denne storviltannonsen bør tydelig vise kvote, tillatelser og hvem som bekrefter tilgangen før gjestene kommer.",
+        actionLabel: "Åpne annonseflate",
         actionUrl: `/dashboard/properties/${listing.propertyId}/listing`,
         notes: listing.property.vald?.name
-          ? `Vald context: ${listing.property.vald.name}.`
+          ? `Vald-kontekst: ${listing.property.vald.name}.`
           : `${listing.property.municipality}, ${listing.property.county}.`,
       }),
     );
@@ -463,12 +463,12 @@ export async function syncComplianceTasksForListing(
         listingId: listing.id,
         assigneeRole: UserRole.LANDOWNER,
         taskType: ComplianceTaskType.SALMON_REPORTING,
-        title: `Prepare salmon reporting for ${listing.title}`,
+        title: `Forbered fangstrapportering for ${listing.title}`,
         description:
-          "If this listing is used as a salmon beat or camp, confirm how season-end catch reporting will be handled before guests arrive and make the instructions visible on the listing.",
-        actionLabel: "Open listing workspace",
+          "Hvis denne annonsen brukes som laksevald eller base, må det avklares hvordan fangstrapportering håndteres før gjestene kommer, og instruksjonene må være synlige på annonsen.",
+        actionLabel: "Åpne annonseflate",
         actionUrl: `/dashboard/properties/${listing.propertyId}/listing`,
-        notes: `Area: ${listing.property.municipality}, ${listing.property.county}. Add practical reporting instructions before guests arrive.`,
+        notes: `Område: ${listing.property.municipality}, ${listing.property.county}. Legg inn praktiske rapporteringsinstruksjoner før gjestene kommer.`,
       }),
     );
   }

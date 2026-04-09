@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { canManageServices } from "@/lib/access";
+import { canManageServices, getOperationalAccessError, isSignedIn } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import {
   serviceProviderProfileSchema,
@@ -17,7 +17,10 @@ export async function GET() {
   const session = await auth();
 
   if (!canManageServices(session)) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "tjeneste") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   const profile = await prisma.serviceProviderProfile.findUnique({
@@ -40,7 +43,10 @@ export async function PUT(request: NextRequest) {
   const session = await auth();
 
   if (!canManageServices(session)) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "tjeneste") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   try {
@@ -48,7 +54,7 @@ export async function PUT(request: NextRequest) {
     const parsed = serviceProviderProfileSchema.safeParse(json);
 
     if (!parsed.success) {
-      const message = parsed.error.issues[0]?.message ?? "Invalid provider payload.";
+      const message = parsed.error.issues[0]?.message ?? "Ugyldige opplysninger for leverandørprofilen.";
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
@@ -76,6 +82,6 @@ export async function PUT(request: NextRequest) {
     });
   } catch (error) {
     console.error("Unable to save provider profile", error);
-    return NextResponse.json({ error: "Unable to save provider profile." }, { status: 500 });
+    return NextResponse.json({ error: "Kunne ikke lagre leverandørprofilen." }, { status: 500 });
   }
 }

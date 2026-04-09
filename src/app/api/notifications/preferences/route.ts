@@ -21,7 +21,7 @@ export async function GET(_request: NextRequest) {
   const session = await auth();
 
   if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    return NextResponse.json({ error: "Du må logge inn for å se varslingsinnstillingene." }, { status: 401 });
   }
 
   const preference = await prisma.notificationPreference.findUnique({
@@ -39,7 +39,7 @@ export async function PUT(request: NextRequest) {
   const session = await auth();
 
   if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    return NextResponse.json({ error: "Du må logge inn for å endre varslingsinnstillingene." }, { status: 401 });
   }
 
   try {
@@ -48,7 +48,7 @@ export async function PUT(request: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.issues[0]?.message ?? "Invalid notification settings." },
+        { error: parsed.error.issues[0]?.message ?? "Ugyldige varslingsinnstillinger." },
         { status: 400 },
       );
     }
@@ -84,7 +84,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error("Notification preference update failed", error);
     return NextResponse.json(
-      { error: "Something went wrong while saving notification preferences." },
+      { error: "Noe gikk galt da varslingsinnstillingene skulle lagres." },
       { status: 500 },
     );
   }

@@ -78,20 +78,20 @@ export default async function PropertyBoundaryPage({
       <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
         <div className="rounded-[1.8rem] bg-[var(--forest)] p-8 text-[var(--background)]">
           <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
-            Boundary step
+            Grensesteg
           </p>
           <h1 className="mt-5 text-4xl leading-tight sm:text-5xl">
-            Add the map boundary for {property.cadastralRef}.
+            Legg inn kartgrensen for {property.cadastralRef}.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-white/75">
-            Start with either a manual boundary or a Kartverket parcel import, then add separate hunting, fishing, and access layers if the actual offer area differs from the cadastral parcel.
+            Start med manuell grense eller Kartverket-import, og legg deretter til egne jakt-, fiske- og adkomstlag hvis det faktiske tilbudsområdet avviker fra matrikkelteigen.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href={`/dashboard/properties/${property.id}`}
               className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-[var(--forest)]"
             >
-              Back to property overview
+              Tilbake til eiendomsoversikt
             </Link>
           </div>
         </div>
@@ -104,33 +104,33 @@ export default async function PropertyBoundaryPage({
 
           <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Why this first version works
+              Hvorfor denne første versjonen fungerer
             </p>
             <ul className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
               <li className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                You can import a parcel, edit it manually, and still save a working boundary without learning a full GIS tool.
+                Du kan importere en teig, justere den manuelt og fortsatt lagre en fungerende grense uten å lære et fullt GIS-verktøy.
               </li>
               <li className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                The system stores parcel provenance, a PostGIS boundary, and separate rights overlays for later search and map work.
+                Systemet lagrer teiggrunnlag, en PostGIS-grense og egne rettighetslag for senere søk og kartarbeid.
               </li>
               <li className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                Public listing maps can later prefer a hunting or fishing rights layer instead of showing raw cadastral detail.
+                Offentlige annonsekart kan senere prioritere et jakt- eller fiskerettighetslag i stedet for rå matrikkeldetaljer.
               </li>
             </ul>
           </section>
 
           <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Location context
+              Stedskontekst
             </p>
             <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
               {property.municipality}, {property.county}
             </p>
             <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-              Current source:{" "}
+              Gjeldende kilde:{" "}
               {property.boundarySource === "KARTVERKET_IMPORT"
-                ? property.boundarySourceLabel ?? "Kartverket parcel import"
-                : "Manual boundary"}
+                ? property.boundarySourceLabel ?? "Kartverket-import"
+                : "Manuell grense"}
             </p>
           </section>
         </div>

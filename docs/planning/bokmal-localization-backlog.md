@@ -32,14 +32,27 @@ This backlog focuses on introducing **Norwegian Bokmal as the primary product la
 - HTML language tag in [src/app/layout.tsx](/Users/steinar/claude/heyra/src/app/layout.tsx)
 - Norwegian locale formatting in many places via `toLocaleDateString("nb-NO")` and `toLocaleString("nb-NO")`
 - Norway-first domain concepts in product and roadmap
+- shared locale/message foundation for Bokmal and English
+- large parts of public discovery, auth/account, shell navigation, and property/listing flows already migrated
 
 ### Missing
-- centralized translation files
-- shared terminology dictionary
-- consistent Bokmal UI copy
+- fully split message files by feature area
+- complete shared terminology dictionary
+- consistent Bokmal UI copy across admin/compliance/system messaging
 - translated validation and error messages
 - translated notification/content templates
 - translated SEO copy and metadata strategy
+
+## Current status by track
+
+- `BKM1`: largely complete
+- `BKM2`: largely complete
+- `BKM3`: largely complete
+- `BKM4`: substantially complete, but with remaining workflow cleanup
+- `BKM5`: open
+- `BKM6`: open
+- `BKM7`: open
+- `BKM8`: open
 
 ## Recommended Implementation Shape
 

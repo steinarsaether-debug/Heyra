@@ -10,6 +10,12 @@ Create a practical user-management track for:
 
 ## Sequence
 
+## Current status
+
+- `UM1` is complete
+- `UM2` to `UM5` remain open
+- admin routes should now use `/admin/*` rather than the older `/dashboard/admin/*` pattern
+
 ### UM1: Foundation
 
 Goal:
@@ -39,7 +45,7 @@ Goal:
 Give admins a searchable user list.
 
 Tickets:
-1. Add `/dashboard/admin/users`.
+1. Add `/admin/users`.
 2. Add search by name/email.
 3. Add filters for:
    - role
@@ -61,7 +67,7 @@ Goal:
 Make one user fully inspectable and manageable.
 
 Tickets:
-1. Add `/dashboard/admin/users/[id]`.
+1. Add `/admin/users/[id]`.
 2. Show profile, role, status, and trust state.
 3. Show bookings, properties, services, reviews, disputes, and compliance summary.
 4. Add admin notes UI.

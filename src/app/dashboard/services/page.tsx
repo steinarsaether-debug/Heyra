@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { formatServiceCategory, formatServiceStatus } from "@/lib/service-view";
 import { getServiceTrustBadge, getServiceTrustSummary } from "@/lib/service-trust";
 import { TrustBadge } from "@/components/trust/trust-badge";
+import { formatUserStatus, getUserStatusGuidance } from "@/lib/user-status";
 
 export default async function DashboardServicesPage() {
   const session = await auth();
@@ -51,6 +52,29 @@ export default async function DashboardServicesPage() {
   return (
     <main className="px-6 py-10 sm:px-8 md:px-10">
       <section className="space-y-6">
+        {session.user.status !== "ACTIVE" ? (
+          <article className="rounded-[1.6rem] border border-[#d8c4a0] bg-[#fff9ef] p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
+              Kontostatus
+            </p>
+            <p className="mt-3 text-2xl text-[var(--forest)]">{formatUserStatus(session.user.status)}</p>
+            <p className="mt-3 text-sm leading-7 text-[#6b5432]">
+              {getUserStatusGuidance({
+                status: session.user.status,
+                role: session.user.role,
+              })}
+            </p>
+            <div className="mt-4">
+              <Link
+                href="/dashboard/settings/account"
+                className="inline-flex rounded-full border border-[#d8c4a0] bg-white px-4 py-2 text-sm font-semibold text-[#6b5432]"
+              >
+                Åpne kontostatus
+              </Link>
+            </div>
+          </article>
+        ) : null}
+
         <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
           <div className="rounded-[1.8rem] bg-[var(--forest)] p-8 text-[var(--background)]">
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">

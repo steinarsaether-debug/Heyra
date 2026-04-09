@@ -1,4 +1,5 @@
 import {
+  ConfidenceLevel,
   CancellationPolicy,
   ListingGovernanceModel,
   ListingStatus,
@@ -146,27 +147,27 @@ export function getListingChecklist(listing: Pick<Listing, "title" | "descriptio
   const steps = [
     {
       key: "title",
-      label: "Clear listing title",
+      label: "Tydelig annonsetittel",
       complete: Boolean(listing?.title.trim()),
     },
     {
       key: "description",
-      label: "Helpful public description",
+      label: "Hjelpsom offentlig beskrivelse",
       complete: Boolean(listing?.description.trim()),
     },
     {
       key: "species",
-      label: "Target species selected",
+      label: "Målart er valgt",
       complete: Boolean(listing?.species.length),
     },
     {
       key: "pricing",
-      label: "Public price set",
+      label: "Offentlig pris er satt",
       complete: Boolean(listing && listing.priceNok > 0),
     },
     {
       key: "photos",
-      label: "At least one photo URL added",
+      label: "Minst ett bilde er lagt inn",
       complete: Boolean(listing?.photos.length),
     },
   ];
@@ -179,6 +180,17 @@ export function getListingChecklist(listing: Pick<Listing, "title" | "descriptio
     total: steps.length,
     percent: Math.round((completed / steps.length) * 100),
   };
+}
+
+export function formatListingConfidence(level: ConfidenceLevel) {
+  switch (level) {
+    case ConfidenceLevel.LOW:
+      return "lav";
+    case ConfidenceLevel.MEDIUM:
+      return "middels";
+    case ConfidenceLevel.HIGH:
+      return "høy";
+  }
 }
 
 export function buildListingSlug(title: string, fallbackId?: string) {

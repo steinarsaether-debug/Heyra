@@ -1,4 +1,4 @@
-import { NotificationPreference, NotificationStatus } from "@prisma/client";
+import { NotificationChannel, NotificationPreference, NotificationStatus } from "@prisma/client";
 
 export function getDefaultNotificationPreferences() {
   return {
@@ -43,20 +43,34 @@ export function shouldQueueNotification(
 
 export function getNotificationDeliveryStatus(pushEnabled: boolean, pushPermission: string | null) {
   if (!pushEnabled) {
-    return "Push is turned off.";
+    return "Push-varsler er slått av.";
   }
 
   if (pushPermission !== "granted") {
-    return "Push is enabled in Heyra, but the browser permission is not granted yet.";
+    return "Push er slått på i Heyra, men nettleseren har ikke gitt tillatelse ennå.";
   }
 
-  return "Push is ready for local browser notifications.";
+  return "Push er klart for lokale nettleservarsler.";
+}
+
+export function formatNotificationChannel(channel: NotificationChannel) {
+  switch (channel) {
+    case NotificationChannel.EMAIL:
+      return "E-post";
+    case NotificationChannel.PUSH:
+      return "Push";
+    case NotificationChannel.INTERNAL:
+      return "I appen";
+  }
 }
 
 export function formatNotificationStatus(status: NotificationStatus) {
-  return status
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+  switch (status) {
+    case NotificationStatus.PENDING:
+      return "Venter";
+    case NotificationStatus.SENT:
+      return "Sendt";
+    case NotificationStatus.FAILED:
+      return "Feilet";
+  }
 }

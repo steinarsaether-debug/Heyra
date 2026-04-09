@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { canManageServices } from "@/lib/access";
+import { canManageServices, getOperationalAccessError, isSignedIn } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { serviceListingSchema, serviceQualificationsSchema } from "@/lib/service-schema";
 import { buildServiceSlug } from "@/lib/service-view";
@@ -49,7 +49,10 @@ export async function GET(
   const session = await auth();
 
   if (!canManageServices(session)) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "tjeneste") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   const { id } = await context.params;
@@ -78,7 +81,7 @@ export async function GET(
   });
 
   if (!service) {
-    return NextResponse.json({ error: "Service not found." }, { status: 404 });
+    return NextResponse.json({ error: "Fant ikke tjenesten." }, { status: 404 });
   }
 
   return NextResponse.json({
@@ -96,7 +99,10 @@ export async function PUT(
   const session = await auth();
 
   if (!canManageServices(session)) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "tjeneste") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   const { id } = await context.params;
@@ -106,7 +112,7 @@ export async function PUT(
     const parsed = serviceListingSchema.safeParse(json);
 
     if (!parsed.success) {
-      const message = parsed.error.issues[0]?.message ?? "Invalid service payload.";
+      const message = parsed.error.issues[0]?.message ?? "Ugyldige opplysninger for tjenesten.";
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
@@ -123,7 +129,7 @@ export async function PUT(
     });
 
     if (!existing) {
-      return NextResponse.json({ error: "Service not found." }, { status: 404 });
+      return NextResponse.json({ error: "Fant ikke tjenesten." }, { status: 404 });
     }
 
     const data = parsed.data;
@@ -162,6 +168,6 @@ export async function PUT(
     });
   } catch (error) {
     console.error("Unable to update service", error);
-    return NextResponse.json({ error: "Unable to update service." }, { status: 500 });
+    return NextResponse.json({ error: "Kunne ikke oppdatere tjenesten." }, { status: 500 });
   }
 }

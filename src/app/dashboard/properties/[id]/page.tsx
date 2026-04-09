@@ -1,14 +1,23 @@
 import { auth } from "@/auth";
 import {
+  formatConfidenceLevel,
   formatPropertyStatus,
+  formatSharedApprovalStatus,
   formatTerrainTypes,
+  formatValdVerificationMethod,
   getPropertyCompletionState,
 } from "@/lib/property-view";
 import { DeletePropertyButton } from "@/components/property/delete-property-button";
 import { PropertyIdentityEditor } from "@/components/property/property-identity-editor";
+import {
+  formatComplianceDueLabel,
+  formatComplianceTaskStatus,
+  formatComplianceTaskType,
+} from "@/lib/compliance-view";
 import { getPropertyCwdSummary } from "@/lib/cwd-zones";
 import { formatListingStatus } from "@/lib/listing-view";
 import { getPropertyBoundaryStatus } from "@/lib/property-boundary-status";
+import { ComplianceTaskStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -78,6 +87,49 @@ export default async function PropertyDetailPage({
 
   const hasBoundary = await getPropertyBoundaryStatus(property.id, session.user.id);
   const cwdSummary = await getPropertyCwdSummary(property.id);
+  const complianceTasks = await prisma.complianceTask.findMany({
+    where: {
+      userId: session.user.id,
+      status: {
+        in: [ComplianceTaskStatus.OPEN, ComplianceTaskStatus.IN_PROGRESS],
+      },
+      OR: [
+        {
+          listing: {
+            propertyId: property.id,
+          },
+        },
+        {
+          booking: {
+            listing: {
+              propertyId: property.id,
+            },
+          },
+        },
+      ],
+    },
+    orderBy: [{ dueAt: "asc" }, { createdAt: "desc" }],
+    take: 3,
+    select: {
+      id: true,
+      title: true,
+      taskType: true,
+      status: true,
+      dueAt: true,
+      actionLabel: true,
+      actionUrl: true,
+      listing: {
+        select: {
+          propertyId: true,
+        },
+      },
+      booking: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
   const completion = getPropertyCompletionState({
     ...property,
     boundary: hasBoundary ? {} : null,
@@ -96,30 +148,30 @@ export default async function PropertyDetailPage({
         <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-[1.8rem] bg-[var(--forest)] p-8 text-[var(--background)]">
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
-              Property draft
+              Eiendomsutkast
             </p>
             <h1 className="mt-5 text-4xl leading-tight sm:text-5xl">{property.cadastralRef}</h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-white/75">
-              This is now the working home for your draft property. Keep moving through one next step at a time instead of trying to complete every detail in one sitting.
+              Dette er arbeidsflaten for eiendomsutkastet ditt. Ta ett neste steg av gangen i stedet for å prøve å fullføre alt i samme økt.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href={`/dashboard/properties/${property.id}/boundary`}
                 className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-[var(--forest)]"
               >
-                Add boundary step
+                Gå til grensesteg
               </Link>
               <Link
                 href={`/dashboard/properties/${property.id}/listing`}
                 className="rounded-full bg-[var(--amber)] px-5 py-3 text-sm font-semibold text-[var(--foreground)]"
               >
-                Manage listing
+                Arbeid med annonse
               </Link>
               <Link
                 href="/dashboard/properties"
                 className="rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white"
               >
-                Back to my properties
+                Tilbake til mine eiendommer
               </Link>
             </div>
             <div className="mt-4">
@@ -129,11 +181,11 @@ export default async function PropertyDetailPage({
 
           <div className="rounded-[1.8rem] border border-[var(--border)] bg-white/75 p-8">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-              Setup progress
+              Oppsettsfremdrift
             </p>
             <p className="mt-4 text-5xl text-[var(--forest)]">{completion.percent}%</p>
             <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-              {completion.completed} of {completion.total} property setup steps complete
+              {completion.completed} av {completion.total} oppsettssteg er fullført
             </p>
             <div className="mt-5 h-3 rounded-full bg-[#e7e1d5]">
               <div
@@ -153,13 +205,13 @@ export default async function PropertyDetailPage({
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Location
+              Kommune
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{property.municipality}</p>
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              County
+              Fylke
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{property.county}</p>
           </article>
@@ -200,89 +252,89 @@ export default async function PropertyDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="font-semibold text-[var(--foreground)]">Terrain</dt>
+                <dt className="font-semibold text-[var(--foreground)]">Terreng</dt>
                 <dd>{formatTerrainTypes(property.terrainTypes)}</dd>
               </div>
               <div>
-                <dt className="font-semibold text-[var(--foreground)]">Boundary captured</dt>
+                <dt className="font-semibold text-[var(--foreground)]">Grense registrert</dt>
                 <dd>
                   {completion.hasBoundary
                     ? property.boundarySource === "KARTVERKET_IMPORT"
-                      ? `Yes · imported from ${property.boundarySourceLabel ?? "Kartverket"}`
-                      : "Yes · manual or adjusted"
-                    : "Not yet"}
+                      ? `Ja · importert fra ${property.boundarySourceLabel ?? "Kartverket"}`
+                      : "Ja · manuelt tegnet eller justert"
+                    : "Ikke ennå"}
                 </dd>
               </div>
               <div>
-                <dt className="font-semibold text-[var(--foreground)]">Rights and access layers</dt>
+                <dt className="font-semibold text-[var(--foreground)]">Rettighets- og adkomstlag</dt>
                 <dd>
                   {property.rightsOverlays.length > 0
-                    ? `${property.rightsOverlays.length} layer${property.rightsOverlays.length === 1 ? "" : "s"} stored`
-                    : "No separate hunting, fishing, or access layers yet"}
+                    ? `${property.rightsOverlays.length} lag lagret`
+                    : "Ingen egne jakt-, fiske- eller adkomstlag ennå"}
                 </dd>
               </div>
               <div>
-                <dt className="font-semibold text-[var(--foreground)]">Facilities</dt>
+                <dt className="font-semibold text-[var(--foreground)]">Fasiliteter</dt>
                 <dd>
                   {[
-                    infrastructure?.hasCabins ? "Cabins" : null,
-                    infrastructure?.hasBoats ? "Boats" : null,
-                    infrastructure?.hasHides ? "Hides" : null,
-                    infrastructure?.hasButcheringFacility ? "Butchering facility" : null,
+                    infrastructure?.hasCabins ? "Hytter" : null,
+                    infrastructure?.hasBoats ? "Båter" : null,
+                    infrastructure?.hasHides ? "Skjul" : null,
+                    infrastructure?.hasButcheringFacility ? "Slakteplass" : null,
                   ]
                     .filter(Boolean)
-                    .join(", ") || "No facilities marked yet"}
+                    .join(", ") || "Ingen fasiliteter markert ennå"}
                 </dd>
               </div>
               <div>
-                <dt className="font-semibold text-[var(--foreground)]">Listing</dt>
-                <dd>{listing ? formatListingStatus(listing.status) : "No listing draft yet"}</dd>
+                <dt className="font-semibold text-[var(--foreground)]">Annonse</dt>
+                <dd>{listing ? formatListingStatus(listing.status) : "Ingen annonseutkast ennå"}</dd>
               </div>
               <div>
-                <dt className="font-semibold text-[var(--foreground)]">Vald context</dt>
+                <dt className="font-semibold text-[var(--foreground)]">Vald-kontekst</dt>
                 <dd>
                   {property.vald
-                    ? `${property.vald.name} · Representative: ${property.vald.representativeName}`
-                    : "No vald or shared hunting area attached"}
+                    ? `${property.vald.name} · Representant: ${property.vald.representativeName}`
+                    : "Ingen vald- eller fellesjaktkontekst koblet til"}
                 </dd>
               </div>
               <div>
-                <dt className="font-semibold text-[var(--foreground)]">Confidence</dt>
+                <dt className="font-semibold text-[var(--foreground)]">Tillit og datagrunnlag</dt>
                 <dd>
-                  Geometry {property.geometryConfidence.toLowerCase()} · Rights {property.rightsConfidence.toLowerCase()} · Governance {property.governanceConfidence.toLowerCase()}
+                  Geometri {formatConfidenceLevel(property.geometryConfidence)} · rettigheter {formatConfidenceLevel(property.rightsConfidence)} · styring {formatConfidenceLevel(property.governanceConfidence)}
                 </dd>
               </div>
               <div>
-                <dt className="font-semibold text-[var(--foreground)]">Boundary and rights notes</dt>
+                <dt className="font-semibold text-[var(--foreground)]">Notater om grense og rettigheter</dt>
                 <dd>
                   {[
-                    property.boundaryIsApproximate ? "Boundary is approximate" : null,
-                    property.rightsDifferFromBoundary ? "Rights may differ from mapped property" : null,
+                    property.boundaryIsApproximate ? "Grensen er omtrentelig" : null,
+                    property.rightsDifferFromBoundary ? "Rettighetene kan avvike fra kartlagt eiendom" : null,
                   ]
                     .filter(Boolean)
-                    .join(", ") || "No special boundary or rights warning stored"}
+                    .join(", ") || "Ingen spesielle merknader om grense eller rettigheter er lagret"}
                 </dd>
               </div>
               {property.vald ? (
                 <>
                   <div>
-                    <dt className="font-semibold text-[var(--foreground)]">Vald verification</dt>
+                    <dt className="font-semibold text-[var(--foreground)]">Vald-verifisering</dt>
                     <dd>
-                      {property.vald.verificationMethod.replaceAll("_", " ").toLowerCase()} · confidence {property.vald.dataConfidence.toLowerCase()}
+                      {formatValdVerificationMethod(property.vald.verificationMethod)} · tillit {formatConfidenceLevel(property.vald.dataConfidence)}
                     </dd>
                   </div>
                   <div>
-                    <dt className="font-semibold text-[var(--foreground)]">Representative confirmation</dt>
-                    <dd>{property.vald.representativeConfirmationStatus.replaceAll("_", " ").toLowerCase()}</dd>
+                    <dt className="font-semibold text-[var(--foreground)]">Representantbekreftelse</dt>
+                    <dd>{formatSharedApprovalStatus(property.vald.representativeConfirmationStatus)}</dd>
                   </div>
                 </>
               ) : null}
               <div>
-                <dt className="font-semibold text-[var(--foreground)]">CWD status</dt>
+                <dt className="font-semibold text-[var(--foreground)]">CWD-status</dt>
                 <dd>
                   {cwdSummary.isInCwdZone
-                    ? `Inside monitoring zone: ${cwdSummary.cwdZoneName ?? "Unnamed zone"}`
-                    : "No overlapping CWD zone stored"}
+                    ? `Innenfor overvåkingssone: ${cwdSummary.cwdZoneName ?? "Sone uten navn"}`
+                    : "Ingen overlappende CWD-sone lagret"}
                 </dd>
               </div>
             </dl>
@@ -295,35 +347,86 @@ export default async function PropertyDetailPage({
 
           <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Recommended next steps
+              Anbefalte neste steg
             </p>
             <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
               {completion.steps.map((step) => (
                 <div key={step.key} className="rounded-2xl border border-[var(--border)] px-4 py-3">
-                  {step.complete ? "Complete" : "Needed"}: {step.label}
+                  {step.complete ? "Fullført" : "Mangler"}: {step.label}
                 </div>
               ))}
               <Link
                 href={`/dashboard/properties/${property.id}/boundary`}
                 className="block rounded-2xl border border-[var(--border)] px-4 py-3 font-semibold text-[var(--forest)]"
               >
-                Continue with the boundary step
+                Fortsett med grensesteg
               </Link>
               <Link
                 href={`/dashboard/properties/${property.id}/listing`}
                 className="block rounded-2xl border border-[var(--border)] px-4 py-3 font-semibold text-[var(--forest)]"
               >
-                Continue with the listing and approval step
+                Fortsett med annonse- og godkjenningssteg
               </Link>
               <Link
                 href={`/dashboard/properties/${property.id}/insights`}
                 className="block rounded-2xl border border-[var(--border)] px-4 py-3 font-semibold text-[var(--forest)]"
               >
-                Review promotion insights
+                Se markedsinnsikt
               </Link>
             </div>
           </section>
         </div>
+
+        <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
+            Etterlevelse og påminnelser
+          </p>
+          {complianceTasks.length > 0 ? (
+            <div className="mt-4 grid gap-3">
+              {complianceTasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="rounded-2xl border border-[var(--border)] px-4 py-3 text-sm leading-7 text-[var(--foreground)]"
+                >
+                  <p className="font-semibold">
+                    {formatComplianceTaskType(task.taskType)} · {formatComplianceTaskStatus(task.status)}
+                  </p>
+                  <p className="mt-1">{task.title}</p>
+                  <p className="mt-1 text-[var(--muted)]">
+                    {formatComplianceDueLabel(task.dueAt)}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    {task.actionUrl ? (
+                      <Link
+                        href={task.actionUrl}
+                        className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
+                      >
+                        {task.actionLabel ?? "Åpne oppgave"}
+                      </Link>
+                    ) : (
+                      <Link
+                        href={task.booking ? `/dashboard/bookings/${task.booking.id}` : `/dashboard/properties/${property.id}/listing`}
+                        className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
+                      >
+                        {task.booking ? "Åpne bestilling" : "Åpne annonse"}
+                      </Link>
+                    )}
+                    <Link
+                      href="/dashboard/compliance"
+                      className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
+                    >
+                      Se all etterlevelse
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
+              Ingen åpne etterlevelsesoppgaver er knyttet til denne eiendommen akkurat nå.
+            </p>
+          )}
+        </section>
 
         <PropertyIdentityEditor
           propertyId={property.id}

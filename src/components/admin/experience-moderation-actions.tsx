@@ -30,7 +30,7 @@ export function ExperienceModerationActions({
     const data = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      setError(data.error ?? "Unable to moderate the experience.");
+      setError(data.error ?? "Kunne ikke moderere erfaringen.");
       setIsWorking(false);
       return;
     }
@@ -46,7 +46,7 @@ export function ExperienceModerationActions({
         onChange={(event) => setModeratorNotes(event.target.value)}
         rows={4}
         className="w-full min-w-[18rem] rounded-[1.1rem] border border-[var(--border)] bg-white px-4 py-3 text-sm outline-none"
-        placeholder="Optional moderator note"
+        placeholder="Valgfritt moderatnotat"
       />
       <div className="flex flex-wrap gap-3">
         <button
@@ -55,7 +55,7 @@ export function ExperienceModerationActions({
           disabled={isWorking}
           className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-70"
         >
-          Approve
+          Godkjenn
         </button>
         <button
           type="button"
@@ -63,7 +63,7 @@ export function ExperienceModerationActions({
           disabled={isWorking}
           className="rounded-full bg-[var(--amber)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] disabled:opacity-70"
         >
-          Flag
+          Flagg
         </button>
         <button
           type="button"
@@ -71,7 +71,7 @@ export function ExperienceModerationActions({
           disabled={isWorking}
           className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] disabled:opacity-70"
         >
-          Reject
+          Avvis
         </button>
       </div>
       {error ? <p className="text-sm text-[#7f3127]">{error}</p> : null}

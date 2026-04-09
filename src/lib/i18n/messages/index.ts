@@ -14,12 +14,7 @@ export type Messages = WidenStrings<typeof nbMessages>;
 
 const messageRegistry: Record<AppLocale, Messages> = {
   nb: nbMessages,
-  nn: nbMessages,
   en: enMessages,
-  sv: nbMessages,
-  da: nbMessages,
-  fi: nbMessages,
-  de: nbMessages,
 };
 
 export function getMessages(locale: AppLocale): Messages {

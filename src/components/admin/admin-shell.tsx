@@ -41,11 +41,18 @@ export function AdminShell({
       label: t("shell.nav.complianceQueue"),
       active: normalizedPathname.startsWith("/admin/compliance"),
     },
+    {
+      href: localizePathname(locale, "/admin/users"),
+      label: t("shell.nav.users"),
+      active: normalizedPathname.startsWith("/admin/users"),
+    },
   ];
 
   const breadcrumb =
     normalizedPathname.startsWith("/admin/compliance")
       ? t("shell.nav.complianceQueue")
+      : normalizedPathname.startsWith("/admin/users")
+        ? t("shell.nav.users")
       : t("shell.nav.reviewQueue");
 
   return (

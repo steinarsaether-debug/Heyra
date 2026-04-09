@@ -678,6 +678,8 @@ model NotificationOutbox {
   user         User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
   bookingId    String?
   booking      Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  complianceTaskId String?
+  complianceTask   ComplianceTask? @relation(fields: [complianceTaskId], references: [id], onDelete: SetNull)
   channel      NotificationChannel
   template     String
   subject      String
@@ -691,6 +693,7 @@ model NotificationOutbox {
 
   @@index([userId, status, scheduledFor])
   @@index([bookingId, status])
+  @@index([complianceTaskId, template, scheduledFor])
 }
 
 model NotificationPreference {
@@ -730,6 +733,7 @@ model ComplianceTask {
   completedAt    DateTime?
   dismissedAt    DateTime?
   notes          String?              @db.Text
+  notifications  NotificationOutbox[]
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
 

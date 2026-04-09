@@ -1,11 +1,31 @@
 import { ComplianceTaskStatus, ComplianceTaskType } from "@prisma/client";
 
 export function formatComplianceTaskType(type: ComplianceTaskType) {
-  return type.toLowerCase().replaceAll("_", " ");
+  switch (type) {
+    case ComplianceTaskType.CWD_GUIDANCE:
+      return "CWD-veiledning";
+    case ComplianceTaskType.FISHING_FEE_CONFIRMATION:
+      return "Bekreft fiskeravgift";
+    case ComplianceTaskType.HJORTEVILT_REPORTING:
+      return "Rapportering til Hjorteviltregisteret";
+    case ComplianceTaskType.SALMON_REPORTING:
+      return "Lakse- og sjøørret-rapportering";
+    case ComplianceTaskType.VALD_QUOTA_REVIEW:
+      return "Vald, kvote og styring";
+  }
 }
 
 export function formatComplianceTaskStatus(status: ComplianceTaskStatus) {
-  return status.toLowerCase().replaceAll("_", " ");
+  switch (status) {
+    case ComplianceTaskStatus.OPEN:
+      return "Åpen";
+    case ComplianceTaskStatus.IN_PROGRESS:
+      return "Pågår";
+    case ComplianceTaskStatus.COMPLETED:
+      return "Fullført";
+    case ComplianceTaskStatus.DISMISSED:
+      return "Avsluttet";
+  }
 }
 
 export function getComplianceBucket(input: {
@@ -39,14 +59,39 @@ export function getComplianceBucket(input: {
 export function getComplianceBucketLabel(bucket: ReturnType<typeof getComplianceBucket>) {
   switch (bucket) {
     case "overdue":
-      return "Overdue";
+      return "Forsinket";
     case "upcoming":
-      return "Upcoming";
+      return "Kommer snart";
     case "completed":
-      return "Completed";
+      return "Fullført";
     case "dismissed":
-      return "Dismissed";
+      return "Avsluttet";
     default:
-      return "Active";
+      return "Aktiv oppfølging";
   }
+}
+
+export function formatComplianceDueLabel(dueAt: Date | null, now = new Date()) {
+  if (!dueAt) {
+    return "Ingen frist satt";
+  }
+
+  const dayDiff = Math.ceil(
+    (new Date(dueAt).getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+  );
+  const dateLabel = dueAt.toLocaleDateString("nb-NO");
+
+  if (dayDiff < 0) {
+    return `Forsinket siden ${dateLabel}`;
+  }
+
+  if (dayDiff === 0) {
+    return `Forfaller i dag (${dateLabel})`;
+  }
+
+  if (dayDiff === 1) {
+    return `Forfaller i morgen (${dateLabel})`;
+  }
+
+  return `Frist ${dateLabel}`;
 }

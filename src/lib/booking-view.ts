@@ -34,11 +34,28 @@ export type BookingWithRelations = Booking & {
 };
 
 export function formatBookingStatus(status: BookingStatus) {
-  return status
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+  switch (status) {
+    case BookingStatus.REQUESTED:
+      return "Forespurt";
+    case BookingStatus.APPROVED:
+      return "Godkjent";
+    case BookingStatus.SHARED_CONFIRMATION_PENDING:
+      return "Avventer felles bekreftelse";
+    case BookingStatus.DECLINED:
+      return "Avslått";
+    case BookingStatus.CONTRACT_PENDING:
+      return "Avventer kontrakt";
+    case BookingStatus.CONFIRMED:
+      return "Bekreftet";
+    case BookingStatus.ACTIVE:
+      return "Aktiv";
+    case BookingStatus.COMPLETED:
+      return "Fullført";
+    case BookingStatus.CANCELLED:
+      return "Avbestilt";
+    case BookingStatus.DISPUTED:
+      return "Under tvist";
+  }
 }
 
 type BookingGovernanceContext = {
@@ -58,18 +75,18 @@ export function getBookingStatusLabel({
   if (status === BookingStatus.SHARED_CONFIRMATION_PENDING) {
     return representativeConfirmationStatus === SharedApprovalStatus.PENDING
       ? "Waiting for vald confirmation"
-      : "Waiting for shared confirmation";
+      : "Avventer felles bekreftelse";
   }
 
   if (status === BookingStatus.CONTRACT_PENDING) {
-    return "Contract and payment pending";
+    return "Kontrakt og betaling venter";
   }
 
   if (
     status === BookingStatus.APPROVED &&
     (coApprovalRequired || governanceModel === ListingGovernanceModel.VALD_MANAGED)
   ) {
-    return "Approved pending shared confirmation";
+    return "Godkjent, men avventer felles bekreftelse";
   }
 
   return formatBookingStatus(status);

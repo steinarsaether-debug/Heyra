@@ -433,19 +433,19 @@ export default async function DashboardBookingsPage() {
                             href={`/dashboard/bookings/${booking.id}/review`}
                             className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
                           >
-                            Leave review
+                            Skriv vurdering
                           </Link>
                           <Link
                             href={`/dashboard/bookings/${booking.id}/experience`}
                             className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
                           >
                             {booking.hunterExperience
-                              ? "Update practical experience"
-                              : "Share practical experience"}
+                              ? "Oppdater praktisk erfaring"
+                              : "Del praktisk erfaring"}
                           </Link>
                           {booking.hunterExperience ? (
                             <span className="rounded-full border border-[var(--border)] px-4 py-2 text-sm text-[var(--muted)]">
-                              Experience {booking.hunterExperience.moderationStatus.toLowerCase()}
+                              Erfaring {booking.hunterExperience.moderationStatus === "APPROVED" ? "godkjent" : booking.hunterExperience.moderationStatus === "FLAGGED" ? "flagget" : booking.hunterExperience.moderationStatus === "REJECTED" ? "avvist" : "til moderering"}
                             </span>
                           ) : null}
                         </div>
@@ -455,14 +455,14 @@ export default async function DashboardBookingsPage() {
                           {booking.disputes[0] ? (
                             <div className="rounded-2xl border border-[var(--border)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
                               <p className="font-semibold">
-                                Latest dispute: {formatDisputeStatus(booking.disputes[0].status)}
+                                Siste tvist: {formatDisputeStatus(booking.disputes[0].status)}
                               </p>
                               <p className="text-[var(--muted)]">
                                 {getDisputeGuidance(booking.disputes[0].status)}
                               </p>
-                              {booking.disputes[0].resolutionNotes ? (
+                                  {booking.disputes[0].resolutionNotes ? (
                                 <p className="mt-2 text-[var(--muted)]">
-                                  Moderator notes: {booking.disputes[0].resolutionNotes}
+                                  Moderatornotater: {booking.disputes[0].resolutionNotes}
                                 </p>
                               ) : null}
                             </div>

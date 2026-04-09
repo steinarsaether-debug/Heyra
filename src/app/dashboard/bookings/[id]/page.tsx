@@ -25,8 +25,9 @@ import {
 import {
   formatComplianceTaskStatus,
   formatComplianceTaskType,
+  formatComplianceDueLabel,
 } from "@/lib/compliance-view";
-import { getBookingStatusGuidance, getBookingStatusLabel } from "@/lib/booking-view";
+import { formatBookingStatus, getBookingStatusGuidance, getBookingStatusLabel } from "@/lib/booking-view";
 import { prisma } from "@/lib/prisma";
 import {
   buildGuestExperienceCaption,
@@ -142,6 +143,7 @@ export default async function BookingWorkspacePage({
     title: booking.listing.title,
     caption: guestShareCaption,
   });
+  const nextComplianceTask = booking.complianceTasks[0] ?? null;
 
   return (
     <main className="px-6 py-10 sm:px-8 md:px-10">
@@ -198,7 +200,7 @@ export default async function BookingWorkspacePage({
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
               Bestillingsstatus
             </p>
-            <p className="mt-3 text-2xl text-[var(--forest)]">{booking.status.toLowerCase().replace("_", " ")}</p>
+            <p className="mt-3 text-2xl text-[var(--forest)]">{formatBookingStatus(booking.status)}</p>
             <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
               {booking.startDate.toLocaleDateString("nb-NO")} til {booking.endDate.toLocaleDateString("nb-NO")}
             </p>
@@ -219,16 +221,67 @@ export default async function BookingWorkspacePage({
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Calendar
+              Kalender
             </p>
             <a
               href={`/api/listings/${booking.listingId}/calendar.ics`}
               className="mt-3 inline-flex rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
             >
-              Export iCal
+              Eksporter iCal
             </a>
           </article>
         </div>
+
+        {nextComplianceTask ? (
+          <article className="rounded-[1.6rem] border border-[#e7d6ae] bg-[#fff8eb] p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
+              Neste etterlevelsespunkt
+            </p>
+            <p className="mt-3 text-lg font-semibold text-[var(--forest)]">
+              {formatComplianceTaskType(nextComplianceTask.taskType)} · {nextComplianceTask.title}
+            </p>
+            <p className="mt-2 text-sm leading-7 text-[#6e5630]">
+              {formatComplianceDueLabel(nextComplianceTask.dueAt)}
+            </p>
+            <p className="mt-2 text-sm leading-7 text-[#6e5630]">
+              {getComplianceTaskNextStep(nextComplianceTask.taskType)}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {nextComplianceTask.actionUrl ? (
+                isExternalComplianceAction(nextComplianceTask.actionUrl) ? (
+                  <a
+                    href={nextComplianceTask.actionUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    {nextComplianceTask.actionLabel ?? "Åpne oppgave"}
+                  </a>
+                ) : (
+                  <Link
+                    href={nextComplianceTask.actionUrl}
+                    className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    {nextComplianceTask.actionLabel ?? "Åpne oppgave"}
+                  </Link>
+                )
+              ) : (
+                <Link
+                  href="/dashboard/compliance"
+                  className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white"
+                >
+                  Åpne etterlevelse
+                </Link>
+              )}
+              <Link
+                href="/dashboard/compliance"
+                className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
+              >
+                Se alle oppgaver
+              </Link>
+            </div>
+          </article>
+        ) : null}
 
         {(() => {
           const quota = (booking.listing.quota as {
@@ -499,7 +552,7 @@ export default async function BookingWorkspacePage({
                     </p>
                   </div>
                   <div className="mt-3 space-y-1 text-sm leading-7 text-[var(--muted)]">
-                    {task.dueAt ? <p>Frist: {task.dueAt.toLocaleDateString("nb-NO")}</p> : null}
+                    <p>{formatComplianceDueLabel(task.dueAt)}</p>
                     {task.cwdZone?.name ? <p>CWD-sone: {task.cwdZone.name}</p> : null}
                     {task.cwdZone?.contactName ? <p>Kontakt: {task.cwdZone.contactName}</p> : null}
                     {task.cwdZone?.contactPhone ? <p>Telefon: {task.cwdZone.contactPhone}</p> : null}
@@ -558,7 +611,7 @@ export default async function BookingWorkspacePage({
               },
               {
                 label: "Kort anbefaling",
-                text: `Worth a look: ${booking.listing.title} on Heyra. ${guestShareUrl}`,
+                text: `Verdt å se nærmere på: ${booking.listing.title} på Heyra. ${guestShareUrl}`,
               },
             ]}
           />
@@ -566,7 +619,7 @@ export default async function BookingWorkspacePage({
 
         <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-          Varslingsutboks
+            Varslingsutboks
           </p>
           <div className="mt-4 space-y-3">
             {booking.notifications.length === 0 ? (

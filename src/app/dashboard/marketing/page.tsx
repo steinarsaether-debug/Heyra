@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { hasRole } from "@/lib/access";
+import { formatListingStatus } from "@/lib/listing-view";
 import { prisma } from "@/lib/prisma";
 import { summarizeAttributedBookings } from "@/lib/share-attribution";
 
@@ -174,7 +175,7 @@ export default async function MarketingPage() {
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-                      {listing.status.toLowerCase()}
+                      {formatListingStatus(listing.status)}
                     </p>
                     <h2 className="mt-3 text-2xl text-[var(--forest)]">{listing.title}</h2>
                     <p className="mt-2 text-sm leading-7 text-[var(--muted)]">

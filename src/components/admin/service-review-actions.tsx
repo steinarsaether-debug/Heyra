@@ -30,7 +30,7 @@ export function ServiceReviewActions({
     const data = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      setError(data.error ?? "Unable to update the service.");
+      setError(data.error ?? "Kunne ikke oppdatere tjenesten.");
       setIsWorking(false);
       return;
     }
@@ -42,13 +42,13 @@ export function ServiceReviewActions({
   return (
     <div className="space-y-3">
       <label className="block space-y-2 text-sm font-semibold text-[var(--foreground)]">
-        Reviewer notes
+        Notater fra gjennomgang
         <textarea
           value={reviewerNotes}
           onChange={(event) => setReviewerNotes(event.target.value)}
           rows={4}
           className="w-full min-w-[18rem] rounded-[1.2rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
-          placeholder="Explain why the service is ready, or what must change before publish."
+          placeholder="Forklar hvorfor tjenesten er klar, eller hva som må endres før publisering."
         />
       </label>
       <div className="flex flex-wrap gap-3">
@@ -58,7 +58,7 @@ export function ServiceReviewActions({
           disabled={isWorking}
           className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-70"
         >
-          Publish
+          Publiser
         </button>
         <button
           type="button"
@@ -66,7 +66,7 @@ export function ServiceReviewActions({
           disabled={isWorking}
           className="rounded-full bg-[var(--amber)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] disabled:opacity-70"
         >
-          Send back to draft
+          Send tilbake til utkast
         </button>
         <button
           type="button"
@@ -74,7 +74,7 @@ export function ServiceReviewActions({
           disabled={isWorking}
           className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] disabled:opacity-70"
         >
-          Archive
+          Arkiver
         </button>
       </div>
       {error ? <p className="text-sm text-[#7f3127]">{error}</p> : null}

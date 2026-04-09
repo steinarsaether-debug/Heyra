@@ -1,25 +1,30 @@
 import { DisputeStatus } from "@prisma/client";
 
 export function formatDisputeStatus(status: DisputeStatus) {
-  return status
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+  switch (status) {
+    case DisputeStatus.OPEN:
+      return "Åpen";
+    case DisputeStatus.UNDER_REVIEW:
+      return "Under vurdering";
+    case DisputeStatus.RESOLVED:
+      return "Løst";
+    case DisputeStatus.CLOSED:
+      return "Lukket";
+  }
 }
 
 export function getDisputeGuidance(status: DisputeStatus) {
   if (status === "OPEN") {
-    return "A moderator has not picked this up yet.";
+    return "En moderator har ikke tatt tak i denne ennå.";
   }
 
   if (status === "UNDER_REVIEW") {
-    return "A moderator is reviewing the dispute details and the related booking context.";
+    return "En moderator går gjennom tvisten og den tilhørende bestillingskonteksten.";
   }
 
   if (status === "RESOLVED") {
-    return "The dispute has a recorded resolution. Review the moderator notes before opening a new ticket.";
+    return "Tvisten har en registrert løsning. Les moderatornotatene før du eventuelt åpner en ny sak.";
   }
 
-  return "The dispute has been closed. A new ticket should only be opened if there is a genuinely new issue.";
+  return "Tvisten er lukket. En ny sak bør bare opprettes hvis det finnes et reelt nytt forhold.";
 }

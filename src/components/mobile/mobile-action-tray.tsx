@@ -23,7 +23,7 @@ export function MobileActionTray({
       {isOpen ? (
         <button
           type="button"
-          aria-label={`Close ${title}`}
+          aria-label={`Lukk ${title}`}
           className="fixed inset-0 z-[34] bg-[#102a21]/18"
           onClick={() => setIsOpen(false)}
         />
@@ -39,7 +39,7 @@ export function MobileActionTray({
               {title}
             </span>
             <span className="block text-sm font-semibold text-[var(--foreground)]">
-              {isOpen ? "Hide actions" : "Open quick actions"}
+              {isOpen ? "Skjul handlinger" : "Åpne hurtighandlinger"}
             </span>
           </span>
           <span className="text-lg text-[var(--forest)]">{isOpen ? "−" : "+"}</span>
@@ -62,7 +62,7 @@ export function MobileActionTray({
             onClick={() => setIsOpen(false)}
             className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)]"
           >
-            Close
+            Lukk
           </button>
         </div>
         <div className="grid grid-cols-2 gap-2">

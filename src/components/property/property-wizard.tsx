@@ -4,6 +4,12 @@ import { ConfidenceLevel, SharedApprovalStatus, TerrainType, ValdVerificationMet
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  formatConfidenceLevel,
+  formatSharedApprovalStatus,
+  formatTerrainTypes,
+  formatValdVerificationMethod,
+} from "@/lib/property-view";
 
 type StepKey = "identity" | "property" | "terrain" | "review";
 
@@ -41,70 +47,70 @@ type WizardState = {
 const steps: Array<{ key: StepKey; title: string; hint: string }> = [
   {
     key: "identity",
-    title: "Property identity",
-    hint: "We start with the basic property reference older landowners are most likely to already know or find in public records.",
+    title: "Eiendomsidentitet",
+    hint: "Vi starter med den grunnleggende eiendomsreferansen mange grunneiere allerede kjenner eller finner i offentlige registre.",
   },
   {
     key: "property",
-    title: "Location and size",
-    hint: "Keep this step simple and practical. We only ask for the information needed to create a draft.",
+    title: "Plassering og størrelse",
+    hint: "Hold dette steget enkelt og praktisk. Vi spør bare om det som trengs for å lage et utkast.",
   },
   {
     key: "terrain",
-    title: "Terrain and facilities",
-    hint: "This helps shape the eventual listing without asking for every detail at once.",
+    title: "Terreng og fasiliteter",
+    hint: "Dette hjelper oss å forme en fremtidig annonse uten å spørre om alt på én gang.",
   },
   {
     key: "review",
-    title: "Review and save",
-    hint: "You can save a draft now and add map boundaries later.",
+    title: "Gå gjennom og lagre",
+    hint: "Du kan lagre et utkast nå og legge inn kartgrenser senere.",
   },
 ];
 
 const terrainOptions: Array<{ value: TerrainType; label: string }> = [
-  { value: TerrainType.FOREST, label: "Forest" },
-  { value: TerrainType.MOUNTAIN, label: "Mountain" },
+  { value: TerrainType.FOREST, label: "Skog" },
+  { value: TerrainType.MOUNTAIN, label: "Fjell" },
   { value: TerrainType.FJORD, label: "Fjord" },
-  { value: TerrainType.WETLAND, label: "Wetland" },
-  { value: TerrainType.FARMLAND, label: "Farmland" },
-  { value: TerrainType.COASTAL, label: "Coastal" },
+  { value: TerrainType.WETLAND, label: "Våtmark" },
+  { value: TerrainType.FARMLAND, label: "Jordbruksland" },
+  { value: TerrainType.COASTAL, label: "Kystterreng" },
 ];
 
 const helpLinks = [
   {
-    title: "Find cadastral details",
+    title: "Finn matrikkelopplysninger",
     href: "https://www.kartverket.no/eiendom",
-    description: "Kartverket’s property information pages point people to official land and ownership records.",
+    description: "Kartverkets eiendomssider peker videre til offisielle opplysninger om grunn og eierskap.",
   },
   {
-    title: "Make forms easier to understand",
+    title: "Gjør skjema enklere å forstå",
     href: "https://aksel.nav.no/god-praksis/artikler/obligatoriske-og-valgfrie-skjemafelter",
-    description: "Aksel recommends clear labels, fewer optional fields, and explicit required-field wording.",
+    description: "Aksel anbefaler tydelige etiketter, færre valgfrie felt og klar merking av hva som er påkrevd.",
   },
   {
-    title: "Accessibility baseline",
+    title: "Tilgjengelighetsgrunnlag",
     href: "https://www.uutilsynet.no/wcag-standarden/oppbygging-av-wcag-21/139",
-    description: "Uu-tilsynet frames accessible web content around being perceivable, operable, understandable, and robust.",
+    description: "Uu-tilsynet beskriver tilgjengelig innhold som mulig å oppfatte, bruke, forstå og stole på.",
   },
 ];
 
 const confidenceOptions: Array<{ value: ConfidenceLevel; label: string }> = [
-  { value: ConfidenceLevel.LOW, label: "Low confidence" },
-  { value: ConfidenceLevel.MEDIUM, label: "Medium confidence" },
-  { value: ConfidenceLevel.HIGH, label: "High confidence" },
+  { value: ConfidenceLevel.LOW, label: "Lav tillit" },
+  { value: ConfidenceLevel.MEDIUM, label: "Middels tillit" },
+  { value: ConfidenceLevel.HIGH, label: "Høy tillit" },
 ];
 
 const verificationOptions: Array<{ value: ValdVerificationMethod; label: string }> = [
-  { value: ValdVerificationMethod.SELF_DECLARED, label: "Self-declared by landowner" },
-  { value: ValdVerificationMethod.MUNICIPAL_REFERENCE, label: "Based on municipal reference" },
-  { value: ValdVerificationMethod.MANUAL_REVIEW, label: "Reviewed manually from docs or contact" },
-  { value: ValdVerificationMethod.EXTERNAL_REGISTRY, label: "Verified against registry or authority data" },
+  { value: ValdVerificationMethod.SELF_DECLARED, label: "Egenerklært av grunneier" },
+  { value: ValdVerificationMethod.MUNICIPAL_REFERENCE, label: "Basert på kommunal referanse" },
+  { value: ValdVerificationMethod.MANUAL_REVIEW, label: "Manuelt gjennomgått fra dokumenter eller kontakt" },
+  { value: ValdVerificationMethod.EXTERNAL_REGISTRY, label: "Sjekket mot register eller myndighetsdata" },
 ];
 
 const representativeConfirmationOptions: Array<{ value: SharedApprovalStatus; label: string }> = [
-  { value: SharedApprovalStatus.NOT_REQUESTED, label: "Not requested yet" },
-  { value: SharedApprovalStatus.PENDING, label: "Requested and waiting" },
-  { value: SharedApprovalStatus.CONFIRMED, label: "Confirmed" },
+  { value: SharedApprovalStatus.NOT_REQUESTED, label: "Ikke forespurt ennå" },
+  { value: SharedApprovalStatus.PENDING, label: "Forespurt og avventer" },
+  { value: SharedApprovalStatus.CONFIRMED, label: "Bekreftet" },
 ];
 
 const initialState: WizardState = {
@@ -742,27 +748,27 @@ export function PropertyWizard() {
                 </div>
                 <div>
                   <dt className="font-semibold text-[var(--foreground)]">Terrain</dt>
-                  <dd>{values.terrainTypes.map((type) => type.toLowerCase()).join(", ")}</dd>
+                  <dd>{formatTerrainTypes(values.terrainTypes)}</dd>
                 </div>
                 <div>
                   <dt className="font-semibold text-[var(--foreground)]">Vald context</dt>
-                  <dd>{values.valdName.trim() ? values.valdName : "No vald or shared-area context added"}</dd>
+                  <dd>{values.valdName.trim() ? values.valdName : "Ingen vald- eller felleskontekst lagt til"}</dd>
                 </div>
                 <div>
                   <dt className="font-semibold text-[var(--foreground)]">Confidence</dt>
                   <dd>
-                    Geometry {values.geometryConfidence.toLowerCase()}, rights {values.rightsConfidence.toLowerCase()}, governance {values.governanceConfidence.toLowerCase()}
+                    Geometri {formatConfidenceLevel(values.geometryConfidence)} · rettigheter {formatConfidenceLevel(values.rightsConfidence)} · styring {formatConfidenceLevel(values.governanceConfidence)}
                   </dd>
                 </div>
                 <div>
                   <dt className="font-semibold text-[var(--foreground)]">Boundary warnings</dt>
                   <dd>
                     {[
-                      values.boundaryIsApproximate ? "Approximate boundary" : null,
-                      values.rightsDifferFromBoundary ? "Rights differ from mapped property" : null,
+                      values.boundaryIsApproximate ? "Omtrentlig grense" : null,
+                      values.rightsDifferFromBoundary ? "Rettigheter avviker fra kartlagt eiendom" : null,
                     ]
                       .filter(Boolean)
-                      .join(", ") || "No special warnings added"}
+                      .join(", ") || "Ingen spesielle merknader lagt til"}
                   </dd>
                 </div>
                 <div>
@@ -770,14 +776,18 @@ export function PropertyWizard() {
                   <dd>
                     {representativeConfirmationOptions.find(
                       (option) => option.value === values.representativeConfirmationStatus,
-                    )?.label ?? "Not requested yet"}
+                    )?.label ?? formatSharedApprovalStatus(SharedApprovalStatus.NOT_REQUESTED)}
                   </dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-[var(--foreground)]">Vald-verifisering</dt>
+                  <dd>{formatValdVerificationMethod(values.valdVerificationMethod)}</dd>
                 </div>
               </dl>
             </div>
 
             <p className="text-sm leading-7 text-[var(--muted)]">
-              You are only saving a draft at this stage. Boundary drawing, wildlife details, and publishing can happen later in smaller steps.
+              Du lagrer bare et utkast på dette steget. Grense, arter og publisering kan tas senere i mindre steg.
             </p>
           </div>
         ) : null}
@@ -801,7 +811,7 @@ export function PropertyWizard() {
               onClick={goBack}
               className="rounded-full border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)]"
             >
-              Back
+              Tilbake
             </button>
           ) : null}
 
@@ -811,7 +821,7 @@ export function PropertyWizard() {
               onClick={goNext}
               className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-[var(--background)]"
             >
-              Continue
+              Fortsett
             </button>
           ) : (
             <button
@@ -820,7 +830,7 @@ export function PropertyWizard() {
               disabled={isSubmitting}
               className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? "Saving draft..." : "Save draft property"}
+              {isSubmitting ? "Lagrer utkast..." : "Lagre eiendomsutkast"}
             </button>
           )}
         </div>
@@ -829,16 +839,16 @@ export function PropertyWizard() {
       <aside className="space-y-4">
         <section className="rounded-[1.8rem] bg-[var(--forest)] p-6 text-[var(--background)]">
           <p className="text-sm font-semibold uppercase tracking-[0.26em] text-white/65">
-            Built for slower pace
+            Laget for roligere tempo
           </p>
           <p className="mt-4 text-base leading-8 text-white/78">
-            This wizard uses short steps, plain labels, and save-as-draft flow so landowners do not need to finish everything in one sitting.
+            Denne veiviseren bruker korte steg, enkle etiketter og lagring som utkast, slik at grunneiere ikke trenger å fullføre alt i én økt.
           </p>
         </section>
 
         <section className="rounded-[1.8rem] border border-[var(--border)] bg-white/80 p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-            Official help links
+            Offisielle hjelpelinker
           </p>
           <div className="mt-4 space-y-4">
             {helpLinks.map((link) => (

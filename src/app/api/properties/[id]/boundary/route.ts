@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { canManageProperties, getOperationalAccessError, isSignedIn } from "@/lib/access";
 import { boundarySchema } from "@/lib/boundary-schema";
 import { refreshPropertyCwdStatus } from "@/lib/cwd-zones";
 import { buildPolygonWkt, geometryJsonToPoints, simplifyPointsForEditor } from "@/lib/geometry";
@@ -14,8 +15,11 @@ export async function GET(
 ) {
   const session = await auth();
 
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  if (!canManageProperties(session)) {
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "eiendom") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   const { id } = await context.params;
@@ -42,7 +46,7 @@ export async function GET(
     `;
 
     if (rows.length === 0) {
-      return NextResponse.json({ error: "Property not found." }, { status: 404 });
+      return NextResponse.json({ error: "Fant ikke eiendommen." }, { status: 404 });
     }
 
     const geometryJson = rows[0]?.geometry_json;
@@ -79,8 +83,11 @@ export async function PUT(
 ) {
   const session = await auth();
 
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  if (!canManageProperties(session)) {
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "eiendom") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   const { id } = await context.params;
@@ -112,14 +119,15 @@ export async function PUT(
     });
 
     if (!property) {
-      return NextResponse.json({ error: "Property not found." }, { status: 404 });
+      return NextResponse.json({ error: "Fant ikke eiendommen." }, { status: 404 });
     }
 
     const normalizedPoints = parsed.data.points.map((point) => ({
       lat: Number(point.lat),
       lng: Number(point.lng),
     }));
-    const polygonWkt = buildPolygonWkt(normalizedPoints);
+    const editablePoints = simplifyPointsForEditor(normalizedPoints);
+    const polygonWkt = buildPolygonWkt(editablePoints);
 
     await prisma.$executeRaw(
       Prisma.sql`
@@ -134,7 +142,13 @@ export async function PUT(
 
     const cwdStatus = await refreshPropertyCwdStatus(id, session.user.id);
 
-    return NextResponse.json({ ok: true, cwdStatus });
+    return NextResponse.json({
+      ok: true,
+      cwdStatus,
+      savedPointCount: editablePoints.length,
+      simplifiedFromPointCount:
+        normalizedPoints.length > editablePoints.length ? normalizedPoints.length : null,
+    });
   } catch (error) {
     console.error("Boundary update failed", error);
     return NextResponse.json(

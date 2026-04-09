@@ -3,7 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { ComplianceTaskActions } from "@/components/compliance/compliance-task-actions";
+import { RunComplianceRemindersButton } from "@/components/admin/run-compliance-reminders-button";
 import { canReviewListings } from "@/lib/access";
+import { getComplianceReminderAdminSummary } from "@/lib/compliance-reminders";
 import {
   getComplianceTaskNextStep,
   getComplianceTaskWhy,
@@ -11,6 +13,7 @@ import {
 } from "@/lib/compliance";
 import { formatComplianceTaskStatus, formatComplianceTaskType } from "@/lib/compliance-view";
 import { prisma } from "@/lib/prisma";
+import { formatUserRole } from "@/lib/user-status";
 
 type PageProps = {
   searchParams?: Promise<{
@@ -78,6 +81,7 @@ export async function AdminCompliancePageContent({ searchParams }: PageProps) {
     orderBy: [{ dueAt: "asc" }, { createdAt: "desc" }],
     take: 100,
   });
+  const reminderSummary = await getComplianceReminderAdminSummary(prisma);
 
   return (
     <main className="px-6 py-10 sm:px-8 md:px-10">
@@ -127,6 +131,52 @@ export async function AdminCompliancePageContent({ searchParams }: PageProps) {
           </button>
         </form>
 
+        <div className="grid gap-4 lg:grid-cols-[1fr_0.95fr]">
+          <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
+              Påminnelser og jobber
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-[var(--border)] px-4 py-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+                  Forsinkede oppgaver
+                </p>
+                <p className="mt-2 text-3xl text-[var(--forest)]">{reminderSummary.overdueTasks}</p>
+              </div>
+              <div className="rounded-2xl border border-[var(--border)] px-4 py-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+                  Neste 7 dager
+                </p>
+                <p className="mt-2 text-3xl text-[var(--forest)]">{reminderSummary.upcomingTasks}</p>
+              </div>
+              <div className="rounded-2xl border border-[var(--border)] px-4 py-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+                  Påminnelser i kø
+                </p>
+                <p className="mt-2 text-3xl text-[var(--forest)]">{reminderSummary.pendingReminders}</p>
+              </div>
+              <div className="rounded-2xl border border-[var(--border)] px-4 py-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+                  Feilede påminnelser
+                </p>
+                <p className="mt-2 text-3xl text-[var(--forest)]">{reminderSummary.failedReminders}</p>
+              </div>
+            </div>
+          </section>
+
+          <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
+              Kjør jobben manuelt
+            </p>
+            <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
+              Denne jobben legger inn påminnelser 7 dager før frist, 1 dag før frist og når oppgaver blir forsinket.
+            </p>
+            <div className="mt-5">
+              <RunComplianceRemindersButton />
+            </div>
+          </section>
+        </div>
+
         {tasks.length === 0 ? (
           <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-8 text-base leading-8 text-[var(--muted)]">
             Ingen oppgaver matcher filtrene akkurat nå.
@@ -159,7 +209,7 @@ export async function AdminCompliancePageContent({ searchParams }: PageProps) {
                     </div>
                     <div className="mt-3 space-y-1 text-sm leading-7 text-[var(--muted)]">
                       <p>
-                        Bruker: {task.user.pii?.fullName ?? task.user.email} · {task.user.role.toLowerCase()}
+                        Bruker: {task.user.pii?.fullName ?? task.user.email} · {formatUserRole(task.user.role)}
                       </p>
                       {task.dueAt ? <p>Frist: {task.dueAt.toLocaleDateString("nb-NO")}</p> : null}
                       {task.cwdZone?.name ? <p>CWD-sone: {task.cwdZone.name}</p> : null}

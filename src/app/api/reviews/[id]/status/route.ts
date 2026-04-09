@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { canReviewListings } from "@/lib/access";
+import { canReviewListings, getOperationalAccessError, isSignedIn } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { reviewModerationSchema } from "@/lib/review-schema";
 
@@ -13,7 +13,10 @@ export async function PATCH(
   const session = await auth();
 
   if (!canReviewListings(session)) {
-    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    return NextResponse.json(
+      { error: getOperationalAccessError(session, "gjennomgang") },
+      { status: isSignedIn(session) ? 403 : 401 },
+    );
   }
 
   const { id } = await context.params;
@@ -24,7 +27,7 @@ export async function PATCH(
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: parsed.error.issues[0]?.message ?? "Invalid moderation action." },
+        { error: parsed.error.issues[0]?.message ?? "Ugyldig modereringshandling." },
         { status: 400 },
       );
     }
@@ -56,7 +59,7 @@ export async function PATCH(
   } catch (error) {
     console.error("Review moderation failed", error);
     return NextResponse.json(
-      { error: "Something went wrong while moderating the review." },
+      { error: "Noe gikk galt da anmeldelsen skulle modereres." },
       { status: 500 },
     );
   }

@@ -30,7 +30,7 @@ export function DisputeActions({
     const data = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      setError(data.error ?? "Unable to update dispute.");
+      setError(data.error ?? "Kunne ikke oppdatere tvistesaken.");
       setIsWorking(false);
       return;
     }
@@ -46,7 +46,7 @@ export function DisputeActions({
         onChange={(event) => setResolutionNotes(event.target.value)}
         rows={4}
         className="w-full min-w-[18rem] rounded-[1.1rem] border border-[var(--border)] bg-white px-4 py-3 text-sm outline-none"
-        placeholder="Moderator notes or resolution summary"
+        placeholder="Moderatornotater eller oppsummering av løsning"
       />
       <div className="flex flex-wrap gap-3">
         <button
@@ -55,7 +55,7 @@ export function DisputeActions({
           disabled={isWorking}
           className="rounded-full bg-[var(--amber)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] disabled:opacity-70"
         >
-          Under review
+          Under gjennomgang
         </button>
         <button
           type="button"
@@ -63,7 +63,7 @@ export function DisputeActions({
           disabled={isWorking}
           className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-70"
         >
-          Resolve
+          Løs
         </button>
         <button
           type="button"
@@ -71,7 +71,7 @@ export function DisputeActions({
           disabled={isWorking}
           className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] disabled:opacity-70"
         >
-          Close
+          Lukk
         </button>
       </div>
       {error ? <p className="text-sm text-[#7f3127]">{error}</p> : null}

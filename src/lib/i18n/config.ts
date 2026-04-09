@@ -1,4 +1,4 @@
-export const supportedLocales = ["nb", "nn", "en", "sv", "da", "fi", "de"] as const;
+export const supportedLocales = ["nb", "en"] as const;
 
 export type AppLocale = (typeof supportedLocales)[number];
 
@@ -9,12 +9,7 @@ export const localeHeaderName = "x-heyra-locale";
 
 export const localeLabels: Record<AppLocale, string> = {
   nb: "Bokmål",
-  nn: "Nynorsk",
   en: "Engelsk",
-  sv: "Svenska",
-  da: "Dansk",
-  fi: "Suomi",
-  de: "Deutsch",
 };
 
 export function isSupportedLocale(value: string | null | undefined): value is AppLocale {
