@@ -2,12 +2,13 @@ import { auth } from "@/auth";
 import Link from "next/link";
 import { UserRole } from "@prisma/client";
 import { TrustBadge } from "@/components/trust/trust-badge";
+import { getUserRoles } from "@/lib/access";
 import { getProfileCompletion, getRoleGuidance } from "@/lib/profile";
 import { prisma } from "@/lib/prisma";
 import { getAverageRating } from "@/lib/review-view";
 import { summarizeAttributedBookings } from "@/lib/share-attribution";
 import { getHostQualityBadge, getTrustSummary } from "@/lib/trust-summary";
-import { formatUserRole, formatUserStatus, getUserStatusGuidance } from "@/lib/user-status";
+import { formatUserRoles, formatUserStatus, getUserStatusGuidance } from "@/lib/user-status";
 import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
@@ -42,6 +43,7 @@ export default async function DashboardPage() {
   }
 
   const completion = getProfileCompletion(user);
+  const userRoles = getUserRoles(user);
   const consentsGranted = user.consentRecords.filter((record) => !record.revokedAt).length;
   const averageRating = getAverageRating(user.receivedReviews.map((review) => review.rating));
   const trustSummary = getTrustSummary({
@@ -49,7 +51,7 @@ export default async function DashboardPage() {
     reviewCount: user.receivedReviews.length,
   });
   const landownerBookingStats =
-    user.role === UserRole.LANDOWNER
+    userRoles.includes(UserRole.LANDOWNER)
       ? await prisma.booking.findMany({
           where: {
             listing: {
@@ -64,7 +66,7 @@ export default async function DashboardPage() {
         })
       : [];
   const hostBadge =
-    user.role === UserRole.LANDOWNER
+    userRoles.includes(UserRole.LANDOWNER)
       ? getHostQualityBadge({
           averageRating,
           approvedReviewCount: user.receivedReviews.length,
@@ -86,7 +88,7 @@ export default async function DashboardPage() {
     },
   });
   const marketingSummary =
-    user.role === UserRole.LANDOWNER
+    userRoles.includes(UserRole.LANDOWNER)
       ? summarizeAttributedBookings(
           await prisma.booking.findMany({
             where: {
@@ -133,7 +135,7 @@ export default async function DashboardPage() {
               Velkommen tilbake, {session.user.fullName}.
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-white/75">
-              {getRoleGuidance(user.role)}
+              {getRoleGuidance(userRoles)}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
@@ -148,7 +150,7 @@ export default async function DashboardPage() {
               >
                 Konto
               </Link>
-              {user.role === UserRole.LANDOWNER ? (
+              {userRoles.includes(UserRole.LANDOWNER) ? (
                 <Link
                   href="/dashboard/properties/new"
                   className="rounded-full bg-[var(--amber)] px-5 py-3 text-sm font-semibold text-[var(--foreground)]"
@@ -180,7 +182,7 @@ export default async function DashboardPage() {
               >
                 Etterlevelse {complianceCount > 0 ? `(${complianceCount})` : ""}
               </Link>
-              {user.role === UserRole.LANDOWNER ? (
+              {userRoles.includes(UserRole.LANDOWNER) ? (
                 <Link
                   href="/dashboard/marketing"
                   className="rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white"
@@ -249,7 +251,7 @@ export default async function DashboardPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
               Rolle
             </p>
-            <p className="mt-3 text-2xl text-[var(--forest)]">{formatUserRole(user.role)}</p>
+            <p className="mt-3 text-2xl text-[var(--forest)]">{formatUserRoles(userRoles)}</p>
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
@@ -312,7 +314,7 @@ export default async function DashboardPage() {
             ) : null}
           </article>
 
-          {user.role === UserRole.LANDOWNER ? (
+          {userRoles.includes(UserRole.LANDOWNER) ? (
             <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
                 Markedsoversikt
@@ -382,7 +384,7 @@ export default async function DashboardPage() {
               <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
                 Legg til rollebasert oppfølging etter dette felles profillaget.
               </p>
-              {user.role === UserRole.LANDOWNER ? (
+              {userRoles.includes(UserRole.LANDOWNER) ? (
                 <>
                   <p className="rounded-2xl border border-[var(--border)] px-4 py-3">
                     Grunneiere bør gå videre til opprettelse av eiendom og oppsett av annonse.

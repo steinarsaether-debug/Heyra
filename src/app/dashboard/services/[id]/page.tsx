@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { ServiceListingEditor } from "@/components/services/service-listing-editor";
-import { canManageServices } from "@/lib/access";
+import { canManageServices, getUserRoles } from "@/lib/access";
 import { serviceQualificationsSchema } from "@/lib/service-schema";
 import { prisma } from "@/lib/prisma";
-import { formatUserStatus, getUserStatusGuidance } from "@/lib/user-status";
+import { formatUserStatus, getPrimaryUserRole, getUserStatusGuidance } from "@/lib/user-status";
 
 type ServiceEditorPageProps = {
   params: Promise<{ id: string }>;
@@ -16,6 +16,8 @@ export default async function ServiceEditorPage({ params }: ServiceEditorPagePro
   if (!canManageServices(session)) {
     redirect("/dashboard");
   }
+
+  const primaryRole = getPrimaryUserRole(getUserRoles(session.user));
 
   const { id } = await params;
 
@@ -49,7 +51,7 @@ export default async function ServiceEditorPage({ params }: ServiceEditorPagePro
           <p className="mt-3 text-sm leading-7 text-[#6b5432]">
             {getUserStatusGuidance({
               status: session.user.status,
-              role: session.user.role,
+              role: primaryRole,
             })}
           </p>
         </section>

@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
         email,
         passwordHash,
         role,
+        roles: [role],
         pii: {
           create: {
             fullName,

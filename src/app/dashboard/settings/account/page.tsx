@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { ConsentType } from "@prisma/client";
 import { auth } from "@/auth";
+import { getUserRoles } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import {
   getUserStatusEffects,
   formatServiceProviderReviewStatus,
-  formatUserRole,
+  formatUserRoles,
   formatUserStatus,
   getUserStatusGuidance,
 } from "@/lib/user-status";
@@ -77,6 +78,7 @@ export default async function AccountSettingsPage() {
   }
 
   const activeConsents = user.consentRecords.filter((record) => !record.revokedAt);
+  const userRoles = getUserRoles(user);
 
   return (
     <main className="px-6 py-10 sm:px-8 md:px-10">
@@ -96,7 +98,7 @@ export default async function AccountSettingsPage() {
         <div className="grid gap-4 lg:grid-cols-5">
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Rolle</p>
-            <p className="mt-3 text-2xl text-[var(--forest)]">{formatUserRole(user.role)}</p>
+            <p className="mt-3 text-2xl text-[var(--forest)]">{formatUserRoles(userRoles)}</p>
           </article>
           <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Kontostatus</p>
@@ -133,6 +135,10 @@ export default async function AccountSettingsPage() {
                   role: user.role,
                   statusReason: user.statusReason,
                 })}
+              </p>
+              <p>
+                <span className="font-semibold text-[var(--foreground)]">Roller:</span>{" "}
+                {formatUserRoles(userRoles)}
               </p>
               <p>
                 <span className="font-semibold text-[var(--foreground)]">BankID-verifisert:</span>{" "}

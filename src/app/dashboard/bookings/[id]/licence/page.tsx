@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -5,6 +6,7 @@ import { MobileActionTray } from "@/components/mobile/mobile-action-tray";
 import { OfflineFreshnessNote } from "@/components/pwa/offline-freshness-note";
 import { OfflinePageNote } from "@/components/pwa/offline-page-note";
 import { OfflineSaveLinks } from "@/components/pwa/offline-save-links";
+import { hasRole } from "@/lib/access";
 import { formatContractStatus, formatPaymentStatus } from "@/lib/commerce";
 import { prisma } from "@/lib/prisma";
 
@@ -58,7 +60,7 @@ export default async function FishingLicenceProofPage({
   const isAllowed =
     booking.hunterId === session.user.id ||
     booking.listing.property.ownerId === session.user.id ||
-    session.user.role === "ADMIN";
+    hasRole(session, [UserRole.ADMIN]);
 
   if (!isAllowed) {
     redirect("/dashboard/bookings");

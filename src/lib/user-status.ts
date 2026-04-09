@@ -1,5 +1,21 @@
 import { ServiceProviderReviewStatus, UserRole, UserStatus } from "@prisma/client";
 
+export function getPrimaryUserRole(roles: UserRole[]) {
+  if (roles.includes(UserRole.LANDOWNER)) {
+    return UserRole.LANDOWNER;
+  }
+
+  if (roles.includes(UserRole.HUNTER)) {
+    return UserRole.HUNTER;
+  }
+
+  if (roles.includes(UserRole.ADMIN)) {
+    return UserRole.ADMIN;
+  }
+
+  return UserRole.HUNTER;
+}
+
 export function formatUserRole(role: UserRole) {
   switch (role) {
     case UserRole.ADMIN:
@@ -11,6 +27,11 @@ export function formatUserRole(role: UserRole) {
     default:
       return role;
   }
+}
+
+export function formatUserRoles(roles: UserRole[]) {
+  const uniqueRoles = Array.from(new Set(roles));
+  return uniqueRoles.map((role) => formatUserRole(role)).join(" · ");
 }
 
 export function formatUserStatus(status: UserStatus) {

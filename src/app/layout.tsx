@@ -3,6 +3,8 @@ import localFont from "next/font/local";
 import { auth } from "@/auth";
 import { AppShell } from "@/components/app-shell";
 import { Providers } from "@/components/providers";
+import { getActiveRoleForUser } from "@/lib/active-role";
+import { getUserRoles } from "@/lib/access";
 import { getMessages } from "@/lib/i18n/messages";
 import { getRequestLocale } from "@/lib/i18n/request";
 import { prisma } from "@/lib/prisma";
@@ -88,6 +90,7 @@ export default async function RootLayout({
   const locale = await getRequestLocale();
   const messages = getMessages(locale);
   const session = await auth();
+  const activeRole = session?.user ? await getActiveRoleForUser(getUserRoles(session.user)) : null;
   const userTrust = session?.user
     ? await (async () => {
         const user = await prisma.user.findUnique({
@@ -115,8 +118,9 @@ export default async function RootLayout({
           averageRating,
           reviewCount: user.receivedReviews.length,
         });
+        const userRoles = getUserRoles(session.user);
         const bookingStats =
-          session.user.role === "LANDOWNER"
+          userRoles.includes("LANDOWNER")
             ? await prisma.booking.findMany({
                 where: {
                   listing: {
@@ -131,7 +135,7 @@ export default async function RootLayout({
               })
             : [];
         const hostBadge =
-          session.user.role === "LANDOWNER"
+          userRoles.includes("LANDOWNER")
             ? getHostQualityBadge({
                 averageRating,
                 approvedReviewCount: user.receivedReviews.length,
@@ -151,7 +155,7 @@ export default async function RootLayout({
     <html lang={locale}>
       <body className={heyraSerif.variable}>
         <Providers locale={locale} messages={messages}>
-          <AppShell locale={locale} messages={messages} session={session} userTrust={userTrust}>
+          <AppShell locale={locale} messages={messages} session={session} userTrust={userTrust} activeRole={activeRole}>
             {children}
           </AppShell>
         </Providers>

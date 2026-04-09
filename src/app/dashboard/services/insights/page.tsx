@@ -13,7 +13,7 @@ export default async function ServiceInsightsPage() {
     redirect("/dashboard");
   }
 
-  const isAdmin = session.user.role === UserRole.ADMIN;
+  const isAdmin = hasRole(session, [UserRole.ADMIN]);
   const profileFilter = isAdmin
     ? {}
     : {

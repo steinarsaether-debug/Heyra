@@ -249,6 +249,7 @@ enum Species {
 model User {
   id                      String                   @id @default(cuid())
   role                    UserRole
+  roles                   UserRole[]
   status                  UserStatus               @default(ACTIVE)
   statusReason            String?                  @db.Text
   suspendedAt             DateTime?

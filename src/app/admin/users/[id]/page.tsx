@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { AdminUserNoteForm } from "@/components/admin/admin-user-note-form";
+import { AdminUserRoleActions } from "@/components/admin/admin-user-role-actions";
 import { AdminUserStatusActions } from "@/components/admin/admin-user-status-actions";
 import { canReviewListings } from "@/lib/access";
 import { formatBookingStatus } from "@/lib/booking-view";
@@ -11,6 +12,7 @@ import { formatPropertyStatus } from "@/lib/property-view";
 import {
   formatServiceProviderReviewStatus,
   formatUserRole,
+  formatUserRoles,
   formatUserStatus,
   getUserStatusGuidance,
 } from "@/lib/user-status";
@@ -130,7 +132,7 @@ export default async function AdminUserDetailPage({
             {user.pii?.fullName ?? user.email}
           </h1>
           <p className="mt-4 text-lg leading-8 text-[var(--muted)]">
-            {user.email} · {formatUserRole(user.role)} · {formatUserStatus(user.status)}
+            {user.email} · {formatUserRoles(user.roles.length > 0 ? user.roles : [user.role])} · {formatUserStatus(user.status)}
           </p>
         </div>
 
@@ -165,6 +167,7 @@ export default async function AdminUserDetailPage({
               <p><span className="font-semibold text-[var(--foreground)]">E-postbekreftelse:</span> {user.emailVerified ? user.emailVerified.toLocaleString("nb-NO") : "Ikke bekreftet"}</p>
               <p><span className="font-semibold text-[var(--foreground)]">BankID-verifisert:</span> {user.pii?.bankIdVerified ? "Ja" : "Nei"}</p>
               <p><span className="font-semibold text-[var(--foreground)]">Vipps-verifisert:</span> {user.pii?.vippsVerified ? "Ja" : "Nei"}</p>
+              <p><span className="font-semibold text-[var(--foreground)]">Roller:</span> {formatUserRoles(user.roles.length > 0 ? user.roles : [user.role])}</p>
               <p><span className="font-semibold text-[var(--foreground)]">Statusveiledning:</span> {getUserStatusGuidance({ status: user.status, role: user.role, statusReason: user.statusReason })}</p>
               {user.serviceProviderProfile ? (
                 <p>
@@ -194,6 +197,7 @@ export default async function AdminUserDetailPage({
                 ) : null}
               </section>
             ) : null}
+            <AdminUserRoleActions userId={user.id} currentRoles={user.roles.length > 0 ? user.roles : [user.role]} />
             <AdminUserStatusActions userId={user.id} currentStatus={user.status} />
             <AdminUserNoteForm userId={user.id} />
           </div>

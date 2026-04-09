@@ -2,9 +2,10 @@ import { Prisma, ServiceProviderReviewStatus, UserRole, UserStatus } from "@pris
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
+import { AdminGrantRoleForm } from "@/components/admin/admin-grant-role-form";
 import { canReviewListings } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
-import { formatServiceProviderReviewStatus, formatUserRole, formatUserStatus } from "@/lib/user-status";
+import { formatServiceProviderReviewStatus, formatUserRole, formatUserRoles, formatUserStatus } from "@/lib/user-status";
 
 type PageProps = {
   searchParams?: Promise<{
@@ -31,7 +32,18 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
   const provider = params?.provider ?? "ALL";
 
   const where: Prisma.UserWhereInput = {
-    ...(role !== "ALL" ? { role } : {}),
+    ...(role !== "ALL"
+      ? {
+          OR: [
+            { role },
+            {
+              roles: {
+                has: role,
+              },
+            },
+          ],
+        }
+      : {}),
     ...(status !== "ALL" ? { status } : {}),
     ...(verified === "YES" ? { emailVerified: { not: null } } : {}),
     ...(verified === "NO" ? { emailVerified: null } : {}),
@@ -75,9 +87,9 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
         emailVerified: true,
         createdAt: true,
         pii: {
-          select: {
-            fullName: true,
-          },
+                      select: {
+                        fullName: true,
+                      },
         },
         serviceProviderProfile: {
           select: {
@@ -85,6 +97,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
             businessName: true,
           },
         },
+        roles: true,
         _count: {
           select: {
             bookings: true,
@@ -142,6 +155,8 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
           </article>
         </div>
 
+        <AdminGrantRoleForm />
+
         <form className="grid gap-3 rounded-[1.3rem] border border-[var(--border)] bg-white/70 p-4 text-sm text-[var(--muted)] lg:grid-cols-5">
           <input
             type="search"
@@ -198,7 +213,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-                      {formatUserRole(user.role)} · {formatUserStatus(user.status)}
+                      {formatUserRoles(user.roles.length > 0 ? user.roles : [user.role])} · {formatUserStatus(user.status)}
                     </p>
                     <h2 className="mt-3 text-2xl text-[var(--forest)]">
                       {user.pii?.fullName ?? "Navn ikke registrert"}

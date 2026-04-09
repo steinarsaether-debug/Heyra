@@ -2,12 +2,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { ServiceProviderProfileForm } from "@/components/services/service-provider-profile-form";
-import { canManageServices } from "@/lib/access";
+import { canManageServices, getUserRoles } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 import { formatServiceCategory, formatServiceStatus } from "@/lib/service-view";
 import { getServiceTrustBadge, getServiceTrustSummary } from "@/lib/service-trust";
 import { TrustBadge } from "@/components/trust/trust-badge";
-import { formatUserStatus, getUserStatusGuidance } from "@/lib/user-status";
+import { formatUserStatus, getPrimaryUserRole, getUserStatusGuidance } from "@/lib/user-status";
 
 export default async function DashboardServicesPage() {
   const session = await auth();
@@ -15,6 +15,8 @@ export default async function DashboardServicesPage() {
   if (!canManageServices(session)) {
     redirect("/dashboard");
   }
+
+  const primaryRole = getPrimaryUserRole(getUserRoles(session.user));
 
   const profile = await prisma.serviceProviderProfile.findUnique({
     where: {
@@ -61,7 +63,7 @@ export default async function DashboardServicesPage() {
             <p className="mt-3 text-sm leading-7 text-[#6b5432]">
               {getUserStatusGuidance({
                 status: session.user.status,
-                role: session.user.role,
+                role: primaryRole,
               })}
             </p>
             <div className="mt-4">

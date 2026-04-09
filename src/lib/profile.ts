@@ -1,4 +1,5 @@
 import { UserRole, type User, type UserPii } from "@prisma/client";
+import { getUserRoles } from "@/lib/access";
 
 type ProfileRecord = User & {
   pii: UserPii | null;
@@ -12,6 +13,7 @@ type CompletionField = {
 
 export function getProfileCompletion(user: ProfileRecord) {
   const pii = user.pii;
+  const roles = getUserRoles(user);
 
   const fields: CompletionField[] = [
     { key: "fullName", label: "Full name", complete: Boolean(pii?.fullName?.trim()) },
@@ -29,7 +31,7 @@ export function getProfileCompletion(user: ProfileRecord) {
     },
   ];
 
-  if (user.role === UserRole.HUNTER) {
+  if (roles.includes(UserRole.HUNTER)) {
     fields.push({
       key: "hunterNumber",
       label: "Hunter number",
@@ -48,12 +50,18 @@ export function getProfileCompletion(user: ProfileRecord) {
   };
 }
 
-export function getRoleGuidance(role: UserRole) {
-  if (role === UserRole.LANDOWNER) {
+export function getRoleGuidance(input: UserRole | UserRole[]) {
+  const roles = Array.isArray(input) ? input : [input];
+
+  if (roles.includes(UserRole.ADMIN) && roles.includes(UserRole.LANDOWNER)) {
+    return "Du har både admin- og grunneierrolle. Sørg for at kontaktprofilen er komplett, slik at både drift, eiendomsarbeid og revisjonsspor har en tydelig konto å bygge på.";
+  }
+
+  if (roles.includes(UserRole.LANDOWNER)) {
     return "Complete your contact details first so property onboarding, contracts, and payout setup have a clean owner profile to build on.";
   }
 
-  if (role === UserRole.ADMIN) {
+  if (roles.includes(UserRole.ADMIN)) {
     return "Use this baseline profile so admin audit trails and contact flows have a verified internal account record.";
   }
 

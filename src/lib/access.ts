@@ -6,10 +6,28 @@ type AuthenticatedSession = Session & {
   user: NonNullable<Session["user"]> & {
     id: string;
     role: UserRole;
+    roles: UserRole[];
     status: UserStatus;
     fullName: string;
   };
 };
+
+type UserLike = {
+  role?: UserRole | null;
+  roles?: UserRole[] | null;
+};
+
+export function getUserRoles(user: UserLike | null | undefined) {
+  if (!user) {
+    return [] as UserRole[];
+  }
+
+  if (user.roles && user.roles.length > 0) {
+    return user.roles;
+  }
+
+  return user.role ? [user.role] : [];
+}
 
 export function isSignedIn(session: Session | null): session is AuthenticatedSession {
   return Boolean(session?.user);
@@ -20,7 +38,11 @@ export function hasRole(session: Session | null, roles: Role[]) {
     return false;
   }
 
-  return roles.includes(session.user.role);
+  return getUserRoles(session.user).some((role) => roles.includes(role));
+}
+
+export function userHasRole(user: UserLike | null | undefined, roles: Role[]) {
+  return getUserRoles(user).some((role) => roles.includes(role));
 }
 
 export function hasAllowedStatus(

@@ -1,3 +1,4 @@
+import { UserRole } from "@prisma/client";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -10,6 +11,7 @@ import { OfflineFreshnessNote } from "@/components/pwa/offline-freshness-note";
 import { OfflinePageNote } from "@/components/pwa/offline-page-note";
 import { OfflineSaveLinks } from "@/components/pwa/offline-save-links";
 import { ShareToolkit } from "@/components/share/share-toolkit";
+import { hasRole } from "@/lib/access";
 import {
   formatCancellationPolicy,
   formatContractStatus,
@@ -123,7 +125,7 @@ export default async function BookingWorkspacePage({
 
   const isHunter = booking.hunterId === session.user.id;
   const isOwner = booking.listing.property.ownerId === session.user.id;
-  const isAdmin = session.user.role === "ADMIN";
+  const isAdmin = hasRole(session, [UserRole.ADMIN]);
 
   if (!isHunter && !isOwner && !isAdmin) {
     redirect("/dashboard/bookings");

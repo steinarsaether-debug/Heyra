@@ -2,14 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { Session } from "next-auth";
 import { UserRole } from "@prisma/client";
+import { RoleModeSwitcher } from "@/components/account/role-mode-switcher";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AppMobileNav } from "@/components/app-mobile-nav";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { SignOutButton } from "@/components/sign-out-button";
+import { formatUserRole } from "@/lib/user-status";
+import { getUserRoles } from "@/lib/access";
 import type { AppLocale } from "@/lib/i18n/config";
 import { localizePathname, stripLocalePrefix } from "@/lib/i18n/config";
 import type { Messages } from "@/lib/i18n/messages";
@@ -31,18 +34,47 @@ function MoreMenu({
   sections,
   isSignedIn,
   label,
+  roleMode,
 }: {
   sections: MenuSection[];
   isSignedIn: boolean;
   label: string;
+  roleMode?: {
+    roles: UserRole[];
+    activeRole: UserRole;
+    title: string;
+  } | null;
 }) {
+  const pathname = usePathname();
+  const detailsRef = useRef<HTMLDetailsElement | null>(null);
+
+  const closeMenu = () => {
+    if (detailsRef.current) {
+      detailsRef.current.open = false;
+    }
+  };
+
+  useEffect(() => {
+    closeMenu();
+  }, [pathname]);
+
   return (
-    <details className="relative">
+    <details ref={detailsRef} className="relative">
       <summary className="list-none rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--background-soft)]">
         {label}
       </summary>
       <div className="absolute right-0 top-[calc(100%+0.75rem)] z-30 w-[21rem] rounded-[1.5rem] border border-[var(--border)] bg-white p-4 shadow-[0_22px_44px_rgba(16,42,33,0.16)]">
         <div className="space-y-4">
+          {roleMode ? (
+            <>
+              <RoleModeSwitcher
+                roles={roleMode.roles}
+                activeRole={roleMode.activeRole}
+                title={roleMode.title}
+              />
+              <div className="border-t border-[var(--border)]" />
+            </>
+          ) : null}
           {sections
             .filter((section) => section.items.length > 0)
             .map((section) => (
@@ -55,6 +87,7 @@ function MoreMenu({
                     <Link
                       key={item.href}
                       href={item.href}
+                      onClick={closeMenu}
                       className="rounded-[1rem] border border-[var(--border)] px-4 py-3 text-sm text-[var(--foreground)] transition hover:bg-[var(--background-soft)]"
                     >
                       {item.label}
@@ -82,6 +115,7 @@ function MobileMoreSheet({
   subtitle,
   closeLabel,
   isSignedIn,
+  roleMode,
 }: {
   open: boolean;
   onClose: () => void;
@@ -90,6 +124,11 @@ function MobileMoreSheet({
   subtitle: string;
   closeLabel: string;
   isSignedIn: boolean;
+  roleMode?: {
+    roles: UserRole[];
+    activeRole: UserRole;
+    title: string;
+  } | null;
 }) {
   if (!open) {
     return null;
@@ -123,6 +162,16 @@ function MobileMoreSheet({
         </div>
 
         <div className="space-y-4">
+          {roleMode ? (
+            <>
+              <RoleModeSwitcher
+                roles={roleMode.roles}
+                activeRole={roleMode.activeRole}
+                title={roleMode.title}
+              />
+              <div className="border-t border-[var(--border)]" />
+            </>
+          ) : null}
           {sections
             .filter((section) => section.items.length > 0)
             .map((section) => (
@@ -161,11 +210,13 @@ export function AppShell({
   messages,
   session,
   userTrust: _userTrust,
+  activeRole,
 }: {
   children: ReactNode;
   locale: AppLocale;
   messages: Messages;
   session: Session | null;
+  activeRole?: UserRole | null;
   userTrust?: {
     trustSummary: string;
     hostBadge: unknown | null;
@@ -182,8 +233,18 @@ export function AppShell({
   }, [pathname]);
 
   const isSignedIn = Boolean(session?.user);
-  const isLandowner = session?.user?.role === UserRole.LANDOWNER;
-  const isAdmin = session?.user?.role === UserRole.ADMIN;
+  const userRoles = getUserRoles(session?.user);
+  const currentActiveRole = activeRole && userRoles.includes(activeRole) ? activeRole : userRoles[0] ?? null;
+  const isLandowner = userRoles.includes(UserRole.LANDOWNER);
+  const isAdmin = userRoles.includes(UserRole.ADMIN);
+  const roleMode =
+    isSignedIn && userRoles.length > 1 && currentActiveRole
+      ? {
+          roles: userRoles,
+          activeRole: currentActiveRole,
+          title: locale === "en" ? "Active mode" : "Aktiv modus",
+        }
+      : null;
 
   const primaryNav = [
     {
@@ -378,7 +439,7 @@ export function AppShell({
                   {item.label}
                 </Link>
               ))}
-              <MoreMenu sections={moreSections} isSignedIn={isSignedIn} label={t("shell.nav.more")} />
+              <MoreMenu sections={moreSections} isSignedIn={isSignedIn} label={t("shell.nav.more")} roleMode={roleMode} />
             </nav>
 
             <div className="hidden items-center gap-3 md:flex lg:justify-end">
@@ -393,6 +454,11 @@ export function AppShell({
                   <div className="rounded-full border border-[var(--border)] bg-[#f7f4ed] px-4 py-2 text-sm text-[var(--foreground)]">
                     {session.user.fullName}
                   </div>
+                  {currentActiveRole ? (
+                    <div className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm text-[var(--muted)]">
+                      {locale === "en" ? "Mode" : "Modus"}: {formatUserRole(currentActiveRole)}
+                    </div>
+                  ) : null}
                   <SignOutButton className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm text-[var(--foreground)] transition hover:bg-[var(--background-soft)]" />
                 </>
               ) : (
@@ -417,6 +483,7 @@ export function AppShell({
         subtitle={`${t("shell.nav.account")} · ${t("shell.nav.explore")}`}
         closeLabel={locale === "en" ? "Close" : "Lukk"}
         isSignedIn={isSignedIn}
+        roleMode={roleMode}
       />
       <AppMobileNav items={mobileNav} />
     </div>

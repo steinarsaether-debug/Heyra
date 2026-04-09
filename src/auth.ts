@@ -59,6 +59,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           role: user.role,
+          roles: user.roles.length > 0 ? user.roles : [user.role],
           status: user.status,
           fullName: user.pii?.fullName ?? user.email,
           name: user.pii?.fullName ?? user.email,
@@ -71,6 +72,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role ?? UserRole.HUNTER;
+        token.roles = user.roles?.length ? user.roles : [user.role ?? UserRole.HUNTER];
         token.status = user.status ?? UserStatus.ACTIVE;
         token.fullName = user.fullName ?? user.name ?? user.email ?? "Heyra user";
       }
@@ -81,6 +83,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id;
         session.user.role = token.role;
+        session.user.roles = token.roles?.length ? token.roles : [token.role];
         session.user.status = token.status;
         session.user.fullName = token.fullName;
         session.user.name = token.fullName;

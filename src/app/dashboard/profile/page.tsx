@@ -2,23 +2,13 @@ import { UserRole } from "@prisma/client";
 import { auth } from "@/auth";
 import { EmailVerificationCard } from "@/components/auth/email-verification-card";
 import { ProfileForm } from "@/components/auth/profile-form";
+import { getUserRoles } from "@/lib/access";
 import { getProfileCompletion, getRoleGuidance } from "@/lib/profile";
 import { prisma } from "@/lib/prisma";
 import { getAverageRating } from "@/lib/review-view";
 import { getHostQualityBadge, getTrustSummary } from "@/lib/trust-summary";
+import { formatUserRoles } from "@/lib/user-status";
 import { redirect } from "next/navigation";
-
-function getRoleLabel(role: UserRole) {
-  if (role === UserRole.LANDOWNER) {
-    return "Grunneier";
-  }
-
-  if (role === UserRole.ADMIN) {
-    return "Administrator";
-  }
-
-  return "Jeger / fisker";
-}
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -50,14 +40,15 @@ export default async function ProfilePage() {
   }
 
   const completion = getProfileCompletion(user);
-  const roleLabel = getRoleLabel(user.role);
+  const userRoles = getUserRoles(user);
+  const roleLabel = formatUserRoles(userRoles);
   const averageRating = getAverageRating(user.receivedReviews.map((review) => review.rating));
   const trustSummary = getTrustSummary({
     averageRating,
     reviewCount: user.receivedReviews.length,
   });
   const landownerBookingStats =
-    user.role === UserRole.LANDOWNER
+    userRoles.includes(UserRole.LANDOWNER)
       ? await prisma.booking.findMany({
           where: {
             listing: {
@@ -72,7 +63,7 @@ export default async function ProfilePage() {
         })
       : [];
   const hostBadge =
-    user.role === UserRole.LANDOWNER
+    userRoles.includes(UserRole.LANDOWNER)
       ? getHostQualityBadge({
           averageRating,
           approvedReviewCount: user.receivedReviews.length,
@@ -93,7 +84,7 @@ export default async function ProfilePage() {
               Fullfør den grunnleggende kontoprofilen din.
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-8 text-white/75">
-              {getRoleGuidance(user.role)}
+              {getRoleGuidance(userRoles)}
             </p>
           </div>
 

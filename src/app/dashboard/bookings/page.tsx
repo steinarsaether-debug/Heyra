@@ -8,6 +8,7 @@ import { OfflineFreshnessNote } from "@/components/pwa/offline-freshness-note";
 import { OfflinePageNote } from "@/components/pwa/offline-page-note";
 import { OfflineSaveLinks } from "@/components/pwa/offline-save-links";
 import { getBookingStatusGuidance, getBookingStatusLabel } from "@/lib/booking-view";
+import { hasRole } from "@/lib/access";
 import { formatDisputeStatus, getDisputeGuidance } from "@/lib/dispute-view";
 import { prisma } from "@/lib/prisma";
 
@@ -79,7 +80,7 @@ export default async function DashboardBookingsPage() {
   });
 
   const inboundBookings =
-    session.user.role === UserRole.LANDOWNER || session.user.role === UserRole.ADMIN
+    hasRole(session, [UserRole.LANDOWNER, UserRole.ADMIN])
       ? await prisma.booking.findMany({
           where: {
             listing: {

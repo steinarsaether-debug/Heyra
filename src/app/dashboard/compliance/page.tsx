@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { ComplianceTaskActions } from "@/components/compliance/compliance-task-actions";
+import { getUserRoles } from "@/lib/access";
 import {
   getComplianceTaskNextStep,
   getComplianceTaskWhy,
@@ -24,6 +25,8 @@ export default async function DashboardCompliancePage() {
   if (!session?.user) {
     redirect("/auth/login?callbackUrl=/dashboard/compliance");
   }
+
+  const userRoles = getUserRoles(session.user);
 
   const tasks = await prisma.complianceTask.findMany({
     where: {
@@ -90,7 +93,7 @@ export default async function DashboardCompliancePage() {
           </p>
           <h1 className="mt-5 text-4xl leading-tight sm:text-5xl">Arbeidsflate for etterlevelse</h1>
           <p className="mt-4 max-w-3xl text-lg leading-8 text-white/75">
-            {session.user.role === UserRole.LANDOWNER
+            {userRoles.includes(UserRole.LANDOWNER)
               ? "Følg opp eiendom, kvote og rapportering knyttet til annonsene dine."
               : "Hold den praktiske juridiske oppfølgingen synlig mens du beveger deg mellom bestilling, feltbruk og rapportering."}
           </p>

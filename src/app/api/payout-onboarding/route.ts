@@ -1,7 +1,7 @@
 import { UserRole } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { hasRole } from "@/lib/access";
+import { getUserRoles, hasRole } from "@/lib/access";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
@@ -18,7 +18,9 @@ export async function POST(_request: NextRequest) {
       id: session.user.id,
     },
     data: {
-      stripeConnectAccountId: session.user.role === "LANDOWNER" ? `sim_connect_${session.user.id.slice(-8)}` : "sim_admin",
+      stripeConnectAccountId: getUserRoles(session.user).includes(UserRole.LANDOWNER)
+        ? `sim_connect_${session.user.id.slice(-8)}`
+        : "sim_admin",
     },
     select: {
       stripeConnectAccountId: true,
