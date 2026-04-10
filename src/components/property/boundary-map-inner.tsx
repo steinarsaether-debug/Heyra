@@ -27,6 +27,13 @@ type OverlayShape = {
   polygons: Point[][];
 };
 
+type ParcelLayer = {
+  id: string;
+  title: string;
+  layerKind: "SELECTED" | "SAME_PROPERTY" | "NEARBY";
+  polygons: Point[][];
+};
+
 type BoundaryMapProps = {
   points: Point[];
   onAddPoint: (point: Point) => void;
@@ -35,6 +42,8 @@ type BoundaryMapProps = {
   focusPoint?: Point | null;
   searchPreviewPolygons?: Point[][];
   rightsOverlays?: OverlayShape[];
+  parcelLayers?: ParcelLayer[];
+  onParcelClick?: (parcelId: string) => void;
   kartverketWmsUrl?: string;
   kartverketWmsLayers?: string;
 };
@@ -48,10 +57,21 @@ const osmAttribution =
 function createPointIcon(index: number) {
   return L.divIcon({
     className: "heyra-boundary-marker",
-    html: `<span>${index + 1}</span>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
+    html: "<span></span>",
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
   });
+}
+
+function styleForParcelLayer(layerKind: ParcelLayer["layerKind"]) {
+  switch (layerKind) {
+    case "SELECTED":
+      return { color: "#b91c1c", fillColor: "#b91c1c", fillOpacity: 0.04, weight: 2 };
+    case "NEARBY":
+      return { color: "#2563eb", fillColor: "#2563eb", fillOpacity: 0.01, weight: 1 };
+    default:
+      return { color: "#15803d", fillColor: "#15803d", fillOpacity: 0.02, weight: 1.25 };
+  }
 }
 
 function colorForOverlayType(overlayType: string) {
@@ -102,14 +122,18 @@ function MapViewportSync({
   points,
   focusPoint,
   searchPreviewPolygons,
+  parcelLayers,
 }: {
   points: Point[];
   focusPoint?: Point | null;
   searchPreviewPolygons?: Point[][];
+  parcelLayers?: ParcelLayer[];
 }) {
   const map = useMap();
 
   useEffect(() => {
+    const parcelPoints = (parcelLayers ?? []).flatMap((layer) => layer.polygons.flat());
+
     if (points.length >= 3) {
       map.fitBounds(points.map((point) => [point.lat, point.lng] as [number, number]), {
         padding: [24, 24],
@@ -132,10 +156,20 @@ function MapViewportSync({
       return;
     }
 
+    if (parcelPoints.length >= 3) {
+      map.fitBounds(
+        parcelPoints.map((point) => [point.lat, point.lng] as [number, number]),
+        {
+          padding: [24, 24],
+        },
+      );
+      return;
+    }
+
     if (focusPoint) {
       map.setView([focusPoint.lat, focusPoint.lng], 14);
     }
-  }, [focusPoint, map, points, searchPreviewPolygons]);
+  }, [focusPoint, map, parcelLayers, points, searchPreviewPolygons]);
 
   return null;
 }
@@ -148,6 +182,8 @@ export default function BoundaryMapInner({
   focusPoint,
   searchPreviewPolygons = [],
   rightsOverlays = [],
+  parcelLayers = [],
+  onParcelClick,
   kartverketWmsUrl,
   kartverketWmsLayers,
 }: BoundaryMapProps) {
@@ -219,8 +255,36 @@ export default function BoundaryMapInner({
             points={points}
             focusPoint={focusPoint}
             searchPreviewPolygons={searchPreviewPolygons}
+            parcelLayers={parcelLayers}
           />
           <MapInteractionHandler onAddPoint={onAddPoint} onCenterChange={onCenterChange} />
+          {parcelLayers.map((layer) => {
+            const styles = styleForParcelLayer(layer.layerKind);
+
+            return (
+              <Polygon
+                key={layer.id}
+                positions={layer.polygons.map((polygon) =>
+                  polygon.map((point) => [point.lat, point.lng] as [number, number]),
+                )}
+                pathOptions={{
+                  color: styles.color,
+                  fillColor: styles.fillColor,
+                  fillOpacity: styles.fillOpacity,
+                  weight: styles.weight,
+                }}
+                eventHandlers={
+                  onParcelClick
+                    ? {
+                        click() {
+                          onParcelClick(layer.id);
+                        },
+                      }
+                    : undefined
+                }
+              />
+            );
+          })}
           {searchPreviewPolygons.length > 0 ? (
             <Polygon
               positions={searchPreviewPolygons.map((polygon) =>
@@ -267,7 +331,7 @@ export default function BoundaryMapInner({
       </div>
       <div className="flex flex-wrap items-center gap-3 rounded-[1.2rem] border border-[var(--border)] bg-white/75 px-4 py-3 text-sm text-[var(--muted)]">
         <span>
-          Kartverket topo er standard bakgrunnskart. Eiendomsgrensene kan slås på som matrikkelkontekst, mens Heyra-lagene viser det faktiske tilbudsområdet.
+          Kartverket topo er standard bakgrunnskart. Rød linje viser valgt jaktterreng, grønn linje viser teiger på samme gårds- og bruksnummer, og blå linje viser omkringliggende eiendommer.
         </span>
         {points.length > 0 ? (
           <Link

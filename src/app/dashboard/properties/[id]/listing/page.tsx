@@ -11,6 +11,7 @@ import {
   formatComplianceTaskType,
 } from "@/lib/compliance-view";
 import { getPropertyBoundaryStatus } from "@/lib/property-boundary-status";
+import { formatParcelSelectionSummary } from "@/lib/parcel-selection-view";
 import { ListingEditor } from "@/components/property/listing-editor";
 import { prisma } from "@/lib/prisma";
 import { summarizeAttributedBookings } from "@/lib/share-attribution";
@@ -51,6 +52,14 @@ export default async function PropertyListingPage({
           title: true,
           overlayType: true,
           visibility: true,
+        },
+      },
+      parcelSelections: {
+        select: {
+          id: true,
+          title: true,
+          groupKind: true,
+          isIncluded: true,
         },
       },
       listings: {
@@ -133,6 +142,13 @@ export default async function PropertyListingPage({
         take: 3,
       })
     : [];
+  const samePropertySelections = property.parcelSelections.filter(
+    (selection) => selection.groupKind === "SAME_PROPERTY",
+  );
+  const includedSelections = samePropertySelections.filter((selection) => selection.isIncluded);
+  const nearbySelections = property.parcelSelections.filter(
+    (selection) => selection.groupKind === "NEARBY",
+  );
 
   return (
     <main className="px-6 py-10 sm:px-8 md:px-10">
@@ -171,6 +187,30 @@ export default async function PropertyListingPage({
           <div className="rounded-[1.6rem] border border-[#e7d6ae] bg-[#fff8eb] p-5 text-sm leading-7 text-[#6e5630]">
             Denne eiendommen har ingen lagret grense ennå. Du kan fortsatt lage annonseutkast nå, men grensesteget bør fullføres før annonsen regnes som klar for gjennomgang.
           </div>
+        ) : null}
+
+        {samePropertySelections.length > 0 ? (
+          <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
+              Lagret teiggrunnlag
+            </p>
+            <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
+              {formatParcelSelectionSummary({
+                totalCount: samePropertySelections.length,
+                includedCount: includedSelections.length,
+                nearbyCount: nearbySelections.length,
+              })}
+            </p>
+            <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
+              Dette grunnlaget kan senere gjenbrukes til vald-oversikt og til å forklare hvilke teiger som faktisk inngår i det utleide jaktterrenget.
+            </p>
+            {includedSelections.length > 0 ? (
+              <p className="mt-3 text-sm leading-7 text-[var(--foreground)]">
+                Valgt nå: {includedSelections.slice(0, 5).map((selection) => selection.title).join(" · ")}
+                {includedSelections.length > 5 ? ` + ${includedSelections.length - 5} til` : ""}
+              </p>
+            ) : null}
+          </article>
         ) : null}
 
         {listing?.status === "PUBLISHED" && publicShareUrl && landownerCaption && shareLinks ? (

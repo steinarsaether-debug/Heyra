@@ -7,6 +7,7 @@ import {
   formatValdVerificationMethod,
   getPropertyCompletionState,
 } from "@/lib/property-view";
+import { formatParcelSelectionSummary } from "@/lib/parcel-selection-view";
 import { DeletePropertyButton } from "@/components/property/delete-property-button";
 import { PropertyIdentityEditor } from "@/components/property/property-identity-editor";
 import {
@@ -71,6 +72,15 @@ export default async function PropertyDetailPage({
         orderBy: {
           createdAt: "desc",
         },
+      },
+      parcelSelections: {
+        select: {
+          id: true,
+          title: true,
+          groupKind: true,
+          isIncluded: true,
+        },
+        orderBy: [{ isIncluded: "desc" }, { title: "asc" }],
       },
       listings: {
         orderBy: {
@@ -137,6 +147,13 @@ export default async function PropertyDetailPage({
   });
   const infrastructure = property.infrastructure as Record<string, boolean> | null;
   const listing = property.listings[0] ?? null;
+  const samePropertySelections = property.parcelSelections.filter(
+    (selection) => selection.groupKind === "SAME_PROPERTY",
+  );
+  const includedSelections = samePropertySelections.filter((selection) => selection.isIncluded);
+  const nearbySelections = property.parcelSelections.filter(
+    (selection) => selection.groupKind === "NEARBY",
+  );
   const areaDifferencePercent = getAreaDifferencePercent(
     property.areaHectares,
     property.kartverketAreaHectares,
@@ -266,6 +283,26 @@ export default async function PropertyDetailPage({
                 </dd>
               </div>
               <div>
+                <dt className="font-semibold text-[var(--foreground)]">Teigvalg for jaktterreng</dt>
+                <dd>
+                  {samePropertySelections.length > 0
+                    ? formatParcelSelectionSummary({
+                        totalCount: samePropertySelections.length,
+                        includedCount: includedSelections.length,
+                        nearbyCount: nearbySelections.length,
+                      })
+                    : "Ingen lagrede teigvalg ennå"}
+                </dd>
+                {includedSelections.length > 0 ? (
+                  <dd>
+                    Valgt nå: {includedSelections.slice(0, 4).map((selection) => selection.title).join(" · ")}
+                    {includedSelections.length > 4
+                      ? ` + ${includedSelections.length - 4} til`
+                      : ""}
+                  </dd>
+                ) : null}
+              </div>
+              <div>
                 <dt className="font-semibold text-[var(--foreground)]">Rettighets- og adkomstlag</dt>
                 <dd>
                   {property.rightsOverlays.length > 0
@@ -341,6 +378,11 @@ export default async function PropertyDetailPage({
             {areaDifferencePercent !== null && areaDifferencePercent >= 10 ? (
               <div className="mt-5 rounded-2xl border border-[var(--amber)]/25 bg-[var(--amber-soft)] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
                 Kartverket-arealet avviker merkbart fra det oppgitte arealet. Det kan være helt greit dersom jakt- eller fiskerettene dekker mindre eller mer enn matrikkelteigen, men det er verdt å dobbeltsjekke før publisering.
+              </div>
+            ) : null}
+            {samePropertySelections.length > 0 ? (
+              <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[#f8f5ee] px-4 py-3 text-sm leading-7 text-[var(--muted)]">
+                Lagrede teigvalg kan senere brukes som grunnlag for vald-oversikt og for å vise hvilke deler av eiendommen som faktisk inngår i tilbudet.
               </div>
             ) : null}
           </section>

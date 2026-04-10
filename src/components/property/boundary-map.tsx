@@ -15,6 +15,13 @@ type BoundaryMapProps = {
     overlayType: string;
     polygons: Array<Array<{ lat: number; lng: number }>>;
   }>;
+  parcelLayers?: Array<{
+    id: string;
+    title: string;
+    layerKind: "SELECTED" | "SAME_PROPERTY" | "NEARBY";
+    polygons: Array<Array<{ lat: number; lng: number }>>;
+  }>;
+  onParcelClick?: (parcelId: string) => void;
   kartverketWmsUrl?: string;
   kartverketWmsLayers?: string;
 };

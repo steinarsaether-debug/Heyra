@@ -37,6 +37,7 @@ type ParcelCandidate = {
   matchScore?: number;
   exactMatch?: boolean;
   matchReason?: string | null;
+  groupKind?: "SAME_PROPERTY" | "AREA_HIT" | "NEARBY";
 };
 
 type RightsOverlay = {
@@ -47,6 +48,7 @@ type RightsOverlay = {
   visibility: string;
   provenance: string;
   confidence: string;
+  sourceLabel?: string | null;
   polygons: Array<Array<{ lat: number; lng: number }>>;
 };
 
@@ -114,8 +116,11 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
   const [boundarySourceLabel, setBoundarySourceLabel] = useState<string | null>(null);
   const [parcelSearch, setParcelSearch] = useState(() => normalizeInitialParcelSearch(initialParcelSearch));
   const [parcelResults, setParcelResults] = useState<ParcelCandidate[]>([]);
+  const [nearbyParcelResults, setNearbyParcelResults] = useState<ParcelCandidate[]>([]);
   const [isSearchingParcel, setIsSearchingParcel] = useState(false);
   const [isImportingParcel, setIsImportingParcel] = useState<string | null>(null);
+  const [isSavingParcelSelection, setIsSavingParcelSelection] = useState(false);
+  const [isCreatingTerrainOverlay, setIsCreatingTerrainOverlay] = useState(false);
   const [rightsOverlays, setRightsOverlays] = useState<RightsOverlay[]>([]);
   const [focusPoint, setFocusPoint] = useState<{ lat: number; lng: number } | null>(null);
   const [searchPreviewPolygons, setSearchPreviewPolygons] = useState<
@@ -123,6 +128,8 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
   >([]);
   const [showPointEditor, setShowPointEditor] = useState(false);
   const svgRef = useRef<SVGSVGElement | null>(null);
+
+  const [selectedParcelRefs, setSelectedParcelRefs] = useState<string[]>([]);
 
   const filledCount = useMemo(
     () => points.filter((point) => point.lat.trim() && point.lng.trim()).length,
@@ -142,6 +149,31 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
   );
 
   const isLargeBoundary = filledCount > 40;
+
+  const selectedParcels = useMemo(
+    () => parcelResults.filter((candidate) => selectedParcelRefs.includes(candidate.sourceRef)),
+    [parcelResults, selectedParcelRefs],
+  );
+
+  const parcelLayers = useMemo(
+    () => [
+      ...parcelResults.map((candidate) => ({
+        id: candidate.sourceRef,
+        title: candidate.title,
+        layerKind: selectedParcelRefs.includes(candidate.sourceRef)
+          ? ("SELECTED" as const)
+          : ("SAME_PROPERTY" as const),
+        polygons: candidate.polygons ?? [],
+      })),
+      ...nearbyParcelResults.map((candidate) => ({
+        id: candidate.sourceRef,
+        title: candidate.title,
+        layerKind: "NEARBY" as const,
+        polygons: candidate.polygons ?? [],
+      })),
+    ],
+    [nearbyParcelResults, parcelResults, selectedParcelRefs],
+  );
 
   const previewModel = useMemo(() => {
     if (parsedPoints.length === 0) {
@@ -206,9 +238,10 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
 
     async function loadBoundaryContext() {
       try {
-        const [boundaryResponse, overlayResponse] = await Promise.all([
+        const [boundaryResponse, overlayResponse, parcelSelectionResponse] = await Promise.all([
           fetch(`/api/properties/${propertyId}/boundary`),
           fetch(`/api/properties/${propertyId}/rights-overlays`),
+          fetch(`/api/properties/${propertyId}/parcel-selection`),
         ]);
 
         const boundaryData = (await boundaryResponse.json()) as {
@@ -222,6 +255,15 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
           error?: string;
           overlays?: RightsOverlay[];
         };
+        const parcelSelectionData = (await parcelSelectionResponse.json()) as {
+          error?: string;
+          selections?: Array<
+            ParcelCandidate & {
+              id: string;
+              isIncluded: boolean;
+            }
+          >;
+        };
 
         if (!boundaryResponse.ok) {
           throw new Error(boundaryData.error || "Vi klarte ikke å laste grensene.");
@@ -229,6 +271,10 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
 
         if (!overlayResponse.ok) {
           throw new Error(overlayData.error || "Vi klarte ikke å laste lagene.");
+        }
+
+        if (!parcelSelectionResponse.ok) {
+          throw new Error(parcelSelectionData.error || "Vi klarte ikke å laste teigvalgene.");
         }
 
         if (cancelled) {
@@ -250,6 +296,18 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
         setBoundaryImportedAt(boundaryData.boundaryImportedAt ?? null);
         setBoundarySourceLabel(boundaryData.boundarySourceLabel ?? null);
         setRightsOverlays(overlayData.overlays ?? []);
+        const savedSelections = parcelSelectionData.selections ?? [];
+        setParcelResults(
+          savedSelections.filter((selection) => selection.groupKind !== "NEARBY"),
+        );
+        setNearbyParcelResults(
+          savedSelections.filter((selection) => selection.groupKind === "NEARBY"),
+        );
+        setSelectedParcelRefs(
+          savedSelections
+            .filter((selection) => selection.isIncluded)
+            .map((selection) => selection.sourceRef),
+        );
       } catch (loadError) {
         if (!cancelled) {
           setError(
@@ -271,6 +329,81 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
       cancelled = true;
     };
   }, [propertyId]);
+
+  async function refreshRightsOverlays() {
+    const response = await fetch(`/api/properties/${propertyId}/rights-overlays`);
+    const data = (await response.json()) as { overlays?: RightsOverlay[] };
+    setRightsOverlays(data.overlays ?? []);
+  }
+
+  async function saveParcelSelection(silent = false) {
+    const selections = [
+      ...parcelResults.map((candidate) => ({
+        ...candidate,
+        groupKind: "SAME_PROPERTY" as const,
+        isIncluded: selectedParcelRefs.includes(candidate.sourceRef),
+      })),
+      ...nearbyParcelResults.map((candidate) => ({
+        ...candidate,
+        groupKind: "NEARBY" as const,
+        isIncluded: false,
+      })),
+    ];
+
+    setIsSavingParcelSelection(true);
+
+    try {
+      const response = await fetch(`/api/properties/${propertyId}/parcel-selection`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ selections }),
+      });
+      const data = (await response.json()) as {
+        error?: string;
+        savedSelectionCount?: number;
+        includedSelectionCount?: number;
+      };
+
+      if (!response.ok) {
+        throw new Error(data.error || "Vi klarte ikke å lagre teigvalgene.");
+      }
+
+      if (!silent) {
+        setSuccess(
+          data.includedSelectionCount
+            ? `Teigvalgene er lagret. ${data.includedSelectionCount} teig${data.includedSelectionCount === 1 ? "" : "er"} er markert som jaktterreng.`
+            : "Teigkonteksten er lagret.",
+        );
+        setError(null);
+      }
+    } catch (selectionError) {
+      if (!silent) {
+        setError(
+          selectionError instanceof Error
+            ? selectionError.message
+            : "Vi klarte ikke å lagre teigvalgene.",
+        );
+        setSuccess(null);
+      }
+      throw selectionError;
+    } finally {
+      setIsSavingParcelSelection(false);
+    }
+  }
+
+  function toggleParcelSelection(parcel: ParcelCandidate) {
+    setSelectedParcelRefs((current) =>
+      current.includes(parcel.sourceRef)
+        ? current.filter((sourceRef) => sourceRef !== parcel.sourceRef)
+        : [...current, parcel.sourceRef],
+    );
+    if (parcel.center) {
+      setMapCenter(parcel.center);
+      setFocusPoint(parcel.center);
+    }
+  }
 
   function updatePoint(index: number, key: keyof BoundaryPoint, value: string) {
     setPoints((current) =>
@@ -426,22 +559,25 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
       const response = await fetch(`/api/properties/parcel-search?${params.toString()}`);
       const data = (await response.json()) as {
         error?: string;
-        results?: ParcelCandidate[];
+        targetParcels?: ParcelCandidate[];
+        nearbyParcels?: ParcelCandidate[];
+        focusPoint?: { lat: number; lng: number } | null;
       };
 
       if (!response.ok) {
         throw new Error(data.error || "Kartverket-søket svarte ikke som forventet.");
       }
 
-      const results = data.results ?? [];
+      const results = data.targetParcels ?? [];
+      const nearby = data.nearbyParcels ?? [];
       setParcelResults(results);
-      if (results[0]?.center) {
-        setMapCenter(results[0].center);
-        setFocusPoint(results[0].center);
+      setNearbyParcelResults(nearby);
+      setSelectedParcelRefs([]);
+      if (data.focusPoint) {
+        setMapCenter(data.focusPoint);
+        setFocusPoint(data.focusPoint);
       }
-      if (results[0]?.polygons?.length) {
-        setSearchPreviewPolygons(results[0].polygons);
-      }
+      setSearchPreviewPolygons([]);
       if (results.length === 0) {
         setSuccess("Ingen teiger ble funnet. Du kan fortsatt tegne grensen manuelt.");
       }
@@ -536,6 +672,45 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
     }
   }
 
+  async function createHuntingOverlayFromSelectedParcels() {
+    if (selectedParcels.length === 0) {
+      setError("Marker minst én teig før du lager et jaktterrenglag.");
+      setSuccess(null);
+      return;
+    }
+
+    setError(null);
+    setSuccess(null);
+    setIsCreatingTerrainOverlay(true);
+
+    try {
+      await saveParcelSelection(true);
+      const response = await fetch(`/api/properties/${propertyId}/build-hunting-area`, {
+        method: "POST",
+      });
+      const data = (await response.json()) as { error?: string };
+
+      if (!response.ok) {
+        throw new Error(data.error || "Vi klarte ikke å bygge jaktterrenglaget.");
+      }
+
+      await refreshRightsOverlays();
+      setSuccess(
+        selectedParcels.length === 1
+          ? "Valgt teig er lagret og bygget som privat jaktterrenglag. Du kan finjustere laget lenger ned."
+          : `Valgte teiger er lagret og bygget som privat jaktterrenglag (${selectedParcels.length} teiger). Du kan finjustere laget lenger ned.`,
+      );
+    } catch (overlayError) {
+      setError(
+        overlayError instanceof Error
+          ? overlayError.message
+          : "Vi klarte ikke å lage jaktterrenglaget.",
+      );
+    } finally {
+      setIsCreatingTerrainOverlay(false);
+    }
+  }
+
   return (
     <div className="space-y-5">
       <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
@@ -555,6 +730,14 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
             focusPoint={focusPoint}
             searchPreviewPolygons={searchPreviewPolygons}
             rightsOverlays={rightsOverlays}
+            parcelLayers={parcelLayers}
+            onParcelClick={(parcelId) => {
+              const parcel = parcelResults.find((candidate) => candidate.sourceRef === parcelId);
+
+              if (parcel) {
+                toggleParcelSelection(parcel);
+              }
+            }}
             kartverketWmsUrl={overlayConfig.wmsUrl}
             kartverketWmsLayers={overlayConfig.wmsLayers}
           />
@@ -581,7 +764,7 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
           Hent teig fra Kartverket
         </p>
         <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-          Søk enten ved kartets sentrum eller med matrikkelreferanse. Dette henter teigen som et arbeidsutgangspunkt. Du kan fortsatt justere manuelt etterpå.
+          Søk enten ved kartets sentrum eller med matrikkelreferanse. Teiger på samme gard- og bruksnummer vises med grønn linje, valgte teiger med rød linje og omkringliggende eiendommer med blå linje.
         </p>
 
         <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr]">
@@ -663,6 +846,53 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
 
         {parcelResults.length > 0 ? (
           <div className="mt-5 space-y-3">
+            <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-[var(--border)] bg-[#f8f5ee] px-4 py-4 text-sm text-[var(--muted)]">
+              <span>
+                {selectedParcels.length === 0
+                  ? "Marker teigene som faktisk skal inngå i det utleide jaktterrenget."
+                  : `${selectedParcels.length} teig${selectedParcels.length === 1 ? "" : "er"} er markert som jaktterreng.`}
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedParcelRefs(parcelResults.map((candidate) => candidate.sourceRef))}
+                className="rounded-full border border-[var(--border)] px-4 py-2 font-semibold text-[var(--foreground)]"
+              >
+                Marker alle
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedParcelRefs([])}
+                className="rounded-full border border-[var(--border)] px-4 py-2 font-semibold text-[var(--foreground)]"
+              >
+                Tøm valg
+              </button>
+              <button
+                type="button"
+                onClick={() => saveParcelSelection()}
+                disabled={isSavingParcelSelection}
+                className="rounded-full border border-[var(--border)] px-4 py-2 font-semibold text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSavingParcelSelection ? "Lagrer teigvalg..." : "Lagre teigvalg"}
+              </button>
+              <button
+                type="button"
+                onClick={() => selectedParcels[0] && importParcel(selectedParcels[0])}
+                disabled={selectedParcels.length !== 1 || Boolean(isImportingParcel)}
+                className="rounded-full border border-[var(--border)] px-4 py-2 font-semibold text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Bruk valgt teig som eiendomsgrense
+              </button>
+              <button
+                type="button"
+                onClick={createHuntingOverlayFromSelectedParcels}
+                disabled={
+                  selectedParcels.length === 0 || isCreatingTerrainOverlay || isSavingParcelSelection
+                }
+                className="rounded-full bg-[var(--amber)] px-4 py-2 font-semibold text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isCreatingTerrainOverlay ? "Bygger jaktterreng..." : "Bygg jaktterreng av valgte"}
+              </button>
+            </div>
             {parcelResults.map((candidate) => (
               <div
                 key={candidate.sourceRef}
@@ -689,16 +919,36 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
                   </p>
                   <p className="text-sm text-[var(--muted)]">{describeParcelMatch(candidate).detail}</p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => importParcel(candidate)}
-                  disabled={isImportingParcel === candidate.sourceRef}
-                  className="rounded-full bg-[var(--amber)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] disabled:opacity-60"
-                >
-                  {isImportingParcel === candidate.sourceRef ? "Importerer..." : "Bruk denne teigen"}
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => toggleParcelSelection(candidate)}
+                    className={`rounded-full px-4 py-2 text-sm font-semibold ${
+                      selectedParcelRefs.includes(candidate.sourceRef)
+                        ? "bg-[var(--forest)] text-white"
+                        : "border border-[var(--border)] text-[var(--foreground)]"
+                    }`}
+                  >
+                    {selectedParcelRefs.includes(candidate.sourceRef)
+                      ? "Markert i jaktterreng"
+                      : "Marker teig"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => importParcel(candidate)}
+                    disabled={isImportingParcel === candidate.sourceRef}
+                    className="rounded-full bg-[var(--amber)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] disabled:opacity-60"
+                  >
+                    {isImportingParcel === candidate.sourceRef ? "Importerer..." : "Bruk som eiendomsgrense"}
+                  </button>
+                </div>
               </div>
             ))}
+            {nearbyParcelResults.length > 0 ? (
+              <div className="rounded-2xl border border-[var(--border)] bg-white px-4 py-4 text-sm text-[var(--muted)]">
+                {nearbyParcelResults.length} omkringliggende teig{nearbyParcelResults.length === 1 ? "" : "er"} vises med blå linje i kartet for oversikt, men inngår ikke i valget.
+              </div>
+            ) : null}
           </div>
         ) : null}
 
@@ -791,6 +1041,7 @@ export function BoundaryEditor({ propertyId, initialParcelSearch }: BoundaryEdit
           lat: point.lat,
           lng: point.lng,
         }))}
+        selectedParcelPolygons={selectedParcels.flatMap((candidate) => candidate.polygons ?? [])}
         overlays={rightsOverlays}
         onOverlaysChange={setRightsOverlays}
         onStatus={({ error: nextError, success: nextSuccess }) => {

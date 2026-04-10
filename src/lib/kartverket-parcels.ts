@@ -23,7 +23,14 @@ export type ParcelCandidate = {
   polygons?: MapPoint[][];
   matchScore?: number;
   exactMatch?: boolean;
-  matchReason?: string;
+  matchReason?: string | null;
+  groupKind?: "SAME_PROPERTY" | "AREA_HIT" | "NEARBY";
+};
+
+export type ParcelSearchContext = {
+  targetParcels: ParcelCandidate[];
+  nearbyParcels: ParcelCandidate[];
+  focusPoint: MapPoint | null;
 };
 
 type GeoJsonFeature = {
@@ -107,6 +114,29 @@ function normalizeNumericField(value?: string | null) {
   const numeric = Number.parseInt(value, 10);
 
   return Number.isFinite(numeric) ? String(numeric) : value.trim();
+}
+
+function parcelIdentity(candidate: ParcelCandidate) {
+  return [
+    normalizeNumericField(candidate.municipalityCode),
+    normalizeNumericField(candidate.gnr),
+    normalizeNumericField(candidate.bnr),
+    normalizeNumericField(candidate.festenr),
+    normalizeNumericField(candidate.snr),
+    candidate.sourceRef,
+  ]
+    .filter(Boolean)
+    .join(":");
+}
+
+function sameMatrikkel(left: ParcelCandidate, right: ParcelCandidate) {
+  return (
+    normalizeNumericField(left.municipalityCode) === normalizeNumericField(right.municipalityCode) &&
+    normalizeNumericField(left.gnr) === normalizeNumericField(right.gnr) &&
+    normalizeNumericField(left.bnr) === normalizeNumericField(right.bnr) &&
+    normalizeNumericField(left.festenr) === normalizeNumericField(right.festenr) &&
+    normalizeNumericField(left.snr) === normalizeNumericField(right.snr)
+  );
 }
 
 function computeMatchScore(candidate: ParcelCandidate, params: ParcelSearchParams) {
@@ -346,6 +376,84 @@ export async function searchParcelCandidates(params: ParcelSearchParams) {
     return applyMatchMetadata(restCandidates);
   }
   return [];
+}
+
+export async function searchParcelContext(params: ParcelSearchParams): Promise<ParcelSearchContext> {
+  const baseResults = await searchParcelCandidates(params);
+  const isMatrikkelSearch = Boolean(params.gnr && params.bnr);
+
+  const targetParcels = (() => {
+    if (!isMatrikkelSearch) {
+      return baseResults.map((candidate) => ({
+        ...candidate,
+        groupKind: "AREA_HIT" as const,
+      }));
+    }
+
+    const municipalityCode = normalizeNumericField(params.municipalityCode);
+    const gnr = normalizeNumericField(params.gnr);
+    const bnr = normalizeNumericField(params.bnr);
+    const festenr = normalizeNumericField(params.festenr);
+    const snr = normalizeNumericField(params.snr);
+
+    const matching = baseResults.filter((candidate) => {
+      const sameMunicipality =
+        !municipalityCode ||
+        normalizeNumericField(candidate.municipalityCode) === municipalityCode;
+      const sameGnr = !gnr || normalizeNumericField(candidate.gnr) === gnr;
+      const sameBnr = !bnr || normalizeNumericField(candidate.bnr) === bnr;
+      const sameFestenr = !festenr || normalizeNumericField(candidate.festenr) === festenr;
+      const sameSnr = !snr || normalizeNumericField(candidate.snr) === snr;
+
+      return sameMunicipality && sameGnr && sameBnr && sameFestenr && sameSnr;
+    });
+
+    const chosen = matching.length > 0 ? matching : baseResults;
+
+    return chosen.map((candidate) => ({
+      ...candidate,
+      groupKind: "SAME_PROPERTY" as const,
+    }));
+  })();
+
+  const focusPoint =
+    targetParcels[0]?.center ??
+    baseResults[0]?.center ??
+    asNullablePoint(params.lat ?? null, params.lng ?? null);
+
+  if (!focusPoint) {
+    return {
+      targetParcels,
+      nearbyParcels: [],
+      focusPoint: null,
+    };
+  }
+
+  const nearbyBase = await searchParcelCandidates({
+    lat: focusPoint.lat,
+    lng: focusPoint.lng,
+  });
+  const targetIdentities = new Set(targetParcels.map(parcelIdentity));
+
+  const nearbyParcels = nearbyBase
+    .filter((candidate) => {
+      if (targetIdentities.has(parcelIdentity(candidate))) {
+        return false;
+      }
+
+      return !targetParcels.some((target) => sameMatrikkel(target, candidate));
+    })
+    .slice(0, 18)
+    .map((candidate) => ({
+      ...candidate,
+      groupKind: "NEARBY" as const,
+    }));
+
+  return {
+    targetParcels,
+    nearbyParcels,
+    focusPoint,
+  };
 }
 
 export async function importParcelGeometry(sourceRef: string, fallback?: ParcelSearchParams) {

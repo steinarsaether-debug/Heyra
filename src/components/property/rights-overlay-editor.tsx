@@ -15,12 +15,14 @@ type RightsOverlay = {
   visibility: string;
   provenance: string;
   confidence: string;
+  sourceLabel?: string | null;
   polygons: Array<Array<{ lat: number; lng: number }>>;
 };
 
 type RightsOverlayEditorProps = {
   propertyId: string;
   propertyBoundaryPoints: Array<{ lat: number; lng: number }>;
+  selectedParcelPolygons?: Array<Array<{ lat: number; lng: number }>>;
   overlays: RightsOverlay[];
   onOverlaysChange: (overlays: RightsOverlay[]) => void;
   onStatus: (status: { error?: string | null; success?: string | null }) => void;
@@ -71,6 +73,7 @@ function toDraftPoints(points: Array<{ lat: number; lng: number }>) {
 export function RightsOverlayEditor({
   propertyId,
   propertyBoundaryPoints,
+  selectedParcelPolygons = [],
   overlays,
   onOverlaysChange,
   onStatus,
@@ -191,6 +194,19 @@ export function RightsOverlayEditor({
       next[currentPolygonIndex] = toDraftPoints(propertyBoundaryPoints);
       return next;
     });
+  }
+
+  function cloneSelectedParcelsAsPolygons() {
+    if (selectedParcelPolygons.length === 0) {
+      onStatus({
+        error: "Marker og lagre minst én teig først før du bruker teigvalget som start.",
+        success: null,
+      });
+      return;
+    }
+
+    setPolygonDrafts(selectedParcelPolygons.map((polygon) => toDraftPoints(polygon)));
+    setCurrentPolygonIndex(0);
   }
 
   function updateCurrentPoint(index: number, key: keyof OverlayPoint, value: string) {
@@ -387,6 +403,9 @@ export function RightsOverlayEditor({
                   {" · "}
                   {overlay.polygons.length} polygon{overlay.polygons.length === 1 ? "" : "er"}
                 </p>
+                {overlay.sourceLabel ? (
+                  <p className="mt-1 text-sm text-[var(--muted)]">Kilde: {overlay.sourceLabel}</p>
+                ) : null}
               </button>
             ))
           ) : (
@@ -484,6 +503,13 @@ export function RightsOverlayEditor({
               className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
             >
               Bruk eiendomsgrensen som start
+            </button>
+            <button
+              type="button"
+              onClick={cloneSelectedParcelsAsPolygons}
+              className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
+            >
+              Bruk lagret teigvalg som start
             </button>
             {polygonDrafts.length > 1 ? (
               <button

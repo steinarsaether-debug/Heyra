@@ -128,15 +128,13 @@ a {
 
 .heyra-boundary-marker span {
   display: inline-flex;
-  height: 28px;
-  width: 28px;
+  height: 14px;
+  width: 14px;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
   background: var(--forest-elevated);
-  color: var(--foreground);
-  font-size: 12px;
-  font-weight: 700;
+  border: 2px solid rgba(245, 242, 234, 0.85);
   box-shadow: 0 8px 24px rgba(16, 42, 33, 0.25);
 }
 

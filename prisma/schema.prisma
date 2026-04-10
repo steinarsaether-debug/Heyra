@@ -133,6 +133,11 @@ enum RightsOverlayProvenance {
   EXTERNAL_DATASET
 }
 
+enum ParcelSelectionGroupKind {
+  SAME_PROPERTY
+  NEARBY
+}
+
 enum BookingStatus {
   REQUESTED
   APPROVED
@@ -370,6 +375,7 @@ model Property {
   cwdZone        CwdZone?                                @relation(fields: [cwdZoneId], references: [id], onDelete: SetNull)
   status         PropertyStatus                          @default(DRAFT)
   listings       Listing[]
+  parcelSelections PropertyParcelSelection[]
   rightsOverlays RightsOverlay[]
   createdAt      DateTime                                @default(now())
   updatedAt      DateTime                                @updatedAt
@@ -495,6 +501,29 @@ model RightsOverlay {
 
   @@index([propertyId, visibility, overlayType])
   @@index([listingId, visibility])
+}
+
+model PropertyParcelSelection {
+  id               String                   @id @default(cuid())
+  propertyId       String
+  property         Property                 @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  sourceRef        String
+  title            String
+  municipalityCode String?
+  municipalityName String?
+  gnr              String?
+  bnr              String?
+  festenr          String?
+  snr              String?
+  groupKind        ParcelSelectionGroupKind @default(SAME_PROPERTY)
+  isIncluded       Boolean                  @default(false)
+  geometry         Unsupported("geometry(MultiPolygon, 4326)")
+  centerPoint      Unsupported("geometry(Point, 4326)")?
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+
+  @@unique([propertyId, sourceRef])
+  @@index([propertyId, groupKind, isIncluded])
 }
 
 model ServiceProviderProfile {

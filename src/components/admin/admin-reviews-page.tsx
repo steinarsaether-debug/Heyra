@@ -24,6 +24,7 @@ import { formatServiceCategory, formatServiceStatus } from "@/lib/service-view";
 import { formatDisputeStatus } from "@/lib/dispute-view";
 import { formatServiceProviderReviewStatus } from "@/lib/user-status";
 import { formatSharedApprovalStatus } from "@/lib/property-view";
+import { formatParcelSelectionSummary } from "@/lib/parcel-selection-view";
 
 export async function AdminReviewsPageContent() {
   const session = await auth();
@@ -48,6 +49,14 @@ export async function AdminReviewsPageContent() {
               name: true,
               representativeName: true,
               representativeConfirmationStatus: true,
+            },
+          },
+          parcelSelections: {
+            select: {
+              id: true,
+              title: true,
+              groupKind: true,
+              isIncluded: true,
             },
           },
         },
@@ -227,6 +236,15 @@ export async function AdminReviewsPageContent() {
                   }
                 | null) ?? {};
               const rules = (listing.rules as { publicRightsOverlayId?: string | null } | null) ?? {};
+              const samePropertySelections = listing.property.parcelSelections.filter(
+                (selection) => selection.groupKind === "SAME_PROPERTY",
+              );
+              const includedSelections = samePropertySelections.filter(
+                (selection) => selection.isIncluded,
+              );
+              const nearbySelections = listing.property.parcelSelections.filter(
+                (selection) => selection.groupKind === "NEARBY",
+              );
               const readiness = getBigGameGovernanceReadiness({
                 governanceNotes: listing.governanceNotes,
                 quota,
@@ -274,6 +292,13 @@ export async function AdminReviewsPageContent() {
                   label: "Offentlig kartlag er valgt når rettighetene avviker fra eiendomsgrensen",
                   complete:
                     !listing.rightsDifferFromBoundary || Boolean(rules.publicRightsOverlayId),
+                },
+                {
+                  label: "Teigvalg er lagret når eiendommen består av flere relevante teiger",
+                  complete:
+                    samePropertySelections.length === 0 ||
+                    includedSelections.length > 0 ||
+                    Boolean(listing.governanceEvidenceNotes?.trim()),
                 },
                 {
                   label: "Eiendomsgrunnlag er tydelig nok til manuell oppfølging",
@@ -326,6 +351,16 @@ export async function AdminReviewsPageContent() {
                           ]
                             .filter(Boolean)
                             .join(" · ")}
+                        </p>
+                      ) : null}
+                      {samePropertySelections.length > 0 ? (
+                        <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
+                          Teiggrunnlag:{" "}
+                          {formatParcelSelectionSummary({
+                            totalCount: samePropertySelections.length,
+                            includedCount: includedSelections.length,
+                            nearbyCount: nearbySelections.length,
+                          })}
                         </p>
                       ) : null}
                       {listing.property.vald ? (

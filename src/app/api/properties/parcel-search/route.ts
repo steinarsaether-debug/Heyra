@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { searchParcelCandidates } from "@/lib/kartverket-parcels";
+import { searchParcelContext } from "@/lib/kartverket-parcels";
 
 export const runtime = "nodejs";
 
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
 
   try {
-    const results = await searchParcelCandidates({
+    const context = await searchParcelContext({
       municipalityCode: searchParams.get("municipalityCode"),
       gnr: searchParams.get("gnr"),
       bnr: searchParams.get("bnr"),
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       lng: searchParams.get("lng") ? Number(searchParams.get("lng")) : null,
     });
 
-    return NextResponse.json({ results });
+    return NextResponse.json(context);
   } catch (error) {
     console.error("Parcel search failed", error);
     return NextResponse.json(
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         error:
           error instanceof Error
             ? error.message
-            : "We could not search Kartverket parcel data right now.",
+            : "Vi klarte ikke å søke i Kartverket-data akkurat nå.",
       },
       { status: 502 },
     );
