@@ -10,6 +10,31 @@ import { parseServiceCategory, serviceCategoryOptions } from "@/lib/service-cons
 
 export const revalidate = 300;
 
+function getServiceVisual(category: ServiceCategory) {
+  switch (category) {
+    case ServiceCategory.DOG_HANDLER:
+      return {
+        eyebrow: "Hund og felt",
+        gradient: "linear-gradient(135deg, rgba(16,42,33,0.88), rgba(36,80,64,0.74))",
+      };
+    case ServiceCategory.BUTCHER:
+      return {
+        eyebrow: "Etter jakt",
+        gradient: "linear-gradient(135deg, rgba(73,36,24,0.88), rgba(124,72,38,0.72))",
+      };
+    case ServiceCategory.ACCOMMODATION:
+      return {
+        eyebrow: "Opphold",
+        gradient: "linear-gradient(135deg, rgba(17,33,24,0.88), rgba(73,111,84,0.72))",
+      };
+    case ServiceCategory.TRANSPORT:
+      return {
+        eyebrow: "Logistikk",
+        gradient: "linear-gradient(135deg, rgba(13,32,40,0.88), rgba(45,99,81,0.72))",
+      };
+  }
+}
+
 type ServicesPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
@@ -80,77 +105,188 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
     },
     orderBy: [{ municipality: "asc" }, { updatedAt: "desc" }],
   });
+  const featuredServices = services.slice(0, 3);
 
   return (
-    <main className="px-6 py-10 sm:px-8 md:px-10">
+    <main className="px-4 py-5 sm:px-6 sm:py-6 md:px-8">
       <section className="space-y-8">
-        <div className="overflow-hidden rounded-[1.8rem] border border-[var(--border)] bg-white">
-          <div className="heyra-services-hero px-6 py-8 sm:px-8 sm:py-10">
-        <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--amber)]">
-            Tjenester
-          </p>
-          <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
-            Finn lokal hjelp du kan stole på rundt turen.
-          </h1>
-          <p className="mt-4 text-lg leading-8 text-[var(--muted)]">
-            Dette er det første tjenestelaget i Heyra for praktisk hjelp før, under eller etter en jakt- eller fisketur.
-          </p>
-        </div>
+        <div className="overflow-hidden rounded-[2rem] border border-[rgba(16,42,33,0.1)] bg-[rgba(255,251,245,0.9)] shadow-[0_24px_80px_rgba(16,42,33,0.08)] backdrop-blur-sm">
+          <div className="heyra-services-hero border-b border-[rgba(16,42,33,0.08)] px-5 py-8 sm:px-8 sm:py-10 lg:px-10">
+            <div className="max-w-3xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--orange)]">
+                Tjenester
+              </p>
+              <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
+                Finn lokal hjelp du faktisk vil bygge turen rundt.
+              </h1>
+              <p className="mt-4 max-w-2xl text-lg leading-8 text-[var(--muted)]">
+                Tjenestelaget skal ikke bare vaere et tillegg. Det skal gjoere transport, opphold, hundefoerere og etterarbeid like lette a finne som selve turen.
+              </p>
+            </div>
           </div>
 
-          <div className="border-t border-[var(--border)] bg-[#fcfaf6] px-4 py-4 sm:px-6">
-        <form className="grid gap-3 rounded-[1.3rem] border border-[var(--border)] bg-white p-4 text-sm text-[var(--muted)] sm:grid-cols-2 xl:grid-cols-4">
-          <input
-            type="search"
-            name="q"
-            defaultValue={q}
-            placeholder="Søk etter tilbyder eller tjeneste"
-            className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)] outline-none xl:col-span-2"
-          />
-          <select
-            name="category"
-            defaultValue={category ?? ""}
-            className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)] outline-none"
-          >
-            <option value="">Alle kategorier</option>
-            {serviceCategoryOptions.map((item) => (
-              <option key={item} value={item}>
-                {formatServiceCategory(item)}
-              </option>
-            ))}
-          </select>
-          <input
-            type="text"
-            name="municipality"
-            defaultValue={municipality}
-            placeholder="Kommune"
-            className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)] outline-none"
-          />
-          <div className="flex flex-wrap gap-3 sm:col-span-2 xl:col-span-4">
-            <button
-              type="submit"
-              className="rounded-full bg-[var(--orange)] px-5 py-3 font-semibold text-white"
-            >
-              Oppdater søk
-            </button>
-            <Link
-              href="/services"
-              className="rounded-full border border-[var(--border)] px-5 py-3 font-semibold text-[var(--foreground)]"
-            >
-              Nullstill filtre
-            </Link>
-          </div>
-        </form>
+          <div className="bg-[#fcfaf6] px-4 py-4 sm:px-6 lg:px-8">
+            <form className="grid gap-3 rounded-[1.5rem] border border-[rgba(16,42,33,0.08)] bg-white/92 p-4 text-sm text-[var(--muted)] shadow-[0_16px_32px_rgba(16,42,33,0.04)] sm:grid-cols-2 xl:grid-cols-4">
+              <input
+                type="search"
+                name="q"
+                defaultValue={q}
+                placeholder="Søk etter tilbyder eller tjeneste"
+                className="rounded-[1rem] border border-[rgba(16,42,33,0.1)] bg-[#fffdfa] px-4 py-3 text-[var(--foreground)] outline-none xl:col-span-2"
+              />
+              <select
+                name="category"
+                defaultValue={category ?? ""}
+                className="rounded-[1rem] border border-[rgba(16,42,33,0.1)] bg-[#fffdfa] px-4 py-3 text-[var(--foreground)] outline-none"
+              >
+                <option value="">Alle kategorier</option>
+                {serviceCategoryOptions.map((item) => (
+                  <option key={item} value={item}>
+                    {formatServiceCategory(item)}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                name="municipality"
+                defaultValue={municipality}
+                placeholder="Kommune"
+                className="rounded-[1rem] border border-[rgba(16,42,33,0.1)] bg-[#fffdfa] px-4 py-3 text-[var(--foreground)] outline-none"
+              />
+              <div className="flex flex-wrap gap-3 sm:col-span-2 xl:col-span-4">
+                <button
+                  type="submit"
+                  className="rounded-full bg-[var(--orange)] px-5 py-3 font-semibold text-white shadow-[0_14px_28px_rgba(245,106,20,0.2)]"
+                >
+                  Oppdater søk
+                </button>
+                <Link
+                  href="/services"
+                  className="rounded-full border border-[rgba(16,42,33,0.12)] bg-white px-5 py-3 font-semibold text-[var(--foreground)]"
+                >
+                  Nullstill filtre
+                </Link>
+              </div>
+            </form>
           </div>
         </div>
+
+        <div className="grid gap-4 lg:grid-cols-4">
+          <article className="rounded-[1.6rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_16px_35px_rgba(16,42,33,0.05)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+              Tjenester
+            </p>
+            <p className="mt-3 text-3xl text-[var(--forest)]">{services.length}</p>
+            <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
+              Publiserte tjenester som matcher det aktive soket.
+            </p>
+          </article>
+          <article className="rounded-[1.6rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_16px_35px_rgba(16,42,33,0.05)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+              Kategori
+            </p>
+            <p className="mt-3 text-3xl text-[var(--forest)]">
+              {category ? formatServiceCategory(category) : "Alle"}
+            </p>
+            <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
+              Filtrer pa hundefoerere, transport, opphold og etterarbeid.
+            </p>
+          </article>
+          <article className="rounded-[1.6rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_16px_35px_rgba(16,42,33,0.05)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+              Omrade
+            </p>
+            <p className="mt-3 text-3xl text-[var(--forest)]">
+              {municipality || "Hele Norge"}
+            </p>
+            <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
+              Hold lokale tilbydere tett pa turen og logistikken rundt den.
+            </p>
+          </article>
+          <article className="rounded-[1.6rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_16px_35px_rgba(16,42,33,0.05)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+              Bruk
+            </p>
+            <p className="mt-3 text-3xl text-[var(--forest)]">Planlegg</p>
+            <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
+              Bruk tjenestelaget for a samle praktiske valg rundt selve opplevelsen.
+            </p>
+          </article>
+        </div>
+
+        {featuredServices.length > 0 ? (
+          <section className="space-y-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--orange)]">
+                  Utvalgte tjenester
+                </p>
+                <h2 className="mt-2 text-2xl text-[var(--foreground-strong)] sm:text-3xl">
+                  Tjenester som ser ut som en del av reisen, ikke et vedlegg.
+                </h2>
+              </div>
+              <p className="max-w-xl text-sm leading-7 text-[var(--muted)]">
+                Fremhev de beste tilbyderne tidlig, sa browse-opplevelsen umiddelbart viser at Heyra ogsa kan lose det praktiske rundt turen.
+              </p>
+            </div>
+            <div className="grid gap-5 xl:grid-cols-3">
+              {featuredServices.map((service) => {
+                const serviceTrustBadge = getServiceTrustBadge({
+                  reviewStatus: service.providerProfile.reviewStatus,
+                  verifiedAt: service.providerProfile.verifiedAt,
+                  yearsExperience: service.providerProfile.yearsExperience,
+                  publishedServices: service.providerProfile.services.length,
+                });
+                const visual = getServiceVisual(service.category);
+
+                return (
+                  <Link
+                    key={`featured-${service.id}`}
+                    href={`/services/${service.slug}`}
+                    className="group relative min-h-[23rem] overflow-hidden rounded-[1.9rem] text-white shadow-[0_22px_55px_rgba(16,42,33,0.12)] transition hover:-translate-y-1"
+                    style={{ backgroundImage: visual.gradient }}
+                  >
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.14),transparent_34%)]" />
+                    <div className="relative flex h-full flex-col justify-between p-6">
+                      <div className="flex flex-wrap gap-2">
+                        <span className="rounded-full border border-white/18 bg-white/12 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-white/84 backdrop-blur-sm">
+                          {visual.eyebrow}
+                        </span>
+                        <span className="rounded-full border border-white/18 bg-white/12 px-3 py-1 text-xs font-semibold text-white/84 backdrop-blur-sm">
+                          {formatServiceCategory(service.category)}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-sm text-white/72">
+                          {service.providerProfile.businessName} · {service.municipality}, {service.county}
+                        </p>
+                        <h3 className="mt-3 text-2xl font-semibold leading-tight text-white">
+                          {service.title}
+                        </h3>
+                        <p className="mt-3 line-clamp-3 text-sm leading-7 text-white/78">
+                          {service.description}
+                        </p>
+                        <div className="mt-5 flex flex-wrap items-center gap-2">
+                          {serviceTrustBadge ? <TrustBadge compact {...serviceTrustBadge} /> : null}
+                          <span className="rounded-full bg-white/12 px-3 py-1 text-xs font-semibold text-white/84 backdrop-blur-sm">
+                            {service.priceFromNok ? `Fra kr ${service.priceFromNok.toLocaleString("nb-NO")}` : "Pris pa foresporsel"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        ) : null}
 
         {services.length === 0 ? (
-          <div className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-8 text-base leading-8 text-[var(--muted)]">
+          <div className="rounded-[1.7rem] border border-[rgba(16,42,33,0.08)] bg-white/82 p-8 text-base leading-8 text-[var(--muted)] shadow-[0_16px_35px_rgba(16,42,33,0.05)]">
             Ingen publiserte tjenester matcher dette søket ennå.
           </div>
         ) : (
-          <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
             {services.map((service) => (
               (() => {
                 const serviceTrustBadge = getServiceTrustBadge({
@@ -168,35 +304,42 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                 return (
               <article
                 key={service.id}
-                className="rounded-[1.6rem] border border-[var(--border)] bg-white p-6 shadow-[0_8px_24px_rgba(16,42,33,0.04)]"
+                className="overflow-hidden rounded-[1.7rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.9)] shadow-[0_16px_40px_rgba(16,42,33,0.05)]"
               >
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
-                  {formatServiceCategory(service.category)}
-                </p>
-                <h2 className="mt-3 text-2xl text-[var(--forest)]">{service.title}</h2>
-                <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                  {service.providerProfile.businessName} · {service.municipality}, {service.county}
-                </p>
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-[var(--border)] bg-[#fbf8f1] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
-                    {serviceTrustSummary}
-                  </span>
-                  {serviceTrustBadge ? <TrustBadge compact {...serviceTrustBadge} /> : null}
+                <div
+                  className="px-6 py-5 text-white"
+                  style={{ backgroundImage: getServiceVisual(service.category).gradient }}
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/74">
+                    {formatServiceCategory(service.category)}
+                  </p>
+                  <h2 className="mt-3 text-2xl text-white">{service.title}</h2>
+                  <p className="mt-2 text-sm leading-7 text-white/74">
+                    {service.providerProfile.businessName} · {service.municipality}, {service.county}
+                  </p>
                 </div>
-                <p className="mt-4 text-sm leading-7 text-[var(--foreground)]">
-                  {service.description.slice(0, 180)}
-                  {service.description.length > 180 ? "..." : ""}
-                </p>
-                <div className="mt-5 flex items-center justify-between gap-4">
-                  <span className="text-sm font-semibold text-[var(--forest)]">
-                    {service.priceFromNok ? `Fra kr ${service.priceFromNok.toLocaleString("nb-NO")}` : "Pris på forespørsel"}
-                  </span>
-                  <Link
-                    href={`/services/${service.slug}`}
-                    className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white"
-                  >
-                    Se tjeneste
-                  </Link>
+                <div className="p-6">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full border border-[rgba(16,42,33,0.1)] bg-[#fbf8f1] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                      {serviceTrustSummary}
+                    </span>
+                    {serviceTrustBadge ? <TrustBadge compact {...serviceTrustBadge} /> : null}
+                  </div>
+                  <p className="mt-4 text-sm leading-7 text-[var(--foreground)]">
+                    {service.description.slice(0, 180)}
+                    {service.description.length > 180 ? "..." : ""}
+                  </p>
+                  <div className="mt-5 flex items-center justify-between gap-4">
+                    <span className="text-sm font-semibold text-[var(--forest)]">
+                      {service.priceFromNok ? `Fra kr ${service.priceFromNok.toLocaleString("nb-NO")}` : "Pris pa foresporsel"}
+                    </span>
+                    <Link
+                      href={`/services/${service.slug}`}
+                      className="rounded-full bg-[var(--forest)] px-4 py-2 text-sm font-semibold text-white"
+                    >
+                      Se tjeneste
+                    </Link>
+                  </div>
                 </div>
               </article>
                 );
