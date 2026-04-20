@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import logoMark from "../../images/logo2.png";
+import { HeyraLogo } from "@/components/brand/heyra-logo";
 import { localizePathname } from "@/lib/i18n/config";
 import { getMessages } from "@/lib/i18n/messages";
 import { getRequestLocale } from "@/lib/i18n/request";
@@ -215,7 +216,9 @@ export default async function HomePage() {
           <div className="relative">
             <header className="flex flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-8 sm:py-5">
               <Link href={localizePathname(locale, "/")} className="flex items-center gap-3">
-                <Image src={logoMark} alt="Heyra" className="h-8 w-auto" priority />
+                <div className="rounded-[1.4rem] border border-[rgba(255,255,255,0.14)] bg-[rgba(255,255,255,0.08)] px-5 py-3 backdrop-blur-sm">
+                  <HeyraLogo className="h-8 w-auto sm:h-9" theme="light" />
+                </div>
               </Link>
               <nav className="flex items-center gap-2 text-sm font-semibold sm:gap-3">
                 <Link
@@ -493,7 +496,7 @@ export default async function HomePage() {
         <footer className="border-t border-[var(--border)] bg-[#efe8db] px-5 py-8 sm:px-8 lg:px-10">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
             <div className="max-w-sm">
-              <Image src={logoMark} alt="Heyra" className="h-8 w-auto" />
+              <HeyraLogo className="h-8 w-auto" theme="dark" />
               <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
                 {copy.footerTagline}
               </p>

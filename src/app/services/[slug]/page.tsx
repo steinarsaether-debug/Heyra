@@ -113,13 +113,21 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
   });
 
   return (
-    <main className="px-6 py-10 sm:px-8 md:px-10">
+    <main className="px-4 py-8 sm:px-6 sm:py-10 md:px-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
       />
       <section className="space-y-6">
-        <div className="rounded-[1.8rem] bg-[var(--forest)] p-8 text-[var(--background)]">
+        <div
+          className="overflow-hidden rounded-[2rem] p-8 text-[var(--background)] shadow-[0_24px_60px_rgba(16,42,33,0.12)]"
+          style={{
+            backgroundImage:
+              "linear-gradient(135deg, rgba(10,25,22,0.92), rgba(10,25,22,0.66)), url(https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1800&q=80)",
+            backgroundPosition: "center",
+            backgroundSize: "cover",
+          }}
+        >
           <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
             {formatServiceCategory(service.category)}
           </p>
@@ -149,16 +157,16 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+          <article className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
             <h2 className="text-2xl text-[var(--forest)]">Om tjenesten</h2>
             <p className="mt-4 text-base leading-8 text-[var(--foreground)]">{service.description}</p>
-            <div className="mt-4 rounded-[1.2rem] border border-[var(--border)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
+            <div className="mt-4 rounded-[1.2rem] border border-[rgba(16,42,33,0.08)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
               <span className="font-semibold">Tillitssammendrag:</span> {serviceTrustSummary}
             </div>
           </article>
 
           <aside className="space-y-4">
-            <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+            <article className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
                 Kontakt
               </p>
@@ -179,7 +187,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
               </p>
             </article>
 
-            <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+            <article className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
                 Praktiske detaljer
               </p>

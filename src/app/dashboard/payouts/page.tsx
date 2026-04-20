@@ -81,16 +81,42 @@ export default async function PayoutsPage() {
   return (
     <main className="px-6 py-10 sm:px-8 md:px-10">
       <section className="space-y-6">
-        <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--amber)]">
-            Utbetalinger
-          </p>
-          <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
-            Følg opp ventende og fullførte utbetalinger.
-          </h1>
-          <p className="mt-4 text-lg leading-8 text-[var(--muted)]">
-            Dette er den første utbetalingsflaten for grunneiere. Den viser hva som er trukket, hva som fortsatt er innenfor 48-timersvinduet, og hva som allerede kan regnes som utbetalt.
-          </p>
+        <div className="overflow-hidden rounded-[2rem] border border-[rgba(16,42,33,0.1)] bg-[rgba(255,251,245,0.92)] shadow-[0_28px_80px_rgba(16,42,33,0.12)] backdrop-blur-sm">
+          <div className="bg-[linear-gradient(135deg,rgba(10,25,22,0.96),rgba(27,58,44,0.88))] px-8 py-10 text-white">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/65">
+              Utbetalinger
+            </p>
+            <h1 className="mt-3 text-4xl leading-tight sm:text-5xl">
+              Følg opp ventende og fullførte utbetalinger.
+            </h1>
+            <p className="mt-4 max-w-3xl text-lg leading-8 text-white/75">
+              Dette er den første utbetalingsflaten for grunneiere. Den viser hva som er trukket, hva som fortsatt er innenfor 48-timersvinduet, og hva som allerede kan regnes som utbetalt.
+            </p>
+          </div>
+          <div className="grid gap-4 border-t border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.96),rgba(245,239,229,0.94))] px-8 py-6 lg:grid-cols-3">
+            <article className="rounded-[1.5rem] border border-[rgba(16,42,33,0.08)] bg-white/80 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+                Totalt antall poster
+              </p>
+              <p className="mt-3 text-2xl text-[var(--forest)]">{payments.length}</p>
+            </article>
+            <article className="rounded-[1.5rem] border border-[rgba(16,42,33,0.08)] bg-white/80 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+                Ventende utbetaling
+              </p>
+              <p className="mt-3 text-2xl text-[var(--forest)]">
+                kr {pendingPayouts.reduce((sum, payment) => sum + payment.payoutNok, 0).toLocaleString("nb-NO")}
+              </p>
+            </article>
+            <article className="rounded-[1.5rem] border border-[rgba(16,42,33,0.08)] bg-white/80 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+                Utbetalt
+              </p>
+              <p className="mt-3 text-2xl text-[var(--forest)]">
+                kr {releasedPayouts.reduce((sum, payment) => sum + payment.payoutNok, 0).toLocaleString("nb-NO")}
+              </p>
+            </article>
+          </div>
         </div>
 
         <OfflinePageNote
@@ -114,32 +140,7 @@ export default async function PayoutsPage() {
           ]}
         />
 
-        <div className="grid gap-4 lg:grid-cols-3">
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Totalt antall poster
-            </p>
-            <p className="mt-3 text-2xl text-[var(--forest)]">{payments.length}</p>
-          </article>
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Ventende utbetaling
-            </p>
-            <p className="mt-3 text-2xl text-[var(--forest)]">
-              kr {pendingPayouts.reduce((sum, payment) => sum + payment.payoutNok, 0).toLocaleString("nb-NO")}
-            </p>
-          </article>
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-              Utbetalt
-            </p>
-            <p className="mt-3 text-2xl text-[var(--forest)]">
-              kr {releasedPayouts.reduce((sum, payment) => sum + payment.payoutNok, 0).toLocaleString("nb-NO")}
-            </p>
-          </article>
-        </div>
-
-        <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+        <article className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(245,239,229,0.86))] p-6 shadow-[0_18px_44px_rgba(16,42,33,0.07)]">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
             Oppsett for utbetaling
           </p>
@@ -153,12 +154,15 @@ export default async function PayoutsPage() {
 
         <div className="grid gap-4">
           {payments.length === 0 ? (
-            <div className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6 text-sm leading-7 text-[var(--muted)]">
+            <div className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,251,245,0.82)] p-6 text-sm leading-7 text-[var(--muted)] shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
               Ingen utbetalingsposter ennå.
             </div>
           ) : (
             payments.map((payment) => (
-              <article key={payment.id} className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+              <article
+                key={payment.id}
+                className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(245,239,229,0.86))] p-6 shadow-[0_18px_44px_rgba(16,42,33,0.07)]"
+              >
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
                   {payment.booking.listing.title}
                 </p>
@@ -166,10 +170,10 @@ export default async function PayoutsPage() {
                   {payment.booking.startDate.toLocaleDateString("nb-NO")} til {payment.booking.endDate.toLocaleDateString("nb-NO")}
                 </p>
                 <div className="mt-4 grid gap-3 text-sm leading-7 text-[var(--foreground)] sm:grid-cols-2 lg:grid-cols-4">
-                  <p>Status: <span className="font-semibold">{formatPaymentStatus(payment.status)}</span></p>
-                  <p>Leverandør: <span className="font-semibold">{formatPaymentProvider(payment.provider)}</span></p>
-                  <p>Utbetaling: <span className="font-semibold">kr {payment.payoutNok.toLocaleString("nb-NO")}</span></p>
-                  <p>Utbetalt: <span className="font-semibold">{payment.payoutReleasedAt ? payment.payoutReleasedAt.toLocaleDateString("nb-NO") : "Venter"}</span></p>
+                  <p className="rounded-[1.15rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3">Status: <span className="font-semibold">{formatPaymentStatus(payment.status)}</span></p>
+                  <p className="rounded-[1.15rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3">Leverandør: <span className="font-semibold">{formatPaymentProvider(payment.provider)}</span></p>
+                  <p className="rounded-[1.15rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3">Utbetaling: <span className="font-semibold">kr {payment.payoutNok.toLocaleString("nb-NO")}</span></p>
+                  <p className="rounded-[1.15rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3">Utbetalt: <span className="font-semibold">{payment.payoutReleasedAt ? payment.payoutReleasedAt.toLocaleDateString("nb-NO") : "Venter"}</span></p>
                 </div>
               </article>
             ))

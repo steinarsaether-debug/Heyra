@@ -133,39 +133,39 @@ export function NotificationSettingsClient() {
 
   if (isLoading) {
     return (
-      <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
-      <p className="text-sm leading-7 text-[var(--muted)]">Laster varslingsinnstillinger...</p>
+      <section className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,251,245,0.84)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
+        <p className="text-sm leading-7 text-[var(--muted)]">Laster varslingsinnstillinger...</p>
       </section>
     );
   }
 
   return (
-    <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+    <section className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(245,239,229,0.86))] p-6 shadow-[0_18px_44px_rgba(16,42,33,0.07)]">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
         Varsler
       </p>
       <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
-        <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border)] px-4 py-3">
+        <label className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3">
           <span>Oppdateringer om bestillinger</span>
           <input type="checkbox" checked={preferences.bookingUpdates} onChange={() => toggle("bookingUpdates")} />
         </label>
-        <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border)] px-4 py-3">
+        <label className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3">
           <span>Oppdateringer om kontrakt og betaling</span>
           <input type="checkbox" checked={preferences.contractUpdates} onChange={() => toggle("contractUpdates")} />
         </label>
-        <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border)] px-4 py-3">
+        <label className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3">
           <span>Oppdateringer om utbetalinger</span>
           <input type="checkbox" checked={preferences.payoutUpdates} onChange={() => toggle("payoutUpdates")} />
         </label>
-        <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border)] px-4 py-3">
+        <label className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3">
           <span>Påminnelser om etterlevelse</span>
           <input type="checkbox" checked={preferences.complianceReminders} onChange={() => toggle("complianceReminders")} />
         </label>
-        <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border)] px-4 py-3">
+        <label className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3">
           <span>Markedsføringsoppdateringer</span>
           <input type="checkbox" checked={preferences.marketingUpdates} onChange={() => toggle("marketingUpdates")} />
         </label>
-        <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
+        <div className="rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3">
           <p className="font-semibold">Nettleservarsler</p>
           <p className="mt-1 text-[var(--muted)]">
             {getNotificationDeliveryStatus(preferences.pushEnabled, preferences.pushPermission)}
@@ -183,7 +183,7 @@ export function NotificationSettingsClient() {
               type="button"
               onClick={() => void sendTestNotification()}
               disabled={isSaving || preferences.pushPermission !== "granted"}
-              className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] disabled:opacity-70"
+              className="rounded-full border border-[rgba(16,42,33,0.12)] bg-white/85 px-4 py-2 text-sm font-semibold text-[var(--foreground)] disabled:opacity-70"
             >
               Send testvarsel
             </button>

@@ -124,10 +124,18 @@ export default async function DashboardPage() {
     serviceSummary?.services.filter((service) => service.status === "PUBLISHED").length ?? 0;
 
   return (
-    <main className="px-6 py-10 sm:px-8 md:px-10">
+    <main className="px-4 py-8 sm:px-6 sm:py-10 md:px-8">
       <section className="space-y-6">
         <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-[1.8rem] bg-[var(--forest)] p-8 text-[var(--background)]">
+          <div
+            className="overflow-hidden rounded-[2rem] p-8 text-[var(--background)] shadow-[0_24px_60px_rgba(16,42,33,0.12)]"
+            style={{
+              backgroundImage:
+                "linear-gradient(135deg, rgba(10,25,22,0.92), rgba(10,25,22,0.68)), url(https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1800&q=80)",
+              backgroundPosition: "center",
+              backgroundSize: "cover",
+            }}
+          >
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
               Oversikt
             </p>
@@ -199,7 +207,7 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          <div className="rounded-[1.8rem] border border-[var(--border)] bg-white/75 p-8">
+          <div className="rounded-[2rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-8 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
               Kontoberedskap
             </p>
@@ -217,7 +225,7 @@ export default async function DashboardPage() {
         </div>
 
         {user.status !== "ACTIVE" ? (
-          <article className="rounded-[1.6rem] border border-[#d8c4a0] bg-[#fff9ef] p-6">
+          <article className="rounded-[1.7rem] border border-[#d8c4a0] bg-[#fff9ef] p-6 shadow-[0_16px_35px_rgba(16,42,33,0.05)]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
               Kontostatus
             </p>
@@ -247,43 +255,43 @@ export default async function DashboardPage() {
         ) : null}
 
         <div className="grid gap-4 lg:grid-cols-6">
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
+          <article className="rounded-[1.6rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_16px_35px_rgba(16,42,33,0.05)]">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
               Rolle
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{formatUserRoles(userRoles)}</p>
           </article>
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
+          <article className="rounded-[1.6rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_16px_35px_rgba(16,42,33,0.05)]">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
               Status
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{formatUserStatus(user.status)}</p>
           </article>
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
+          <article className="rounded-[1.6rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_16px_35px_rgba(16,42,33,0.05)]">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
               Aktive samtykker
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{consentsGranted}</p>
           </article>
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
+          <article className="rounded-[1.6rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_16px_35px_rgba(16,42,33,0.05)]">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
               Eiendommer
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{user.properties.length}</p>
           </article>
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
+          <article className="rounded-[1.6rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_16px_35px_rgba(16,42,33,0.05)]">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
               Bestillinger
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{user.bookings.length}</p>
           </article>
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
+          <article className="rounded-[1.6rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_16px_35px_rgba(16,42,33,0.05)]">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
               Varsler
             </p>
             <p className="mt-3 text-2xl text-[var(--forest)]">{notificationCount}</p>
           </article>
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
+          <article className="rounded-[1.6rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_16px_35px_rgba(16,42,33,0.05)]">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
               Tjenester
             </p>
@@ -298,7 +306,7 @@ export default async function DashboardPage() {
         </div>
 
         <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-          <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+          <article className="rounded-[1.7rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
               Tillitsoversikt
             </p>
@@ -315,7 +323,7 @@ export default async function DashboardPage() {
           </article>
 
           {userRoles.includes(UserRole.LANDOWNER) ? (
-            <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+            <article className="rounded-[1.7rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
                 Markedsoversikt
               </p>
@@ -340,7 +348,7 @@ export default async function DashboardPage() {
               </div>
             </article>
           ) : (
-            <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+            <article className="rounded-[1.7rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
                 Tillit i praksis
               </p>
@@ -360,7 +368,7 @@ export default async function DashboardPage() {
         </section>
 
         <div className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
-          <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+          <section className="rounded-[1.7rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
               Neste oppstartsoppgaver
             </p>
@@ -376,7 +384,7 @@ export default async function DashboardPage() {
             </ul>
           </section>
 
-          <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+          <section className="rounded-[1.7rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
               Hva kommer nå
             </p>

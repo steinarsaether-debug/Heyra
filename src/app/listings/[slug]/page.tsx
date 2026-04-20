@@ -290,13 +290,21 @@ export default async function ListingDetailPage({
   );
 
   return (
-    <main className="px-6 py-10 sm:px-8 md:px-10">
+    <main className="px-4 py-8 sm:px-6 sm:py-10 md:px-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(listingJsonLd) }}
       />
       <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-[1.8rem] bg-[var(--forest)] p-8 text-[var(--background)]">
+        <div
+          className="overflow-hidden rounded-[2rem] p-8 text-[var(--background)] shadow-[0_24px_60px_rgba(16,42,33,0.12)]"
+          style={{
+            backgroundImage:
+              "linear-gradient(135deg, rgba(10,25,22,0.92), rgba(10,25,22,0.66)), url(https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1800&q=80)",
+            backgroundPosition: "center",
+            backgroundSize: "cover",
+          }}
+        >
           <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
             Annonse
           </p>
@@ -346,7 +354,7 @@ export default async function ListingDetailPage({
             updatedAt={listing.updatedAt.toISOString()}
             label="Denne annonsen"
           />
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
+          <article className="rounded-[1.7rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
               Offentlig sammendrag
             </p>
@@ -415,7 +423,7 @@ export default async function ListingDetailPage({
           </article>
           {session?.user?.role === UserRole.HUNTER ? (
             existingRequest ? (
-              <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
+              <article className="rounded-[1.7rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
                   Din siste forespørsel
                 </p>
@@ -481,16 +489,16 @@ export default async function ListingDetailPage({
               />
             )
           ) : session?.user?.role === UserRole.LANDOWNER ? (
-            <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6 text-sm leading-7 text-[var(--muted)]">
+            <article className="rounded-[1.7rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 text-sm leading-7 text-[var(--muted)] shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
               Grunneiere kan ikke sende bestillingsforespørsler på egne annonser.
             </article>
           ) : (
-            <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6 text-sm leading-7 text-[var(--muted)]">
+            <article className="rounded-[1.7rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 text-sm leading-7 text-[var(--muted)] shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
               Logg inn som jeger for å be om datoer på denne annonsen.
             </article>
           )}
           {availability.blockedRanges.length > 0 ? (
-            <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
+            <article className="rounded-[1.7rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
                 Utilgjengelige datoer
               </p>
@@ -510,7 +518,7 @@ export default async function ListingDetailPage({
               areaNotes={(listing.rules as { areaNotes?: string } | null)?.areaNotes ?? ""}
             />
           ) : null}
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
+          <article className="rounded-[1.7rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
               Kart og områdeavgrensning
             </p>
@@ -522,7 +530,7 @@ export default async function ListingDetailPage({
             </div>
           </article>
           {listing.property.isInCwdZone || showsFishingFeeReminder || showsSalmonReportingReminder || showsBigGameReportingReminder ? (
-            <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
+            <article className="rounded-[1.7rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
                 Etterlevelse og rapportering
               </p>
@@ -572,7 +580,7 @@ export default async function ListingDetailPage({
             </article>
           ) : null}
           {nearbyServices.length > 0 ? (
-            <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/70 p-6">
+            <article className="rounded-[1.7rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">

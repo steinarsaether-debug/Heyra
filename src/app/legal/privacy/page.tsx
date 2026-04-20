@@ -9,13 +9,15 @@ export default async function PrivacyPage() {
   const paragraphs = messages.legalPages.privacy.paragraphs as readonly string[];
 
   return (
-    <main className="px-6 py-10 sm:px-8 md:px-10">
-      <section className="mx-auto max-w-4xl rounded-[1.8rem] border border-[var(--border)] bg-white/80 p-8">
-        <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[var(--amber)]">
+    <main className="px-4 py-8 sm:px-6 sm:py-10 md:px-8">
+      <section className="mx-auto max-w-5xl overflow-hidden rounded-[2rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
+        <div className="bg-[linear-gradient(135deg,rgba(10,25,22,0.92),rgba(10,25,22,0.72))] px-8 py-10 text-white">
+        <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/64">
           {t("legalPages.privacy.eyebrow")}
         </p>
-        <h1 className="mt-4 text-4xl text-[var(--forest)] sm:text-5xl">{t("legalPages.privacy.title")}</h1>
-        <div className="mt-8 space-y-6 text-base leading-8 text-[var(--foreground)]">
+        <h1 className="mt-4 text-4xl sm:text-5xl">{t("legalPages.privacy.title")}</h1>
+        </div>
+        <div className="space-y-6 px-8 py-8 text-base leading-8 text-[var(--foreground)]">
           {paragraphs.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}

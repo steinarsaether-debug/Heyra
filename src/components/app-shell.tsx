@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -18,7 +17,7 @@ import { localizePathname, stripLocalePrefix } from "@/lib/i18n/config";
 import type { Messages } from "@/lib/i18n/messages";
 import { createTranslator } from "@/lib/i18n/translate";
 import { formatUserStatus } from "@/lib/user-status";
-import logoMark from "../../images/logo2.png";
+import { HeyraLogo } from "@/components/brand/heyra-logo";
 
 type MenuLink = {
   href: string;
@@ -60,10 +59,10 @@ function MoreMenu({
 
   return (
     <details ref={detailsRef} className="relative">
-      <summary className="list-none rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--background-soft)]">
+      <summary className="list-none rounded-full border border-[rgba(16,42,33,0.1)] bg-[rgba(255,255,255,0.84)] px-4 py-2 text-sm font-medium text-[var(--foreground)] shadow-[0_10px_24px_rgba(16,42,33,0.05)] transition hover:bg-white">
         {label}
       </summary>
-      <div className="absolute right-0 top-[calc(100%+0.75rem)] z-30 w-[21rem] rounded-[1.5rem] border border-[var(--border)] bg-white p-4 shadow-[0_22px_44px_rgba(16,42,33,0.16)]">
+      <div className="absolute right-0 top-[calc(100%+0.75rem)] z-30 w-[21rem] rounded-[1.7rem] border border-[rgba(16,42,33,0.1)] bg-[rgba(255,251,245,0.98)] p-4 shadow-[0_26px_54px_rgba(16,42,33,0.18)] backdrop-blur">
         <div className="space-y-4">
           {roleMode ? (
             <>
@@ -88,7 +87,7 @@ function MoreMenu({
                       key={item.href}
                       href={item.href}
                       onClick={closeMenu}
-                      className="rounded-[1rem] border border-[var(--border)] px-4 py-3 text-sm text-[var(--foreground)] transition hover:bg-[var(--background-soft)]"
+                      className="rounded-[1rem] border border-[rgba(16,42,33,0.08)] bg-white/84 px-4 py-3 text-sm text-[var(--foreground)] transition hover:bg-white"
                     >
                       {item.label}
                     </Link>
@@ -142,7 +141,7 @@ function MobileMoreSheet({
         className="fixed inset-0 z-40 bg-[#102a21]/18 md:hidden"
         onClick={onClose}
       />
-      <div className="fixed inset-x-3 bottom-24 z-50 max-h-[70vh] overflow-y-auto rounded-[1.8rem] border border-[var(--border)] bg-white p-4 shadow-[0_24px_48px_rgba(16,42,33,0.18)] md:hidden">
+      <div className="fixed inset-x-3 bottom-24 z-50 max-h-[70vh] overflow-y-auto rounded-[1.9rem] border border-[rgba(16,42,33,0.1)] bg-[rgba(255,251,245,0.98)] p-4 shadow-[0_28px_60px_rgba(16,42,33,0.2)] backdrop-blur md:hidden">
         <div className="mb-4 flex items-center justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
@@ -155,7 +154,7 @@ function MobileMoreSheet({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-[var(--border)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)]"
+            className="rounded-full border border-[rgba(16,42,33,0.1)] bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)]"
           >
             {closeLabel}
           </button>
@@ -185,7 +184,7 @@ function MobileMoreSheet({
                       key={item.href}
                       href={item.href}
                       onClick={onClose}
-                      className="rounded-[1rem] border border-[var(--border)] px-4 py-3 text-sm text-[var(--foreground)] transition hover:bg-[var(--background-soft)]"
+                      className="rounded-[1rem] border border-[rgba(16,42,33,0.08)] bg-white/84 px-4 py-3 text-sm text-[var(--foreground)] transition hover:bg-white"
                     >
                       {item.label}
                     </Link>
@@ -407,13 +406,15 @@ export function AppShell({
   }
 
   return (
-    <div className="min-h-screen px-3 py-4 sm:px-6 lg:px-10">
-      <div className="heyra-shell mx-auto flex min-h-[calc(100vh-2rem)] max-w-7xl flex-col rounded-[1.6rem] border border-[var(--border)] shadow-[0_20px_70px_rgba(16,42,33,0.10)] backdrop-blur sm:rounded-[2rem]">
-        <header className="border-b border-[var(--border)] bg-white/95 px-4 py-3 sm:px-6 sm:py-4">
+    <div className="min-h-screen px-3 py-4 sm:px-5 lg:px-8">
+      <div className="heyra-shell mx-auto flex min-h-[calc(100vh-2rem)] max-w-[92rem] flex-col overflow-hidden rounded-[1.8rem] border border-[rgba(16,42,33,0.1)] shadow-[0_26px_90px_rgba(16,42,33,0.12)] backdrop-blur sm:rounded-[2.2rem]">
+        <header className="border-b border-[rgba(16,42,33,0.08)] bg-[rgba(255,251,245,0.95)] px-4 py-4 sm:px-6 sm:py-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-4">
               <Link href={localizePathname(locale, "/")} className="inline-flex items-center gap-4">
-                <Image src={logoMark} alt="Heyra" className="h-14 w-auto sm:h-16" priority />
+                <div className="rounded-[1.4rem] border border-[rgba(16,42,33,0.08)] bg-white/92 px-5 py-3 shadow-[0_16px_30px_rgba(16,42,33,0.06)]">
+                  <HeyraLogo className="h-8 w-auto sm:h-9" theme="dark" />
+                </div>
                 <div className="hidden sm:block">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-[var(--orange)]">
                     {t("shell.eyebrow")}
@@ -430,10 +431,10 @@ export function AppShell({
                 <Link
                   key={item.key}
                   href={item.href}
-                  className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+                  className={`rounded-full border px-4 py-2 text-sm font-medium shadow-[0_10px_24px_rgba(16,42,33,0.05)] transition ${
                     item.active
                       ? "border-[rgba(16,42,33,0.18)] bg-[var(--forest)] text-white"
-                      : "border-[var(--border)] bg-white text-[var(--foreground)] hover:bg-[var(--background-soft)]"
+                      : "border-[rgba(16,42,33,0.1)] bg-[rgba(255,255,255,0.84)] text-[var(--foreground)] hover:bg-white"
                   }`}
                 >
                   {item.label}
@@ -447,24 +448,24 @@ export function AppShell({
               {session?.user ? (
                 <>
                   {session.user.status && session.user.status !== "ACTIVE" ? (
-                    <div className="rounded-full border border-[#d8c4a0] bg-[#fff9ef] px-4 py-2 text-sm font-semibold text-[#6b5432]">
+                    <div className="rounded-full border border-[#d8c4a0] bg-[#fff9ef] px-4 py-2 text-sm font-semibold text-[#6b5432] shadow-[0_10px_20px_rgba(16,42,33,0.04)]">
                       {formatUserStatus(session.user.status)}
                     </div>
                   ) : null}
-                  <div className="rounded-full border border-[var(--border)] bg-[#f7f4ed] px-4 py-2 text-sm text-[var(--foreground)]">
+                  <div className="rounded-full border border-[rgba(16,42,33,0.1)] bg-[#f7f4ed] px-4 py-2 text-sm text-[var(--foreground)] shadow-[0_10px_20px_rgba(16,42,33,0.04)]">
                     {session.user.fullName}
                   </div>
                   {currentActiveRole ? (
-                    <div className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm text-[var(--muted)]">
+                    <div className="rounded-full border border-[rgba(16,42,33,0.1)] bg-white px-4 py-2 text-sm text-[var(--muted)] shadow-[0_10px_20px_rgba(16,42,33,0.04)]">
                       {locale === "en" ? "Mode" : "Modus"}: {formatUserRole(currentActiveRole)}
                     </div>
                   ) : null}
-                  <SignOutButton className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm text-[var(--foreground)] transition hover:bg-[var(--background-soft)]" />
+                  <SignOutButton className="rounded-full border border-[rgba(16,42,33,0.1)] bg-white px-4 py-2 text-sm text-[var(--foreground)] shadow-[0_10px_20px_rgba(16,42,33,0.04)] transition hover:bg-[var(--background-soft)]" />
                 </>
               ) : (
                 <Link
                   href={localizePathname(locale, "/auth/login")}
-                  className="rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm text-[var(--foreground)] transition hover:bg-[var(--background-soft)]"
+                  className="rounded-full border border-[rgba(16,42,33,0.1)] bg-white px-4 py-2 text-sm text-[var(--foreground)] shadow-[0_10px_20px_rgba(16,42,33,0.04)] transition hover:bg-[var(--background-soft)]"
                 >
                   {t("shell.guest.logIn")}
                 </Link>
@@ -473,7 +474,9 @@ export function AppShell({
           </div>
         </header>
 
-        <div className="flex-1 pb-24 md:pb-0">{children}</div>
+        <div className="flex-1 bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(247,242,233,0.92))] pb-24 md:pb-0">
+          {children}
+        </div>
       </div>
       <MobileMoreSheet
         open={mobileMoreOpen}

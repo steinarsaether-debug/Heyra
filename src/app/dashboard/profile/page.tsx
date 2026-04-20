@@ -76,34 +76,35 @@ export default async function ProfilePage() {
     <main className="px-6 py-10 sm:px-8 md:px-10">
       <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <div className="space-y-6">
-          <div className="rounded-[1.8rem] bg-[var(--forest)] p-8 text-[var(--background)]">
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
-              Profil
-            </p>
-            <h1 className="mt-5 text-4xl leading-tight sm:text-5xl">
-              Fullfør den grunnleggende kontoprofilen din.
-            </h1>
-            <p className="mt-5 max-w-xl text-lg leading-8 text-white/75">
-              {getRoleGuidance(userRoles)}
-            </p>
-          </div>
-
-          <div className="rounded-[1.6rem] border border-[var(--border)] bg-white/70 p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
-              Fremdrift
-            </p>
-            <div className="mt-4 flex items-end justify-between gap-4">
-              <div>
-                <p className="text-4xl text-[var(--forest)]">{completion.percent}%</p>
-                <p className="mt-2 text-sm text-[var(--muted)]">
-                  {completion.completed} av {completion.total} viktige felt er fylt ut
-                </p>
-              </div>
-              <div className="h-3 flex-1 rounded-full bg-[#e7e1d5]">
-                <div
-                  className="h-3 rounded-full bg-[var(--amber)]"
-                  style={{ width: `${completion.percent}%` }}
-                />
+          <div className="overflow-hidden rounded-[2rem] border border-[rgba(16,42,33,0.1)] bg-[rgba(255,251,245,0.92)] shadow-[0_28px_80px_rgba(16,42,33,0.12)] backdrop-blur-sm">
+            <div className="bg-[linear-gradient(135deg,rgba(10,25,22,0.96),rgba(27,58,44,0.88))] p-8 text-[var(--background)]">
+              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
+                Profil
+              </p>
+              <h1 className="mt-5 text-4xl leading-tight sm:text-5xl">
+                Fullfør den grunnleggende kontoprofilen din.
+              </h1>
+              <p className="mt-5 max-w-xl text-lg leading-8 text-white/75">
+                {getRoleGuidance(userRoles)}
+              </p>
+            </div>
+            <div className="border-t border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.96),rgba(245,239,229,0.94))] p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
+                Fremdrift
+              </p>
+              <div className="mt-4 flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-4xl text-[var(--forest)]">{completion.percent}%</p>
+                  <p className="mt-2 text-sm text-[var(--muted)]">
+                    {completion.completed} av {completion.total} viktige felt er fylt ut
+                  </p>
+                </div>
+                <div className="h-3 flex-1 rounded-full bg-[#e7e1d5]">
+                  <div
+                    className="h-3 rounded-full bg-[var(--amber)]"
+                    style={{ width: `${completion.percent}%` }}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -112,7 +113,7 @@ export default async function ProfilePage() {
         <div className="space-y-5">
           <EmailVerificationCard email={user.email} isVerified={Boolean(user.emailVerified)} />
 
-          <div className="rounded-[1.8rem] border border-[var(--border)] bg-white/75 p-8">
+          <div className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(245,239,229,0.86))] p-8 shadow-[0_18px_44px_rgba(16,42,33,0.07)]">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
               Rediger profil
             </p>
@@ -131,7 +132,7 @@ export default async function ProfilePage() {
             </div>
           </div>
 
-          <div className="rounded-[1.6rem] border border-[var(--border)] bg-white/70 p-6">
+          <div className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,251,245,0.84)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
               Gjenstående profiloppgaver
             </p>
@@ -139,7 +140,7 @@ export default async function ProfilePage() {
               {completion.fields.map((field) => (
                 <li
                   key={field.key}
-                  className="rounded-2xl border border-[var(--border)] px-4 py-3"
+                  className="rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3"
                 >
                   {field.complete ? "Fullført" : "Mangler"}: {field.label}
                 </li>
@@ -147,7 +148,7 @@ export default async function ProfilePage() {
             </ul>
           </div>
 
-          <div className="rounded-[1.6rem] border border-[var(--border)] bg-white/70 p-6">
+          <div className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,251,245,0.84)] p-6 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
               Omdømme
             </p>
@@ -168,7 +169,7 @@ export default async function ProfilePage() {
                 {user.receivedReviews.map((review) => (
                   <div
                     key={review.id}
-                    className="rounded-2xl border border-[var(--border)] px-4 py-3 text-sm leading-7 text-[var(--foreground)]"
+                    className="rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3 text-sm leading-7 text-[var(--foreground)]"
                   >
                     <span className="font-semibold">{review.rating} / 5</span> · {review.title}
                   </div>

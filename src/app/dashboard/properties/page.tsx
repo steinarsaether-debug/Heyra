@@ -49,29 +49,38 @@ export default async function PropertiesPage() {
   return (
     <main className="px-6 py-10 sm:px-8 md:px-10">
       <section className="space-y-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--amber)]">
+        <div className="overflow-hidden rounded-[2rem] border border-[rgba(16,42,33,0.1)] bg-[rgba(255,251,245,0.92)] shadow-[0_28px_80px_rgba(16,42,33,0.12)] backdrop-blur-sm">
+          <div className="bg-[linear-gradient(135deg,rgba(10,25,22,0.96),rgba(27,58,44,0.88))] px-8 py-10 text-white">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/65">
               Eiendommer
             </p>
-            <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
+            <h1 className="mt-3 text-4xl leading-tight sm:text-5xl">
               Hold hver eiendom i bevegelse, ett rolig steg av gangen.
             </h1>
-            <p className="mt-4 text-lg leading-8 text-[var(--muted)]">
+            <p className="mt-4 max-w-3xl text-lg leading-8 text-white/75">
               Utkast, grensearbeid og annonseoppsett har nå egne arbeidsflater i stedet for å ligge spredt på oversikten.
             </p>
           </div>
-
-          <Link
-            href="/dashboard/properties/new"
-            className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-[var(--background)]"
-          >
-            Legg til eiendom
-          </Link>
+          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.96),rgba(245,239,229,0.94))] px-8 py-6">
+            <div className="flex flex-wrap gap-3 text-sm text-[var(--muted)]">
+              <span className="rounded-full border border-[rgba(16,42,33,0.12)] bg-white/80 px-4 py-2 font-semibold text-[var(--forest)]">
+                {properties.length} eiendom{properties.length === 1 ? "" : "mer"}
+              </span>
+              <span className="rounded-full border border-[rgba(16,42,33,0.08)] bg-white/65 px-4 py-2">
+                {attributedBookings} attribuerte forespørsler
+              </span>
+            </div>
+            <Link
+              href="/dashboard/properties/new"
+              className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-[var(--background)] transition hover:-translate-y-0.5"
+            >
+              Legg til eiendom
+            </Link>
+          </div>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
-          <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+          <article className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(245,239,229,0.86))] p-6 shadow-[0_18px_44px_rgba(16,42,33,0.07)]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
               Markedsføringssammendrag
             </p>
@@ -84,25 +93,25 @@ export default async function PropertiesPage() {
             <div className="mt-4">
               <Link
                 href="/dashboard/marketing"
-                className="inline-flex rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--forest)]"
+                className="inline-flex rounded-full border border-[rgba(16,42,33,0.12)] bg-white/85 px-4 py-2 text-sm font-semibold text-[var(--forest)] transition hover:-translate-y-0.5 hover:bg-white"
               >
                 Åpne markedsinnsikt
               </Link>
             </div>
           </article>
-          <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+          <article className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(245,239,229,0.86))] p-6 shadow-[0_18px_44px_rgba(16,42,33,0.07)]">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
               Viktigste siste kilder
             </p>
             <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
               {marketingSummary.lastTouch.length > 0 ? (
                 marketingSummary.lastTouch.slice(0, 3).map((item) => (
-                  <div key={item.key} className="rounded-2xl border border-[var(--border)] px-4 py-3">
+                  <div key={item.key} className="rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3">
                     <span className="font-semibold">{item.label}</span>: {item.count} bestillingsforespørsel{item.count === 1 ? "" : "er"}
                   </div>
                 ))
               ) : (
-                <div className="rounded-2xl border border-[var(--border)] px-4 py-3 text-[var(--muted)]">
+                <div className="rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3 text-[var(--muted)]">
                   Ingen tagget delingskilde er registrert ennå.
                 </div>
               )}
@@ -111,7 +120,7 @@ export default async function PropertiesPage() {
         </div>
 
         {properties.length === 0 ? (
-          <div className="rounded-[1.8rem] border border-[var(--border)] bg-white/75 p-8">
+          <div className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,251,245,0.82)] p-8 shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
             <p className="text-lg leading-8 text-[var(--muted)]">
               Du har ingen eiendomsutkast ennå. Start med den guidede opprettelsen, og kom tilbake hit for å jobbe videre med hver eiendom.
             </p>
@@ -139,7 +148,7 @@ export default async function PropertiesPage() {
                 <Link
                   key={property.id}
                   href={`/dashboard/properties/${property.id}`}
-                  className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6 transition hover:-translate-y-0.5 hover:bg-white"
+                  className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(245,239,229,0.86))] p-6 shadow-[0_18px_44px_rgba(16,42,33,0.07)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_52px_rgba(16,42,33,0.09)]"
                 >
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
                     {formatPropertyStatus(property.status)}

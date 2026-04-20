@@ -124,48 +124,49 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
   return (
     <main className="px-6 py-10 sm:px-8 md:px-10">
       <section className="space-y-6">
-        <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--amber)]">
-            Brukeradministrasjon
-          </p>
-          <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
-            Finn brukere, status og tillitssignaler raskt.
-          </h1>
-          <p className="mt-4 text-lg leading-8 text-[var(--muted)]">
-            Denne flaten gir en samlet oversikt over kontoer, leverandørstatus, aktivitet og hva som trenger oppfølging.
-          </p>
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-4">
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Aktive</p>
-            <p className="mt-3 text-3xl text-[var(--forest)]">{activeUsers}</p>
-          </article>
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Suspendert</p>
-            <p className="mt-3 text-3xl text-[var(--forest)]">{suspendedUsers}</p>
-          </article>
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Til gjennomgang</p>
-            <p className="mt-3 text-3xl text-[var(--forest)]">{reviewUsers}</p>
-          </article>
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Flaggede leverandører</p>
-            <p className="mt-3 text-3xl text-[var(--forest)]">{flaggedProviders}</p>
-          </article>
+        <div className="overflow-hidden rounded-[2rem] border border-[rgba(16,42,33,0.1)] bg-[rgba(255,251,245,0.92)] shadow-[0_28px_80px_rgba(16,42,33,0.12)] backdrop-blur-sm">
+          <div className="bg-[linear-gradient(135deg,rgba(10,25,22,0.96),rgba(27,58,44,0.88))] px-8 py-10 text-white">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/65">
+              Brukeradministrasjon
+            </p>
+            <h1 className="mt-3 text-4xl leading-tight sm:text-5xl">
+              Finn brukere, status og tillitssignaler raskt.
+            </h1>
+            <p className="mt-4 max-w-3xl text-lg leading-8 text-white/75">
+              Denne flaten gir en samlet oversikt over kontoer, leverandørstatus, aktivitet og hva som trenger oppfølging.
+            </p>
+          </div>
+          <div className="grid gap-4 border-t border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.96),rgba(245,239,229,0.94))] px-8 py-6 lg:grid-cols-4">
+            <article className="rounded-[1.5rem] border border-[rgba(16,42,33,0.08)] bg-white/80 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Aktive</p>
+              <p className="mt-3 text-3xl text-[var(--forest)]">{activeUsers}</p>
+            </article>
+            <article className="rounded-[1.5rem] border border-[rgba(16,42,33,0.08)] bg-white/80 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Suspendert</p>
+              <p className="mt-3 text-3xl text-[var(--forest)]">{suspendedUsers}</p>
+            </article>
+            <article className="rounded-[1.5rem] border border-[rgba(16,42,33,0.08)] bg-white/80 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Til gjennomgang</p>
+              <p className="mt-3 text-3xl text-[var(--forest)]">{reviewUsers}</p>
+            </article>
+            <article className="rounded-[1.5rem] border border-[rgba(16,42,33,0.08)] bg-white/80 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">Flaggede leverandører</p>
+              <p className="mt-3 text-3xl text-[var(--forest)]">{flaggedProviders}</p>
+            </article>
+          </div>
         </div>
 
         <AdminGrantRoleForm />
 
-        <form className="grid gap-3 rounded-[1.3rem] border border-[var(--border)] bg-white/70 p-4 text-sm text-[var(--muted)] lg:grid-cols-5">
+        <form className="grid gap-3 rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,251,245,0.84)] p-4 text-sm text-[var(--muted)] shadow-[0_18px_40px_rgba(16,42,33,0.06)] lg:grid-cols-5">
           <input
             type="search"
             name="q"
             defaultValue={q}
             placeholder="Søk på navn eller e-post"
-            className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)] outline-none lg:col-span-2"
+            className="rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 text-[var(--foreground)] outline-none lg:col-span-2"
           />
-          <select name="role" defaultValue={role} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)] outline-none">
+          <select name="role" defaultValue={role} className="rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 text-[var(--foreground)] outline-none">
             <option value="ALL">Alle roller</option>
                 {Object.values(UserRole).map((entry) => (
               <option key={entry} value={entry}>
@@ -173,7 +174,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
               </option>
             ))}
           </select>
-          <select name="status" defaultValue={status} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)] outline-none">
+          <select name="status" defaultValue={status} className="rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 text-[var(--foreground)] outline-none">
             <option value="ALL">Alle statuser</option>
                 {Object.values(UserStatus).map((entry) => (
               <option key={entry} value={entry}>
@@ -181,26 +182,26 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
               </option>
             ))}
           </select>
-          <select name="verified" defaultValue={verified} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)] outline-none">
+          <select name="verified" defaultValue={verified} className="rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 text-[var(--foreground)] outline-none">
             <option value="ALL">All e-poststatus</option>
             <option value="YES">E-post bekreftet</option>
             <option value="NO">E-post ikke bekreftet</option>
           </select>
-          <select name="provider" defaultValue={provider} className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)] outline-none">
+          <select name="provider" defaultValue={provider} className="rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 text-[var(--foreground)] outline-none">
             <option value="ALL">Alle leverandørtilstander</option>
             <option value="YES">Har leverandørprofil</option>
             <option value="PENDING_OR_FLAGGED">Leverandørprofil trenger oppfølging</option>
           </select>
           <button
             type="submit"
-            className="rounded-xl bg-[var(--forest)] px-4 py-3 font-semibold text-white lg:col-span-5"
+            className="rounded-[1rem] bg-[var(--forest)] px-4 py-3 font-semibold text-white transition hover:-translate-y-0.5 lg:col-span-5"
           >
             Oppdater brukerliste
           </button>
         </form>
 
         {users.length === 0 ? (
-          <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-8 text-base leading-8 text-[var(--muted)]">
+          <article className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,251,245,0.82)] p-8 text-base leading-8 text-[var(--muted)] shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
             Ingen brukere matcher filtrene akkurat nå.
           </article>
         ) : (
@@ -208,7 +209,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
             {users.map((user) => (
               <article
                 key={user.id}
-                className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6"
+                className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(245,239,229,0.86))] p-6 shadow-[0_18px_44px_rgba(16,42,33,0.07)]"
               >
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div>
@@ -220,20 +221,20 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
                     </h2>
                     <p className="mt-2 text-sm leading-7 text-[var(--muted)]">{user.email}</p>
                     <div className="mt-3 flex flex-wrap gap-3 text-sm leading-7 text-[var(--muted)]">
-                      <span className="rounded-full border border-[var(--border)] px-3 py-1">
+                      <span className="rounded-full border border-[rgba(16,42,33,0.1)] bg-white/78 px-3 py-1">
                         E-post {user.emailVerified ? "bekreftet" : "ikke bekreftet"}
                       </span>
-                      <span className="rounded-full border border-[var(--border)] px-3 py-1">
+                      <span className="rounded-full border border-[rgba(16,42,33,0.1)] bg-white/78 px-3 py-1">
                         Bestillinger {user._count.bookings}
                       </span>
-                      <span className="rounded-full border border-[var(--border)] px-3 py-1">
+                      <span className="rounded-full border border-[rgba(16,42,33,0.1)] bg-white/78 px-3 py-1">
                         Eiendommer {user._count.properties}
                       </span>
-                      <span className="rounded-full border border-[var(--border)] px-3 py-1">
+                      <span className="rounded-full border border-[rgba(16,42,33,0.1)] bg-white/78 px-3 py-1">
                         Etterlevelse {user._count.complianceTasks}
                       </span>
                       {user.serviceProviderProfile ? (
-                        <span className="rounded-full border border-[var(--border)] px-3 py-1">
+                        <span className="rounded-full border border-[rgba(16,42,33,0.1)] bg-white/78 px-3 py-1">
                           Leverandør {formatServiceProviderReviewStatus(user.serviceProviderProfile.reviewStatus)}
                         </span>
                       ) : null}
@@ -243,7 +244,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
                   <div className="min-w-[15rem]">
                     <Link
                       href={`/admin/users/${user.id}`}
-                      className="block rounded-2xl border border-[var(--border)] px-4 py-3 text-center font-semibold text-[var(--forest)]"
+                      className="block rounded-[1.25rem] border border-[rgba(16,42,33,0.12)] bg-white/85 px-4 py-3 text-center font-semibold text-[var(--forest)] transition hover:-translate-y-0.5 hover:bg-white"
                     >
                       Åpne brukerflate
                     </Link>

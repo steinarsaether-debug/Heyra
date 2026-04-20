@@ -54,19 +54,19 @@ export function LegalSettingsClient() {
   }
 
   return (
-    <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+    <section className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(245,239,229,0.86))] p-6 shadow-[0_18px_44px_rgba(16,42,33,0.07)]">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
         Innstillinger for informasjonskapsler
       </p>
       <div className="mt-4 space-y-3 text-sm leading-7 text-[var(--foreground)]">
-        <div className="rounded-2xl border border-[var(--border)] px-4 py-3">
+        <div className="rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3">
           Nødvendige informasjonskapsler er alltid aktivert for innlogging og grunnleggende appfunksjoner.
         </div>
-        <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border)] px-4 py-3">
+        <label className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3">
           <span>Tillat analyseinformasjonskapsler</span>
           <input type="checkbox" checked={consent.analytics} onChange={() => toggle("analytics")} />
         </label>
-        <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border)] px-4 py-3">
+        <label className="flex items-center justify-between gap-4 rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3">
           <span>Tillat synkronisering av markedsføringsvalg</span>
           <input type="checkbox" checked={consent.marketing} onChange={() => toggle("marketing")} />
         </label>

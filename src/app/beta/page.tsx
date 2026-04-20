@@ -27,9 +27,17 @@ const betaSections = [
 
 export default function BetaLaunchPage() {
   return (
-    <main className="px-6 py-10 sm:px-8 md:px-10">
+    <main className="px-4 py-8 sm:px-6 sm:py-10 md:px-8">
       <section className="space-y-6">
-        <div className="rounded-[1.9rem] bg-[var(--forest)] p-8 text-[var(--background)]">
+        <div
+          className="overflow-hidden rounded-[2rem] p-8 text-[var(--background)] shadow-[0_24px_60px_rgba(16,42,33,0.12)]"
+          style={{
+            backgroundImage:
+              "linear-gradient(135deg, rgba(10,25,22,0.9), rgba(10,25,22,0.64)), url(https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1800&q=80)",
+            backgroundPosition: "center",
+            backgroundSize: "cover",
+          }}
+        >
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/65">
             Sprint 1.9
           </p>
@@ -57,7 +65,7 @@ export default function BetaLaunchPage() {
           {betaSections.map((section) => (
             <article
               key={section.title}
-              className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6"
+              className="rounded-[1.6rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_16px_35px_rgba(16,42,33,0.05)]"
             >
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
                 Ready for review
@@ -69,7 +77,7 @@ export default function BetaLaunchPage() {
         </div>
 
         <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
+          <article className="rounded-[1.6rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_16px_35px_rgba(16,42,33,0.05)]">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
               Launch checklist
             </p>
@@ -89,7 +97,7 @@ export default function BetaLaunchPage() {
             </div>
           </article>
 
-          <article className="rounded-[1.5rem] border border-[var(--border)] bg-white/75 p-6">
+          <article className="rounded-[1.6rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_16px_35px_rgba(16,42,33,0.05)]">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
               Beta story
             </p>

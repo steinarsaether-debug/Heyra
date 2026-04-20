@@ -159,16 +159,42 @@ export default async function DashboardBookingsPage() {
   return (
     <main className="px-6 py-10 sm:px-8 md:px-10">
       <section className="space-y-6">
-        <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--amber)]">
-            Bestillinger
-          </p>
-          <h1 className="mt-3 text-4xl leading-tight text-[var(--forest)] sm:text-5xl">
-            Administrer forespørsler, godkjenninger og tidspunkt for turene.
-          </h1>
-          <p className="mt-4 text-lg leading-8 text-[var(--muted)]">
-            Dette er den første komplette bestillingsflyten: jegere kan sende forespørsler, og grunneiere kan godkjenne eller avslå dem fra ett og samme dashbord.
-          </p>
+        <div className="overflow-hidden rounded-[2rem] border border-[rgba(16,42,33,0.1)] bg-[rgba(255,251,245,0.92)] shadow-[0_28px_80px_rgba(16,42,33,0.12)] backdrop-blur-sm">
+          <div className="bg-[linear-gradient(135deg,rgba(10,25,22,0.96),rgba(27,58,44,0.88))] px-8 py-10 text-white">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/65">
+              Bestillinger
+            </p>
+            <h1 className="mt-3 text-4xl leading-tight sm:text-5xl">
+              Administrer forespørsler, godkjenninger og tidspunkt for turene.
+            </h1>
+            <p className="mt-4 max-w-3xl text-lg leading-8 text-white/75">
+              Dette er den første komplette bestillingsflyten: jegere kan sende forespørsler, og grunneiere kan godkjenne eller avslå dem fra ett og samme dashbord.
+            </p>
+          </div>
+          <div className="grid gap-4 border-t border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.96),rgba(245,239,229,0.94))] px-8 py-6 md:grid-cols-3">
+            <article className="rounded-[1.5rem] border border-[rgba(16,42,33,0.08)] bg-white/80 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+                Innkommende
+              </p>
+              <p className="mt-3 text-3xl text-[var(--forest)]">{inboundBookings.length}</p>
+            </article>
+            <article className="rounded-[1.5rem] border border-[rgba(16,42,33,0.08)] bg-white/80 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+                Sendt av deg
+              </p>
+              <p className="mt-3 text-3xl text-[var(--forest)]">{outboundBookings.length}</p>
+            </article>
+            <article className="rounded-[1.5rem] border border-[rgba(16,42,33,0.08)] bg-white/80 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
+                Åpne saker
+              </p>
+              <p className="mt-3 text-3xl text-[var(--forest)]">
+                {
+                  allBookings.filter((booking) => !closedStatuses.includes(booking.status)).length
+                }
+              </p>
+            </article>
+          </div>
         </div>
 
         <OfflinePageNote
@@ -204,7 +230,7 @@ export default async function DashboardBookingsPage() {
               {inboundBookings.map((booking) => (
                 <article
                   key={booking.id}
-                  className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6"
+                  className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(245,239,229,0.86))] p-6 shadow-[0_18px_44px_rgba(16,42,33,0.07)]"
                 >
                   <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
                     <div>
@@ -238,7 +264,7 @@ export default async function DashboardBookingsPage() {
                         {booking.startDate.toLocaleDateString("nb-NO")} til {booking.endDate.toLocaleDateString("nb-NO")} · kr {booking.totalNok.toLocaleString("nb-NO")}
                       </p>
                       {booking.requestMessage ? (
-                        <p className="mt-4 rounded-2xl border border-[var(--border)] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
+                        <p className="mt-4 rounded-[1.25rem] border border-[rgba(16,42,33,0.1)] bg-white/72 px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
                           {booking.requestMessage}
                         </p>
                       ) : null}
@@ -254,7 +280,7 @@ export default async function DashboardBookingsPage() {
                         }
 
                         return (
-                          <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
+                          <div className="mt-4 rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
                             {quota.summary ? <p><span className="font-semibold">Kvote:</span> {quota.summary}</p> : null}
                             {quota.availabilitySummary ? <p><span className="font-semibold">Tilgjengelighet:</span> {quota.availabilitySummary}</p> : null}
                             {quota.reportingResponsibility ? <p><span className="font-semibold">Rapportering:</span> {quota.reportingResponsibility}</p> : null}
@@ -269,7 +295,7 @@ export default async function DashboardBookingsPage() {
                         representativeConfirmationStatus:
                           booking.listing.representativeConfirmationStatus,
                       }) ? (
-                        <p className="mt-4 rounded-2xl border border-[#e7d6ae] bg-[#fff8eb] px-4 py-3 text-sm leading-7 text-[#6e5630]">
+                          <p className="mt-4 rounded-[1.25rem] border border-[#e7d6ae] bg-[#fff8eb] px-4 py-3 text-sm leading-7 text-[#6e5630]">
                           {getBookingStatusGuidance({
                             status: booking.status,
                             governanceModel: booking.listing.governanceModel,
@@ -293,7 +319,7 @@ export default async function DashboardBookingsPage() {
                       {(booking.status === BookingStatus.COMPLETED || booking.status === BookingStatus.CANCELLED) ? (
                         <div className="mt-4 space-y-3">
                           {booking.disputes[0] ? (
-                            <div className="rounded-2xl border border-[var(--border)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
+                            <div className="rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
                               <p className="font-semibold">
                                 Siste tvist: {formatDisputeStatus(booking.disputes[0].status)}
                               </p>
@@ -315,7 +341,7 @@ export default async function DashboardBookingsPage() {
                       ) : null}
                     </div>
 
-                    <div className="rounded-[1.4rem] border border-[var(--border)] bg-[#fbf8f1] p-4">
+                    <div className="rounded-[1.45rem] border border-[rgba(16,42,33,0.08)] bg-white/72 p-4">
                       <BookingStatusActions
                         bookingId={booking.id}
                         governanceModel={booking.listing.governanceModel}
@@ -351,7 +377,7 @@ export default async function DashboardBookingsPage() {
           </div>
 
           {outboundBookings.length === 0 ? (
-            <div className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6 text-sm leading-7 text-[var(--muted)]">
+            <div className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,251,245,0.82)] p-6 text-sm leading-7 text-[var(--muted)] shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
               Du har ikke sendt noen bestillingsforespørsler ennå.
             </div>
           ) : (
@@ -359,7 +385,7 @@ export default async function DashboardBookingsPage() {
               {outboundBookings.map((booking) => (
                 <article
                   key={booking.id}
-                  className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6"
+                  className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(245,239,229,0.86))] p-6 shadow-[0_18px_44px_rgba(16,42,33,0.07)]"
                 >
                   <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
                     <div>
@@ -381,7 +407,7 @@ export default async function DashboardBookingsPage() {
                         {booking.startDate.toLocaleDateString("nb-NO")} til {booking.endDate.toLocaleDateString("nb-NO")} · kr {booking.totalNok.toLocaleString("nb-NO")}
                       </p>
                       {booking.requestMessage ? (
-                        <p className="mt-4 rounded-2xl border border-[var(--border)] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
+                        <p className="mt-4 rounded-[1.25rem] border border-[rgba(16,42,33,0.1)] bg-white/72 px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
                           {booking.requestMessage}
                         </p>
                       ) : null}
@@ -397,7 +423,7 @@ export default async function DashboardBookingsPage() {
                         }
 
                         return (
-                          <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
+                          <div className="mt-4 rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
                             {quota.summary ? <p><span className="font-semibold">Kvote:</span> {quota.summary}</p> : null}
                             {quota.availabilitySummary ? <p><span className="font-semibold">Tilgjengelighet:</span> {quota.availabilitySummary}</p> : null}
                             {quota.reportingResponsibility ? <p><span className="font-semibold">Rapportering:</span> {quota.reportingResponsibility}</p> : null}
@@ -412,7 +438,7 @@ export default async function DashboardBookingsPage() {
                         representativeConfirmationStatus:
                           booking.listing.representativeConfirmationStatus,
                       }) ? (
-                        <p className="mt-4 rounded-2xl border border-[#e7d6ae] bg-[#fff8eb] px-4 py-3 text-sm leading-7 text-[#6e5630]">
+                          <p className="mt-4 rounded-[1.25rem] border border-[#e7d6ae] bg-[#fff8eb] px-4 py-3 text-sm leading-7 text-[#6e5630]">
                           {getBookingStatusGuidance({
                             status: booking.status,
                             governanceModel: booking.listing.governanceModel,
@@ -424,7 +450,7 @@ export default async function DashboardBookingsPage() {
                         </p>
                       ) : null}
                       {booking.landownerResponse ? (
-                        <p className="mt-4 rounded-2xl border border-[var(--border)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
+                        <p className="mt-4 rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
                           Landowner response: {booking.landownerResponse}
                         </p>
                       ) : null}
@@ -454,7 +480,7 @@ export default async function DashboardBookingsPage() {
                       {(booking.status === BookingStatus.COMPLETED || booking.status === BookingStatus.CANCELLED) ? (
                         <div className="mt-4 space-y-3">
                           {booking.disputes[0] ? (
-                            <div className="rounded-2xl border border-[var(--border)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
+                            <div className="rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-[#fbf8f1] px-4 py-3 text-sm leading-7 text-[var(--foreground)]">
                               <p className="font-semibold">
                                 Siste tvist: {formatDisputeStatus(booking.disputes[0].status)}
                               </p>
@@ -476,7 +502,7 @@ export default async function DashboardBookingsPage() {
                       ) : null}
                     </div>
 
-                    <div className="rounded-[1.4rem] border border-[var(--border)] bg-[#fbf8f1] p-4">
+                    <div className="rounded-[1.45rem] border border-[rgba(16,42,33,0.08)] bg-white/72 p-4">
                       <BookingStatusActions
                         bookingId={booking.id}
                         governanceModel={booking.listing.governanceModel}

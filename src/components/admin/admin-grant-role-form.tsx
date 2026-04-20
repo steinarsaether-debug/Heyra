@@ -51,7 +51,7 @@ export function AdminGrantRoleForm() {
   }
 
   return (
-    <section className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+    <section className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(245,239,229,0.86))] p-6 shadow-[0_18px_44px_rgba(16,42,33,0.07)]">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
         Gi rolle til eksisterende bruker
       </p>
@@ -64,12 +64,12 @@ export function AdminGrantRoleForm() {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           placeholder="bruker@eksempel.no"
-          className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)] outline-none"
+          className="rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 text-[var(--foreground)] outline-none"
         />
         <select
           value={role}
           onChange={(event) => setRole(event.target.value as UserRole)}
-          className="rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)] outline-none"
+          className="rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 text-[var(--foreground)] outline-none"
         >
           <option value={UserRole.ADMIN}>Administrator</option>
           <option value={UserRole.LANDOWNER}>Grunneier</option>
@@ -79,7 +79,7 @@ export function AdminGrantRoleForm() {
           type="button"
           onClick={handleSubmit}
           disabled={isSaving}
-          className="rounded-xl bg-[var(--forest)] px-4 py-3 text-sm font-semibold text-white"
+          className="rounded-[1rem] bg-[var(--forest)] px-4 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 disabled:opacity-70"
         >
           {isSaving ? "Lagrer..." : "Gi rolle"}
         </button>

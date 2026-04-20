@@ -67,7 +67,10 @@ export function ServiceProviderProfileForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+    <form
+      onSubmit={onSubmit}
+      className="space-y-4 rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(245,239,229,0.86))] p-6 shadow-[0_18px_44px_rgba(16,42,33,0.07)]"
+    >
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--amber)]">
           Leverandøroppsett
@@ -84,7 +87,7 @@ export function ServiceProviderProfileForm({
           <input
             value={form.businessName}
             onChange={(event) => setForm((current) => ({ ...current, businessName: event.target.value }))}
-            className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
+            className="w-full rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 font-normal outline-none"
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
@@ -92,7 +95,7 @@ export function ServiceProviderProfileForm({
           <input
             value={form.publicContactName}
             onChange={(event) => setForm((current) => ({ ...current, publicContactName: event.target.value }))}
-            className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
+            className="w-full rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 font-normal outline-none"
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
@@ -100,7 +103,7 @@ export function ServiceProviderProfileForm({
           <input
             value={form.phone}
             onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
-            className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
+            className="w-full rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 font-normal outline-none"
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
@@ -109,7 +112,7 @@ export function ServiceProviderProfileForm({
             type="email"
             value={form.email}
             onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
-            className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
+            className="w-full rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 font-normal outline-none"
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)] md:col-span-2">
@@ -117,7 +120,7 @@ export function ServiceProviderProfileForm({
           <input
             value={form.website}
             onChange={(event) => setForm((current) => ({ ...current, website: event.target.value }))}
-            className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
+            className="w-full rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 font-normal outline-none"
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
@@ -125,7 +128,7 @@ export function ServiceProviderProfileForm({
           <input
             value={form.municipality}
             onChange={(event) => setForm((current) => ({ ...current, municipality: event.target.value }))}
-            className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
+            className="w-full rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 font-normal outline-none"
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
@@ -133,7 +136,7 @@ export function ServiceProviderProfileForm({
           <input
             value={form.county}
             onChange={(event) => setForm((current) => ({ ...current, county: event.target.value }))}
-            className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
+            className="w-full rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 font-normal outline-none"
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
@@ -148,7 +151,7 @@ export function ServiceProviderProfileForm({
                 latitude: event.target.value === "" ? null : Number(event.target.value),
               }))
             }
-            className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
+            className="w-full rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 font-normal outline-none"
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
@@ -163,7 +166,7 @@ export function ServiceProviderProfileForm({
                 longitude: event.target.value === "" ? null : Number(event.target.value),
               }))
             }
-            className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
+            className="w-full rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 font-normal outline-none"
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
@@ -178,7 +181,7 @@ export function ServiceProviderProfileForm({
                 yearsExperience: event.target.value === "" ? null : Number(event.target.value),
               }))
             }
-            className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
+            className="w-full rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 font-normal outline-none"
           />
         </label>
       </div>
@@ -189,7 +192,7 @@ export function ServiceProviderProfileForm({
           rows={5}
           value={form.description}
           onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
-          className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
+          className="w-full rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 font-normal outline-none"
         />
       </label>
 
@@ -205,7 +208,7 @@ export function ServiceProviderProfileForm({
                 qualifications: { ...current.qualifications, licenseSummary: event.target.value },
               }))
             }
-            className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
+            className="w-full rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 font-normal outline-none"
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
@@ -219,7 +222,7 @@ export function ServiceProviderProfileForm({
                 qualifications: { ...current.qualifications, equipmentSummary: event.target.value },
               }))
             }
-            className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
+            className="w-full rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 font-normal outline-none"
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
@@ -233,7 +236,7 @@ export function ServiceProviderProfileForm({
                 qualifications: { ...current.qualifications, transportCoverage: event.target.value },
               }))
             }
-            className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
+            className="w-full rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 font-normal outline-none"
           />
         </label>
         <label className="space-y-2 text-sm font-semibold text-[var(--foreground)]">
@@ -247,7 +250,7 @@ export function ServiceProviderProfileForm({
                 qualifications: { ...current.qualifications, accommodationDetails: event.target.value },
               }))
             }
-            className="w-full rounded-[1rem] border border-[var(--border)] bg-white px-4 py-3 font-normal outline-none"
+            className="w-full rounded-[1rem] border border-[rgba(16,42,33,0.12)] bg-white/90 px-4 py-3 font-normal outline-none"
           />
         </label>
       </div>
@@ -256,7 +259,7 @@ export function ServiceProviderProfileForm({
         <button
           type="submit"
           disabled={isSaving}
-          className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-white disabled:opacity-70"
+          className="rounded-full bg-[var(--forest)] px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 disabled:opacity-70"
         >
           {isSaving ? "Lagrer..." : "Lagre leverandørprofil"}
         </button>

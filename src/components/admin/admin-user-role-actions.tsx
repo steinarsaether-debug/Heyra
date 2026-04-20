@@ -67,7 +67,7 @@ export function AdminUserRoleActions({
   }
 
   return (
-    <div className="space-y-3 rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6">
+    <div className="space-y-3 rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(245,239,229,0.86))] p-6 shadow-[0_18px_44px_rgba(16,42,33,0.07)]">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--amber)]">
         Roller og tilgang
       </p>
@@ -75,7 +75,7 @@ export function AdminUserRoleActions({
         {roleOptions.map((role) => (
           <label
             key={role.value}
-            className="flex items-start gap-3 rounded-2xl border border-[var(--border)] px-4 py-3 text-sm leading-7 text-[var(--foreground)]"
+            className="flex items-start gap-3 rounded-[1.25rem] border border-[rgba(16,42,33,0.08)] bg-white/72 px-4 py-3 text-sm leading-7 text-[var(--foreground)]"
           >
             <input
               type="checkbox"
@@ -91,7 +91,7 @@ export function AdminUserRoleActions({
         type="button"
         onClick={handleSubmit}
         disabled={isSaving}
-        className="rounded-xl bg-[var(--forest)] px-4 py-3 text-sm font-semibold text-white"
+        className="rounded-[1rem] bg-[var(--forest)] px-4 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 disabled:opacity-70"
       >
         {isSaving ? "Lagrer..." : "Oppdater roller"}
       </button>

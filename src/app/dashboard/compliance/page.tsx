@@ -87,23 +87,32 @@ export default async function DashboardCompliancePage() {
   return (
     <main className="px-6 py-10 sm:px-8 md:px-10">
       <section className="space-y-6">
-        <div className="rounded-[1.8rem] bg-[var(--forest)] p-8 text-[var(--background)]">
-          <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
+        <div className="overflow-hidden rounded-[2rem] border border-[rgba(16,42,33,0.1)] bg-[rgba(255,251,245,0.92)] shadow-[0_28px_80px_rgba(16,42,33,0.12)] backdrop-blur-sm">
+          <div className="bg-[linear-gradient(135deg,rgba(10,25,22,0.96),rgba(27,58,44,0.88))] px-8 py-10 text-[var(--background)]">
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-white/65">
             Etterlevelse
-          </p>
-          <h1 className="mt-5 text-4xl leading-tight sm:text-5xl">Arbeidsflate for etterlevelse</h1>
-          <p className="mt-4 max-w-3xl text-lg leading-8 text-white/75">
-            {userRoles.includes(UserRole.LANDOWNER)
-              ? "Følg opp eiendom, kvote og rapportering knyttet til annonsene dine."
-              : "Hold den praktiske juridiske oppfølgingen synlig mens du beveger deg mellom bestilling, feltbruk og rapportering."}
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <span className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-[var(--forest)]">
-              {openCount} åpne oppgave{openCount === 1 ? "" : "r"}
-            </span>
+            </p>
+            <h1 className="mt-5 text-4xl leading-tight sm:text-5xl">
+              Arbeidsflate for etterlevelse
+            </h1>
+            <p className="mt-4 max-w-3xl text-lg leading-8 text-white/75">
+              {userRoles.includes(UserRole.LANDOWNER)
+                ? "Følg opp eiendom, kvote og rapportering knyttet til annonsene dine."
+                : "Hold den praktiske juridiske oppfølgingen synlig mens du beveger deg mellom bestilling, feltbruk og rapportering."}
+            </p>
+          </div>
+          <div className="grid gap-4 border-t border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.96),rgba(245,239,229,0.94))] px-8 py-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+            <div className="flex flex-wrap gap-3 text-sm text-[var(--muted)]">
+              <span className="rounded-full border border-[rgba(16,42,33,0.12)] bg-white/80 px-4 py-2 font-semibold text-[var(--forest)]">
+                {openCount} åpne oppgave{openCount === 1 ? "" : "r"}
+              </span>
+              <span className="rounded-full border border-[rgba(16,42,33,0.08)] bg-[rgba(255,255,255,0.55)] px-4 py-2">
+                {tasks.length} totalt i arbeidsflaten
+              </span>
+            </div>
             <Link
               href="/dashboard/bookings"
-              className="rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white"
+              className="inline-flex rounded-full border border-[rgba(16,42,33,0.12)] bg-white/85 px-5 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:-translate-y-0.5 hover:bg-white"
             >
               Åpne bestillinger
             </Link>
@@ -111,7 +120,7 @@ export default async function DashboardCompliancePage() {
         </div>
 
         {tasks.length === 0 ? (
-          <article className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-8 text-base leading-8 text-[var(--muted)]">
+          <article className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[rgba(255,251,245,0.82)] p-8 text-base leading-8 text-[var(--muted)] shadow-[0_18px_40px_rgba(16,42,33,0.06)]">
             Ingen etterlevelsesoppgaver er opprettet for denne kontoen ennå.
           </article>
         ) : (
@@ -130,7 +139,7 @@ export default async function DashboardCompliancePage() {
                   {group.tasks.map((task) => (
                     <article
                       key={task.id}
-                      className="rounded-[1.6rem] border border-[var(--border)] bg-white/75 p-6"
+                      className="rounded-[1.8rem] border border-[rgba(16,42,33,0.08)] bg-[linear-gradient(180deg,rgba(255,252,246,0.94),rgba(245,239,229,0.86))] p-6 shadow-[0_18px_44px_rgba(16,42,33,0.07)]"
                     >
                       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div className="max-w-3xl">
@@ -141,7 +150,7 @@ export default async function DashboardCompliancePage() {
                           <p className="mt-2 text-sm leading-7 text-[var(--foreground)]">
                             {task.description}
                           </p>
-                          <div className="mt-4 space-y-2 rounded-[1.2rem] border border-[#d8e6dc] bg-[#f4faf6] px-4 py-4 text-sm leading-7 text-[#29543a]">
+                          <div className="mt-4 space-y-2 rounded-[1.35rem] border border-[#d8e6dc] bg-[#f4faf6] px-4 py-4 text-sm leading-7 text-[#29543a]">
                             <p>
                               <span className="font-semibold">Hvorfor dette finnes:</span>{" "}
                               {getComplianceTaskWhy(task.taskType)}
@@ -174,7 +183,7 @@ export default async function DashboardCompliancePage() {
                             {task.booking ? (
                               <Link
                                 href={`/dashboard/bookings/${task.booking.id}`}
-                                className="block rounded-2xl border border-[var(--border)] px-4 py-3 font-semibold text-[var(--forest)]"
+                                className="block rounded-[1.25rem] border border-[rgba(16,42,33,0.1)] bg-white/85 px-4 py-3 font-semibold text-[var(--forest)] transition hover:-translate-y-0.5 hover:bg-white"
                               >
                                 Bestilling: {task.booking.listing.title}
                               </Link>
@@ -182,7 +191,7 @@ export default async function DashboardCompliancePage() {
                             {task.listing ? (
                               <Link
                                 href={`/dashboard/properties/${task.listing.propertyId}/listing`}
-                                className="block rounded-2xl border border-[var(--border)] px-4 py-3 font-semibold text-[var(--forest)]"
+                                className="block rounded-[1.25rem] border border-[rgba(16,42,33,0.1)] bg-white/85 px-4 py-3 font-semibold text-[var(--forest)] transition hover:-translate-y-0.5 hover:bg-white"
                               >
                                 Annonse: {task.listing.title}
                               </Link>
@@ -193,21 +202,23 @@ export default async function DashboardCompliancePage() {
                                   href={task.actionUrl}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="block rounded-2xl border border-[var(--border)] px-4 py-3 font-semibold text-[var(--foreground)]"
+                                  className="block rounded-[1.25rem] border border-[rgba(16,42,33,0.1)] bg-white/85 px-4 py-3 font-semibold text-[var(--foreground)] transition hover:-translate-y-0.5 hover:bg-white"
                                 >
                                   {task.actionLabel ?? "Åpne oppgave"}
                                 </a>
                               ) : (
                                 <Link
                                   href={task.actionUrl}
-                                  className="block rounded-2xl border border-[var(--border)] px-4 py-3 font-semibold text-[var(--foreground)]"
+                                  className="block rounded-[1.25rem] border border-[rgba(16,42,33,0.1)] bg-white/85 px-4 py-3 font-semibold text-[var(--foreground)] transition hover:-translate-y-0.5 hover:bg-white"
                                 >
                                   {task.actionLabel ?? "Åpne oppgave"}
                                 </Link>
                               )
                             ) : null}
                           </div>
-                          <ComplianceTaskActions taskId={task.id} status={task.status} />
+                          <div className="mt-3 rounded-[1.35rem] border border-[rgba(16,42,33,0.08)] bg-white/68 p-3">
+                            <ComplianceTaskActions taskId={task.id} status={task.status} />
+                          </div>
                         </div>
                       </div>
                     </article>
